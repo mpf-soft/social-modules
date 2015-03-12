@@ -1,0 +1,20 @@
+{
+    "name": "mpf-soft/social-widgets",
+    "description": "Social widgets for MPF, like: forum and soon blog.",
+    "license": "Apache License",
+    "authors": [
+        {
+            "name": "Mirel Mitache",
+            "email": "mitache.mirel@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+	"mpf-soft/mpf" : "*"
+    },
+    "autoload" : {
+	"psr-4" : {
+		"mpf\\widgets\\" : "/"
+	}
+    }
+}
