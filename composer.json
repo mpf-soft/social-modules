@@ -1,6 +1,6 @@
 {
-    "name": "mpf-soft/social-widgets",
-    "description": "Social widgets for MPF, like: forum and soon blog.",
+    "name": "mpf-soft/social-modules",
+    "description": "Social modules for MPF, like: forum and soon blog.",
     "license": "Apache License",
     "authors": [
         {
@@ -14,7 +14,7 @@
     },
     "autoload" : {
 	"psr-4" : {
-		"mpf\\widgets\\" : "/"
+		"app\\modules\\" : "/"
 	}
     }
 }
