@@ -21,4 +21,5 @@ class Controller extends \app\components\Controller{
      * @var string
      */
     public $viewsPath = 'default';
+
 }
