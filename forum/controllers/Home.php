@@ -12,6 +12,13 @@ use app\modules\forum\components\Controller;
 
 class Home extends Controller{
 
+    /**
+     * Change this when extending forum to other sections (like a forum for each group of users in a social network site)
+     * @var int
+     */
+    public $sectionID = 0;
+
+
     public function actionIndex(){
         $this->debug("index");
     }
