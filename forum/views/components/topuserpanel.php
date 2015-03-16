@@ -1,7 +1,3 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: mirel
- * Date: 16.03.2015
- * Time: 11:05
- */
+<div class="forum-user-panel">
+    User Panel Here
+</div>

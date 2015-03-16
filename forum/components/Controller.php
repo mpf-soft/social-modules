@@ -19,6 +19,12 @@ class Controller extends \app\components\Controller{
     public $visibleComponentsFolder = '{MODULE_FOLDER}views{DIRECTORY_SEPARATOR}components{DIRECTORY_SEPARATOR}';
 
     /**
+     * It will be use as second class name for the div that contains the entire forum pages.
+     * @var string
+     */
+    public $forumPageTheme = 'basic-forum-page';
+
+    /**
      * Display single view component. It will automatically  prepend folder location and append file extension.
      * @param string $name
      * @param array $params

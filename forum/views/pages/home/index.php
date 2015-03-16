@@ -1,7 +1,7 @@
 <?php /* @var $this \app\modules\forum\controllers\Home */ ?>
 <?php /* @var $categories \app\modules\forum\models\ForumCategory[] */ ?>
 <?= \app\components\htmltools\Page::get()->title("Forum"); ?>
-<div class="forum-page">
+<div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
 
     <?php if (!\app\modules\forum\components\UserAccess::get()->canRead($this->sectionID)) { ?>
@@ -11,7 +11,11 @@
 
     <?php if (\app\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionID)) { ?>
         <div class="forum-admin-panel">
-
+            <ul>
+                <li><a href="#">Manage Groups</a></li>
+                <li><a href="#">Manage Categories</a></li>
+                <li><a href="#">Manage Users</a></li>
+            </ul>
         </div>
     <?php } ?>
 
