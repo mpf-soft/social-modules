@@ -22,6 +22,7 @@ use mpf\datasources\sql\ModelCondition;
  * @property int $user_id
  * @property int $section_id
  * @property \app\modules\forum\models\ForumSection $section
+ * @property \app\modules\forum\models\ForumSubcategory[] $subcategories
  * @property \app\models\User $owner
  */
 class ForumCategory extends DbModel {
@@ -41,12 +42,12 @@ class ForumCategory extends DbModel {
      */
     public static function getLabels() {
         return [
-             'id' => 'Id',
-             'name' => 'Name',
-             'url_friendly_name' => 'Url Friendly Name',
-             'order' => 'Order',
-             'user_id' => 'Owner',
-             'section_id' => 'Section'
+            'id' => 'Id',
+            'name' => 'Name',
+            'url_friendly_name' => 'Url Friendly Name',
+            'order' => 'Order',
+            'user_id' => 'Owner',
+            'section_id' => 'Section'
         ];
     }
 
@@ -54,10 +55,11 @@ class ForumCategory extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations(){
+    public static function getRelations() {
         return [
-             'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id'],
-             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id']
+            'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id'],
+            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
+            'subcategories' => [DbRelations::HAS_MANY, '\app\modules\forum\models\ForumSubcategory', 'category_id']
         ];
     }
 
@@ -65,10 +67,19 @@ class ForumCategory extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules(){
+    public static function getRules() {
         return [
             ["id, name, url_friendly_name, order, user_id, section_id", "safe", "on" => "search"]
         ];
+    }
+
+    /**
+     * @param int $sectionId
+     * @param bool $forPublic
+     * @return static[]
+     */
+    public static function findAllBySection($sectionId, $forPublic = false){
+        return self::findAllByAttributes(['section_id' => $sectionId]);
     }
 
     /**

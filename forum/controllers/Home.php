@@ -9,6 +9,7 @@
 namespace app\modules\forum\controllers;
 
 use app\modules\forum\components\Controller;
+use app\modules\forum\models\ForumCategory;
 
 class Home extends Controller{
 
@@ -20,6 +21,6 @@ class Home extends Controller{
 
 
     public function actionIndex(){
-        $this->debug("index");
+        $this->assign('categories', ForumCategory::findAllBySection($this->sectionID));
     }
 }
