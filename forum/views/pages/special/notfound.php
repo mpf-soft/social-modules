@@ -1,0 +1,1 @@
+<?= \app\components\htmltools\Page::get()->title("Page not found!"); ?>

@@ -9,6 +9,8 @@
 namespace app\modules\forum\components;
 
 
+use mpf\web\Session;
+
 class Controller extends \app\components\Controller{
 
     /**
@@ -25,6 +27,32 @@ class Controller extends \app\components\Controller{
     public $forumPageTheme = 'basic-forum-page';
 
     /**
+     * Will record the ID of the current section;
+     * @var int
+     */
+    public $sectionId = 0;
+
+    /**
+     * Key to be used when generating links where section is needed (cp links for section admins + home of the forum)
+     * @var string
+     */
+    public $sectionIdKey = 'section';
+
+    /**
+     * Section ID will be sent in links only if source is set to "get". It will also automatically read section id
+     * if source has one of the following values: get, post, session. If not it will let the user to manage the section ID
+     * and to update it to controller.
+     * @var string
+     */
+    public $sectionIdSource = 'get';
+
+    /**
+     * Change this for special aliases.
+     * @var string
+     */
+    public $forumModuleAlias = 'forum';
+
+    /**
      * Display single view component. It will automatically  prepend folder location and append file extension.
      * @param string $name
      * @param array $params
@@ -35,6 +63,24 @@ class Controller extends \app\components\Controller{
         $folder = str_replace(['{APP_ROOT}', '{MODULE_FOLDER}', '{CONTROLLER}', '{LIBS_FOLDER}', '{DIRECTORY_SEPARATOR}'],
             [APP_ROOT, $moduleFolder, $controllerFolder, LIBS_FOLDER, DIRECTORY_SEPARATOR], $this->visibleComponentsFolder);
         $this->display($folder . $name . '.php', $params);
+    }
+
+    public function beforeAction($actionName){
+        switch ($this->sectionIdSource){
+            case 'get':
+                if (isset($_GET[$this->sectionIdKey]))
+                    $this->sectionId = $_GET[$this->sectionIdKey];
+                break;
+            case 'post':
+                if (isset($_POST[$this->sectionIdKey]))
+                    $this->sectionId = $_POST[$this->sectionIdKey];
+                break;
+            case 'session':
+                if (Session::get()->exists($this->sectionIdKey))
+                    $this->sectionId = Session::get()->value($this->sectionIdKey);
+                break;
+        }
+        return parent::beforeAction($actionName);
     }
 
 }
