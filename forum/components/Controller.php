@@ -83,4 +83,26 @@ class Controller extends \app\components\Controller{
         return parent::beforeAction($actionName);
     }
 
+    /**
+     * Adds section id in links that need it
+     * @param $original
+     * @return mixed
+     */
+    public function updateURLWithSection($original){
+        if (!$this->sectionId)
+            return $original;
+        if ('get' != $this->sectionIdSource)
+            return $original;
+        if (isset($original[2]) && is_array($original[2])){
+            $original[2][$this->sectionIdKey] = $this->sectionId;
+        } elseif (isset($original[2])){
+            $original[3] = $original[2];
+            $original[2] = [$this->sectionIdKey => $this->sectionId];
+        } else {
+            $original[2] = [$this->sectionIdKey => $this->sectionId];
+        }
+
+        return $original;
+    }
+
 }

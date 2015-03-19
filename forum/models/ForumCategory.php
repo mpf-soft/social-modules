@@ -27,6 +27,8 @@ use mpf\datasources\sql\ModelCondition;
  */
 class ForumCategory extends DbModel {
 
+    public $groupRights = [];
+
     /**
      * Get database table name.
      * @return string
@@ -97,5 +99,28 @@ class ForumCategory extends DbModel {
         return new DataProvider([
             'modelCondition' => $condition
         ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupFields(){
+        $groups = ForumUserGroup::findAllByAttributes(['section_id' => $this->section_id]);
+        $fields = [];
+        foreach ($groups as $group){
+            $fields[] = [
+                'name' => 'groupRights[' . $group->id . ']',
+                'type' => 'select',
+                'fieldHtmlOptions' => ['multiple' => 'multiple'],
+                'options' => [
+                    'admin'=>'Admin',
+                    'moderator' => 'Moderator',
+                    'newthread' => 'Can Start a New Thread',
+                    'threadreply' => 'Can Reply to an open Thread',
+                    'canread' => 'Can View Threads'
+                ]
+            ];
+        }
+        return $fields;
     }
 }

@@ -19,6 +19,11 @@ use mpf\datasources\sql\ModelCondition;
  * @property int $section_id
  * @property string $full_name
  * @property string $html_class
+ * @property int $admin
+ * @property int $moderator
+ * @property int $newthread
+ * @property int $threadreply
+ * @property int $canread
  * @property \app\modules\forum\models\ForumSection $section
  */
 class ForumUserGroup extends DbModel {
@@ -38,10 +43,15 @@ class ForumUserGroup extends DbModel {
      */
     public static function getLabels() {
         return [
-             'id' => 'Id',
-             'section_id' => 'Section',
-             'full_name' => 'Full Name',
-             'html_class' => 'Html Class'
+            'id' => 'Id',
+            'section_id' => 'Section',
+            'full_name' => 'Full Name',
+            'html_class' => 'Html Class',
+            'admin' => 'Admin',
+            'moderator' => 'Moderator',
+            'newthread' => 'Can create a new thread',
+            'threadreply' => 'Can reply to open threads',
+            'canread' => 'Can read the forum'
         ];
     }
 
@@ -49,9 +59,9 @@ class ForumUserGroup extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations(){
+    public static function getRelations() {
         return [
-             'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id']
+            'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id']
         ];
     }
 
@@ -59,9 +69,9 @@ class ForumUserGroup extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules(){
+    public static function getRules() {
         return [
-            ["id, section_id, full_name, html_class", "safe", "on" => "search"]
+            ["id, section_id, full_name, html_class, admin, moderator, newthread, threadreply, canread", "safe", "on" => "search"]
         ];
     }
 
@@ -72,7 +82,7 @@ class ForumUserGroup extends DbModel {
     public function getDataProvider() {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "section_id", "full_name", "html_class"] as $column) {
+        foreach (["id", "section_id", "full_name", "html_class", "admin", "moderator", "newthread", "threadreply", "canread"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }

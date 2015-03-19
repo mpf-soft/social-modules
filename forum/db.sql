@@ -31,19 +31,6 @@ CREATE TABLE `forum_groups2categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-DROP TABLE IF EXISTS `forum_groups2sections`;
-CREATE TABLE `forum_groups2sections` (
-  `group_id` int(10) unsigned NOT NULL,
-  `section_id` int(10) unsigned NOT NULL,
-  `admin` tinyint(3) unsigned NOT NULL,
-  `moderator` tinyint(3) unsigned NOT NULL,
-  `newthread` tinyint(3) unsigned NOT NULL,
-  `threadreply` tinyint(3) unsigned NOT NULL,
-  `canread` tinyint(3) unsigned NOT NULL,
-  PRIMARY KEY (`group_id`,`section_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-
 DROP TABLE IF EXISTS `forum_replies`;
 CREATE TABLE `forum_replies` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -121,6 +108,11 @@ CREATE TABLE `forum_user_groups` (
   `section_id` int(10) unsigned NOT NULL,
   `full_name` varchar(150) COLLATE utf8_bin NOT NULL,
   `html_class` varchar(50) COLLATE utf8_bin NOT NULL,
+  `admin` tinyint(3) unsigned NOT NULL,
+  `moderator` tinyint(3) unsigned NOT NULL,
+  `newthread` tinyint(3) unsigned NOT NULL,
+  `threadreply` tinyint(3) unsigned NOT NULL,
+  `canread` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

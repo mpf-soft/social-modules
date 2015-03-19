@@ -5,16 +5,12 @@
     <?php
         $menu = [
             [
-                'url' => ['manage', 'groups'],
+                'url' => $this->updateURLWithSection(['manage', 'groups']),
                 'label' => 'Manage Groups'
             ],
             [
-                'url' => ['manage', 'categories'],
+                'url' => $this->updateURLWithSection(['manage', 'categories']),
                 'label' => 'Manage Categories'
-            ],
-            [
-                'url' => ['manage', 'users'],
-                'label' => 'Manage Users'
             ]
         ];
     ?>
@@ -36,8 +32,7 @@
             <tr>
                 <th class="subcategory-title-column"><?= \app\modules\forum\components\Translator::get()->translate('Subcategory'); ?></th>
                 <th class="subcategory-options-column">&nbsp</th>
-                <th class="subcategory-threads-column"><?= \app\modules\forum\components\Translator::get()->translate('Threads'); ?></th>
-                <th class="subcategory-replies-column"><?= \app\modules\forum\components\Translator::get()->translate('Replies'); ?></th>
+                <th class="subcategory-activity-column">&nbsp</th>
                 <th class="subcategory-latest-post-column"><?= \app\modules\forum\components\Translator::get()->translate('Latest Post'); ?></th>
             </tr>
             <?php foreach ($category->subcategories as $subcategory) { ?>
