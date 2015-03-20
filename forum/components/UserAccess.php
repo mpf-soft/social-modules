@@ -67,7 +67,7 @@ class UserAccess extends Object{
      * @param int $sectionId
      * @return bool
      */
-    public function isCategoryAdmin($categoryId, $sectionId){
+    public function isCategoryAdmin($categoryId, $sectionId = null){
         if ($this->isSectionAdmin($sectionId)){
             return true;
         }

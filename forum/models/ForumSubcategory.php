@@ -7,10 +7,13 @@
 
 namespace app\modules\forum\models;
 
+use app\components\htmltools\Messages;
+use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\WebApp;
 
 /**
  * Class ForumSubcategory
@@ -94,5 +97,24 @@ class ForumSubcategory extends DbModel {
         return new DataProvider([
             'modelCondition' => $condition
         ]);
+    }
+
+    public function beforeSave() {
+        if (!UserAccess::get()->isCategoryAdmin($this->category_id)) {
+            Messages::get()->error("You can't edit this subcategory!");
+            return false;
+        }
+        if ($this->isNewRecord()) {
+            $this->user_id = WebApp::get()->user()->id;
+        }
+        return parent::beforeSave();
+    }
+
+    public function beforeDelete() {
+        if (!UserAccess::get()->isCategoryAdmin($this->category_id)) {
+            Messages::get()->error("You can't delete this category!");
+            return false;
+        }
+        return parent::beforeDelete();
     }
 }

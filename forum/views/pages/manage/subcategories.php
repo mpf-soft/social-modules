@@ -8,15 +8,14 @@
     ],
     [
         'url' => $this->updateURLWithSection(['manage', 'categories']),
-        'label' => 'Manage Categories',
-        'htmlOptions' => ['class' => 'selected']
+        'label' => 'Manage Categories'
     ],
     [
         'url' => $this->updateURLWithSection(['manage', 'newCategory']),
         'label' => 'New Category'
     ],
     [
-        'url' => $this->updateURLWithSection(['manage', 'newSubcategory']),
+        'url' => $this->updateURLWithSection(['manage', 'newSubcategory', ['category' => $category->id]]),
         'label' => 'New Subcategory'
     ]
 ]); ?>
@@ -25,10 +24,6 @@
     'dataProvider' => $model->getDataProvider(),
     'columns' => [
         'title',
-        'category_id' => [
-            'value' => '$row->category->name',
-            'filter' => \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumCategory::findAll(), ['id' => 'name'])
-        ],
         'user_id' => [
             'value' => '$row->owner->name'
         ],

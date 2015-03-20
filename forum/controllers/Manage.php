@@ -107,7 +107,7 @@ class Manage extends Controller {
             if ($model->save()){
                 $model->updateGroupRights();
                 Messages::get()->success("Category saved!");
-                $this->request->goBack();
+                $this->goToAction('categories');
             }
         }
         $this->setPageLayout('category');
@@ -121,7 +121,7 @@ class Manage extends Controller {
             if ($model->save()){
                 $model->updateGroupRights();
                 Messages::get()->success("Category saved!");
-                $this->request->goBack();
+                $this->goToAction('categories');
             }
         }
         $this->setPageLayout('category');
@@ -144,6 +144,36 @@ class Manage extends Controller {
         $this->assign('category', $category);
     }
 
+    public function actionNewSubcategory($category = null){
+        $model  =new ForumSubcategory();
+        if ($category) {
+            $model->category_id = $category;
+        }
+        if (isset($_POST['ForumSubcategory'])){
+            $model->setAttributes($_POST['ForumSubcategory']);
+            if ($model->save()){
+                Messages::get()->success("Subcategory saved!");
+                $this->goToAction('subcategories', ['category' => $model->category_id]);
+            }
+        }
+        $this->assign('model', $model);
+        $this->setPageLayout('subcategory');
+    }
+
+    public function actionEditSubcategory($id){
+        $model = ForumSubcategory::findByPk($id);
+
+        if (isset($_POST['ForumSubcategory'])){
+            $model->setAttributes($_POST['ForumSubcategory']);
+            if ($model->save()){
+                Messages::get()->success("Subcategory saved!");
+                $this->goToAction('subcategories', ['category' => $model->category_id]);
+            }
+        }
+        $this->setPageLayout('subcategory');
+        $this->assign('model', $model);
+    }
+
 
     public function actionUsers($group) {
 
@@ -160,6 +190,14 @@ class Manage extends Controller {
         }
         if (isset($_POST['ForumCategory'])){
             $models = ForumCategory::findAllByPk($_POST['ForumCategory']);
+            foreach ($models as $model){
+                $model->delete();
+            }
+            Messages::get()->success("Deleted!");
+            $this->goBack();
+        }
+        if (isset($_POST['ForumSubcategory'])){
+            $models = ForumSubcategory::findAllByPk($_POST['ForumSubcategory']);
             foreach ($models as $model){
                 $model->delete();
             }

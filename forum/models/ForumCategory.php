@@ -83,7 +83,7 @@ class ForumCategory extends DbModel {
      * @param bool $forPublic
      * @return static[]
      */
-    public static function findAllBySection($sectionId, $forPublic = false){
+    public static function findAllBySection($sectionId, $forPublic = false) {
         return self::findAllByAttributes(['section_id' => $sectionId]);
     }
 
@@ -107,16 +107,16 @@ class ForumCategory extends DbModel {
     /**
      * @return array
      */
-    public function getGroupFields(){
+    public function getGroupFields() {
         $groups = ForumUserGroup::findAllByAttributes(['section_id' => $this->section_id]);
         $fields = [];
-        foreach ($groups as $group){
+        foreach ($groups as $group) {
             $fields[] = [
                 'name' => 'groupRights[' . $group->id . ']',
                 'type' => 'select',
-                'htmlOptions' => ['multiple' => 'multiple', 'style' =>'height:85px;'],
+                'htmlOptions' => ['multiple' => 'multiple', 'style' => 'height:85px;'],
                 'options' => [
-                    'admin'=>'Admin',
+                    'admin' => 'Admin',
                     'moderator' => 'Moderator',
                     'newthread' => 'Can Start a New Thread',
                     'threadreply' => 'Can Reply to an open Thread',
@@ -128,50 +128,54 @@ class ForumCategory extends DbModel {
         return $fields;
     }
 
-    public function beforeSave(){
-        if (!UserAccess::get()->isSectionAdmin($this->section_id)){
+    public function beforeSave() {
+        if (!UserAccess::get()->isSectionAdmin($this->section_id)) {
             Messages::get()->error("You can't edit this category!");
             return false;
         }
-        if ($this->isNewRecord()){
+        if ($this->isNewRecord()) {
             $this->user_id = WebApp::get()->user()->id;
         }
         return parent::beforeSave();
     }
 
-    public function beforeDelete(){
-        if (!UserAccess::get()->isSectionAdmin($this->section_id)){
+    public function beforeDelete() {
+        if (!UserAccess::get()->isSectionAdmin($this->section_id)) {
             Messages::get()->error("You can't delete this category!");
             return false;
         }
         return parent::beforeDelete();
     }
 
-    public function reloadGroupRights(){
+    public function reloadGroupRights() {
         $rights = $this->getDb()->table('forum_groups2categories')->where("category_id = :category")->setParam(":category", $this->id)->get();
         $this->groupRights = [];
-        foreach($rights as $r){
-            $this->groupRights[$r['group_id']] = [
-                'admin' => $r['admin'],
-                'moderator' => $r['moderator'],
-                'newthread' => $r['newthread'],
-                'threadreply' => $r['threadreply'],
-                'canread' => $r['canread']
-            ];
+        foreach ($rights as $r) {
+            $this->groupRights[$r['group_id']] = [];
+            foreach (['admin', 'moderator', 'newthread', 'threadreply', 'canread'] as $column)
+                if ($r[$column]) {
+                    $this->groupRights[$r['group_id']][] = $column;
+                }
         }
     }
 
-    public function updateGroupRights(){
-        foreach ($this->groupRights as $groupId=>$details){
+    public function updateGroupRights() {
+        foreach ($this->groupRights as $groupId => $details) {
             $this->getDb()->table('forum_groups2categories')->insert([
                 'group_id' => $groupId,
                 'category_id' => $this->id,
-                'admin' => $details['admin'],
-                'moderator' => $details['moderator'],
-                'newthread' => $details['newthread'],
-                'threadreply' => $details['threadreply'],
-                'canread' => $details['canread']
-            ], $details);
+                'admin' => (int)in_array('admin', $details),
+                'moderator' => (int)in_array('moderator', $details),
+                'newthread' => (int)in_array('newthread', $details),
+                'threadreply' => (int)in_array('threadreply', $details),
+                'canread' => (int)in_array('canread', $details)
+            ], [
+                'admin' => (int)in_array('admin', $details),
+                'moderator' => (int)in_array('moderator', $details),
+                'newthread' => (int)in_array('newthread', $details),
+                'threadreply' => (int)in_array('threadreply', $details),
+                'canread' => (int)in_array('canread', $details)
+            ]);
         }
     }
 }
