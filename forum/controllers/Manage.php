@@ -162,7 +162,6 @@ class Manage extends Controller {
 
     public function actionEditSubcategory($id){
         $model = ForumSubcategory::findByPk($id);
-
         if (isset($_POST['ForumSubcategory'])){
             $model->setAttributes($_POST['ForumSubcategory']);
             if ($model->save()){

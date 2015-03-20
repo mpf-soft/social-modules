@@ -37,7 +37,18 @@
             </tr>
             <?php foreach ($category->subcategories as $subcategory) { ?>
                 <tr>
-
+                    <td class="subcategory-title-column">
+                        <b><?= $subcategory->title; ?></b>
+                        <span><?= $subcategory->description; ?></span>
+                    </td>
+                    <td class="subcategory-options-column">&nbsp;</td>
+                    <td class="subcategory-activity-column">
+                        <b>0 threads</b>
+                        <b>0 replies</b>
+                    </td>
+                    <td class="subcategory-latest-post-column">
+                        <span> - no posts - </span>
+                    </td>
                 </tr>
             <?php } ?>
         <?php } ?>

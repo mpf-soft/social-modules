@@ -53,6 +53,12 @@ class Controller extends \app\components\Controller {
     public $forumModuleAlias = 'forum';
 
     /**
+     * Folder location where uploads for categories icons can be uploaded
+     * @var string
+     */
+    public $uploadLocation = '';
+
+    /**
      * Display single view component. It will automatically  prepend folder location and append file extension.
      * @param string $name
      * @param array $params

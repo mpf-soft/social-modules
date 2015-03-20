@@ -14,6 +14,6 @@ use app\modules\forum\models\ForumCategory;
 class Home extends Controller{
 
     public function actionIndex(){
-        $this->assign('categories', ForumCategory::findAllBySection($this->sectionId));
+        $this->assign('categories', ForumCategory::findAllBySection($this->sectionId, true));
     }
 }

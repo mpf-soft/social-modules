@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\components\htmltools\Messages;
+use app\controllers\User;
 use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -64,7 +65,8 @@ class ForumCategory extends DbModel {
         return [
             'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id'],
             'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-            'subcategories' => [DbRelations::HAS_MANY, '\app\modules\forum\models\ForumSubcategory', 'category_id']
+            'subcategories' => [DbRelations::HAS_MANY, '\app\modules\forum\models\ForumSubcategory', 'category_id'],
+            'groups' => [DbRelations::MANY_TO_MANY, '\app\modules\forum\models\ForumUserGroup', 'forum_groups2categories(category_id, group_id)']
         ];
     }
 
@@ -84,7 +86,19 @@ class ForumCategory extends DbModel {
      * @return static[]
      */
     public static function findAllBySection($sectionId, $forPublic = false) {
-        return self::findAllByAttributes(['section_id' => $sectionId]);
+        if (!$forPublic){
+            return self::findAllByAttributes(['section_id' => $sectionId], ['order' => '`order` ASC']);
+        }
+        if (!UserAccess::get()->canRead($sectionId))
+            return [];
+        $condition = new ModelCondition(['model'=>__CLASS__]);
+        $condition->join = "LEFT JOIN forum_groups2categories ON (category_id = id AND group_id = :group)";
+        $condition->addCondition("canread IS NULL OR canread = 1");
+        $condition->setParam(":group", UserAccess::get()->getUserGroup($sectionId));
+        $condition->order = "`order` ASC";
+        $condition->with = ['subcategories'];
+        $condition->compareColumn("section_id", $sectionId);
+        return self::findAll($condition);
     }
 
     /**
@@ -99,6 +113,7 @@ class ForumCategory extends DbModel {
                 $condition->compareColumn($column, $this->$column, true);
             }
         }
+        $condition->with = ['author'];
         return new DataProvider([
             'modelCondition' => $condition
         ]);

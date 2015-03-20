@@ -12,7 +12,7 @@
     <div class="forum-user-panel-links">
         <?= \mpf\web\helpers\Html::get()->link(['home'], 'Categories'); ?>
         <?= \mpf\web\helpers\Html::get()->link(['user', 'controlPanel'], 'Control Panel'); ?>
-        <?= \mpf\web\helpers\Html::get()->link(['search', 'recent'], 'Recent Discussions'); ?>
+        <?= \mpf\web\helpers\Html::get()->link(['search', 'recent'], 'Recent Threads'); ?>
         <?= \mpf\web\helpers\Html::get()->link(['members'], 'Members'); ?>
     </div>
 </div>

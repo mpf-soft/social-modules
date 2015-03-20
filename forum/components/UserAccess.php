@@ -16,7 +16,7 @@ use mpf\helpers\ArrayHelper;
 use mpf\web\Session;
 use mpf\WebApp;
 
-class UserAccess extends Object{
+class UserAccess extends Object {
     /**
      * @var UserAccess
      */
@@ -31,19 +31,34 @@ class UserAccess extends Object{
     /**
      * @return UserAccess
      */
-    public static function get(){
+    public static function get() {
         if (!self::$self)
             self::$self = new self();
         return self::$self;
     }
 
-    public function reloadRights(){
+    public function getUserGroup($sectionId) {
+        if (WebApp::get()->user()->isConnected()) {
+            if (isset($this->userGroups[$sectionId]))
+                return $this->userGroups[$sectionId];
+        }
+        if (!isset($this->sections[$sectionId]))
+            $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
+
+        return $this->sections[$sectionId]->default_user_group_id;
+    }
+
+    public function reloadRights() {
+        if (WebApp::get()->user()->isGuest()) {
+            return false; // no rights to load if no user is logged in
+        }
         Session::get()->delete($this->sessionKey);
         $groupIDs = ArrayHelper::get()->transform(ForumUserGroup::getDb()->table('forums_users2groups')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get(), 'group_id');
-        $this->userGroups = $groupIDs;
+        $this->userGroups = [];
         $groups = ForumUserGroup::findAllByPk($groupIDs);
         $this->userSectionsRights = [];
-        foreach ($groups as $group){
+        foreach ($groups as $group) {
+            $this->userGroups[$group->section_id] = $group->id;
             $this->userSectionsRights[$group->section_id] = [
                 'admin' => $group->admin,
                 'moderator' => $group->moderator,
@@ -58,8 +73,8 @@ class UserAccess extends Object{
         ]);
     }
 
-    public function init($config = []){
-        if (Session::get()->exists($this->sessionKey)){
+    public function init($config = []) {
+        if (Session::get()->exists($this->sessionKey)) {
             $session = Session::get()->value($this->sessionKey);
             $this->userGroups = $session['userGroups'];
             $this->userSectionsRights = $session['userSectionRights'];
@@ -81,17 +96,20 @@ class UserAccess extends Object{
      * @param int $sectionId
      * @return bool
      */
-    public function isSectionAdmin($sectionId){
-        if (isset($this->userSectionsRights[$sectionId])){
-            return (bool)$this->userSectionsRights[$sectionId]["admin"];
-        }
-        if (!isset($this->sections[$sectionId])){
-            $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
-        }
-        if (!$this->sections[$sectionId]){ //section doesn't exists
+    public function isSectionAdmin($sectionId) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
-        if ($this->sections[$sectionId]->owner_user_id == WebApp::get()->user()->id){ // section creator so it is always true
+        if (isset($this->userSectionsRights[$sectionId])) {
+            return (bool)$this->userSectionsRights[$sectionId]["admin"];
+        }
+        if (!isset($this->sections[$sectionId])) {
+            $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
+        }
+        if (!$this->sections[$sectionId]) { //section doesn't exists
+            return false;
+        }
+        if ($this->sections[$sectionId]->owner_user_id == WebApp::get()->user()->id) { // section creator so it is always true
             return true;
         }
         return true;
@@ -103,7 +121,10 @@ class UserAccess extends Object{
      * @param int $sectionId
      * @return bool
      */
-    public function isSectionModerator($sectionId){
+    public function isSectionModerator($sectionId) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
         return true;
     }
 
@@ -112,8 +133,11 @@ class UserAccess extends Object{
      * @param int $sectionId
      * @return bool
      */
-    public function isCategoryAdmin($categoryId, $sectionId = null){
-        if ($this->isSectionAdmin($sectionId)){
+    public function isCategoryAdmin($categoryId, $sectionId = null) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
+        if ($this->isSectionAdmin($sectionId)) {
             return true;
         }
         return true;
@@ -124,8 +148,11 @@ class UserAccess extends Object{
      * @param int $sectionId
      * @return bool
      */
-    public function isCategoryModerator($categoryId, $sectionId){
-        if ($this->isSectionModerator($sectionId)){
+    public function isCategoryModerator($categoryId, $sectionId) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
+        if ($this->isSectionModerator($sectionId)) {
             return true;
         }
         return true;
@@ -135,7 +162,10 @@ class UserAccess extends Object{
      * @param int $categoryId
      * @return bool
      */
-    public function canCreateNewThread($categoryId){
+    public function canCreateNewThread($categoryId) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
         return true;
     }
 
@@ -143,7 +173,10 @@ class UserAccess extends Object{
      * @param int $categoryId
      * @return bool
      */
-    public function canReplyToThread($categoryId){
+    public function canReplyToThread($categoryId) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
         return true;
     }
 
@@ -152,7 +185,7 @@ class UserAccess extends Object{
      * @param int $categoryId
      * @return bool
      */
-    public function canRead($sectionId, $categoryId = null){
+    public function canRead($sectionId, $categoryId = null) {
         return true;
     }
 }

@@ -1,7 +1,2 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: mirel
- * Date: 16.03.2015
- * Time: 11:22
- */
+<?php /* @var $category \app\modules\forum\models\ForumCategory */ ?>
+<h2><?= $category->name; ?></h2>
