@@ -7,6 +7,8 @@
 
 namespace app\modules\forum\models;
 
+use app\components\htmltools\Messages;
+use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -77,18 +79,36 @@ class ForumUserGroup extends DbModel {
 
     /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
+     * @param int $sectionId
      * @return \mpf\datasources\sql\DataProvider
      */
-    public function getDataProvider() {
+    public function getDataProvider($sectionId) {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "section_id", "full_name", "html_class", "admin", "moderator", "newthread", "threadreply", "canread"] as $column) {
+        foreach (["id", "full_name", "html_class", "admin", "moderator", "newthread", "threadreply", "canread"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
         }
+        $condition->compareColumn("section_id", $sectionId);
         return new DataProvider([
             'modelCondition' => $condition
         ]);
+    }
+
+    public function beforeDelete(){
+        if (!UserAccess::get()->isSectionAdmin($this->section_id)){
+            Messages::get()->error("You don't have access to delete this user group!");
+            return false;
+        }
+        return parent::beforeDelete();
+    }
+
+    public function beforeSave(){
+        if (!UserAccess::get()->isSectionAdmin($this->section_id)){
+            Messages::get()->error("You don't have access to edit this user group!");
+            return false;
+        }
+        return parent::beforeSave();
     }
 }

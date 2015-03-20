@@ -11,7 +11,7 @@ namespace app\modules\forum\components;
 
 use mpf\web\Session;
 
-class Controller extends \app\components\Controller{
+class Controller extends \app\components\Controller {
 
     /**
      * A folder with general components that can be changed to use custom templates.
@@ -57,7 +57,7 @@ class Controller extends \app\components\Controller{
      * @param string $name
      * @param array $params
      */
-    public function displayComponent($name, $params = []){
+    public function displayComponent($name, $params = []) {
         $moduleFolder = $this->getRequest()->getModulePath();
         $controllerFolder = $this->request->getController();
         $folder = str_replace(['{APP_ROOT}', '{MODULE_FOLDER}', '{CONTROLLER}', '{LIBS_FOLDER}', '{DIRECTORY_SEPARATOR}'],
@@ -65,8 +65,8 @@ class Controller extends \app\components\Controller{
         $this->display($folder . $name . '.php', $params);
     }
 
-    public function beforeAction($actionName){
-        switch ($this->sectionIdSource){
+    public function beforeAction($actionName) {
+        switch ($this->sectionIdSource) {
             case 'get':
                 if (isset($_GET[$this->sectionIdKey]))
                     $this->sectionId = $_GET[$this->sectionIdKey];
@@ -88,14 +88,14 @@ class Controller extends \app\components\Controller{
      * @param $original
      * @return mixed
      */
-    public function updateURLWithSection($original){
+    public function updateURLWithSection($original) {
         if (!$this->sectionId)
             return $original;
         if ('get' != $this->sectionIdSource)
             return $original;
-        if (isset($original[2]) && is_array($original[2])){
+        if (isset($original[2]) && is_array($original[2])) {
             $original[2][$this->sectionIdKey] = $this->sectionId;
-        } elseif (isset($original[2])){
+        } elseif (isset($original[2])) {
             $original[3] = $original[2];
             $original[2] = [$this->sectionIdKey => $this->sectionId];
         } else {
@@ -103,6 +103,31 @@ class Controller extends \app\components\Controller{
         }
 
         return $original;
+    }
+
+    /**
+     * Updates the link when changing page to also add section id in case that is not the default one
+     * @param string $controller
+     * @param null|string $action
+     * @param array $params
+     * @return bool|void
+     */
+    public function goToPage($controller, $action = null, $params = []) {
+        if ($this->sectionId)
+            $params['section'] = $this->sectionId;
+        return parent::goToPage($controller, $action, $params);
+    }
+
+    /**
+     * Updates the link when changing action to also add section id in case that is not the default one
+     * @param string $action
+     * @param array $params
+     * @return bool
+     */
+    public function goToAction($action, $params = []){
+        if ($this->sectionId)
+            $params['section'] = $this->sectionId;
+        return parent::goToAction($action, $params);
     }
 
 }

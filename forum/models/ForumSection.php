@@ -7,6 +7,7 @@
 
 namespace app\modules\forum\models;
 
+use app\components\htmltools\Messages;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -20,6 +21,7 @@ use mpf\datasources\sql\ModelCondition;
  * @property int $default_user_group_id
  * @property int $owner_user_id
  * @property \app\models\User $owner
+ * @property \app\modules\forum\models\ForumUserGroup $defaultGroup
  */
 class ForumSection extends DbModel {
 
@@ -38,10 +40,10 @@ class ForumSection extends DbModel {
      */
     public static function getLabels() {
         return [
-             'id' => 'Id',
-             'name' => 'Name',
-             'default_user_group_id' => 'Default User Group',
-             'owner_user_id' => 'Owner'
+            'id' => 'Id',
+            'name' => 'Name',
+            'default_user_group_id' => 'Default User Group',
+            'owner_user_id' => 'Owner'
         ];
     }
 
@@ -49,9 +51,10 @@ class ForumSection extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations(){
+    public static function getRelations() {
         return [
-             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'owner_user_id']
+            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'owner_user_id'],
+            'defaultGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'default_user_group_id']
         ];
     }
 
@@ -59,7 +62,7 @@ class ForumSection extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules(){
+    public static function getRules() {
         return [
             ["id, name, default_user_group_id, owner_user_id", "safe", "on" => "search"]
         ];
@@ -80,5 +83,26 @@ class ForumSection extends DbModel {
         return new DataProvider([
             'modelCondition' => $condition
         ]);
+    }
+
+    /**
+     * Set a different default group for current section. It will check if group exists and if it's assigned to this
+     * section but it will not check if user has access to this section as this method will also be used by automated
+     * processes when a new section is generated.
+     * @param $groupId
+     * @return bool
+     */
+    public function setDefaultGroup($groupId){
+        $group = ForumUserGroup::findByPk($groupId);
+        if (!$group){
+            Messages::get()->error("Group not found!");
+            return false;
+        }
+        if ($group->section_id != $this->id){
+            Messages::get()->error("Group is assigned to a different section of the forum!");
+            return false;
+        }
+        $this->default_user_group_id = $groupId;
+        return $this->save();
     }
 }

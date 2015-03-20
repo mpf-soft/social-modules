@@ -1,7 +1,7 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
 <?php /* @var $model \app\modules\forum\models\ForumSubcategory */ ?>
-<?php /* @var $categories \app\modules\forum\models\ForumCategory[] */ ?>
-<?= \app\components\htmltools\Page::get()->title("Forum - Categories & Subcategories", [
+<?php /* @var $category \app\modules\forum\models\ForumCategory */ ?>
+<?= \app\components\htmltools\Page::get()->title("Forum - " . $category->name . " - Subcategories", [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
         'label' => 'Manage Groups'

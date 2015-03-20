@@ -2,22 +2,31 @@
 <?php /* @var $model \app\modules\forum\models\ForumUserGroup */ ?>
 <?= \app\components\htmltools\Page::get()->title("Forum - User Groups", [
     [
-        'url' => ['manage', 'groups'],
-        'label' => 'Manage Groups'
-    ],
-    [
-        'url' => ['manage', 'categories'],
-        'label' => 'Manage Categories',
+        'url' => $this->updateURLWithSection(['manage', 'groups']),
+        'label' => 'Manage Groups',
         'htmlOptions' => ['class' => 'selected']
     ],
     [
-        'url' => ['manage', 'newGroup'],
+        'url' => $this->updateURLWithSection(['manage', 'categories']),
+        'label' => 'Manage Categories'
+    ],
+    [
+        'url' => $this->updateURLWithSection(['manage', 'newGroup']),
         'label' => 'New Group'
     ]
 ]); ?>
+    <div class="forum-default-group-line">
+        <span>Default group:</span>
+        <a href="#"><?= \app\modules\forum\models\ForumSection::findByPk($this->sectionId)->defaultGroup->full_name; ?></a>
+        <?= \mpf\web\helpers\Form::get()->openForm(['method' => 'post', 'style' => 'display:none;']); ?>
+        <?= \mpf\web\helpers\Form::get()->select('group', \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumUserGroup::findAllByAttributes(['section_id' => $this->sectionId]), ['id' => 'full_name'])); ?>
+        <input type="submit" name="changedefaultgroup" value="Update"/>
+        <?= \mpf\web\helpers\Form::get()->closeForm(); ?>
+    </div>
+
 <?php
 \mpf\widgets\datatable\Table::get([
-    'dataProvider' => $model->getDataProvider(),
+    'dataProvider' => $model->getDataProvider($this->sectionId),
     'columns' => [
         'full_name',
         'html_class',
@@ -29,10 +38,23 @@
         [
             'class' => 'Actions',
             'buttons' => [
-                'delete' => ['class' => 'Delete', 'iconSize' => 32],
-                'view' => ['class' => 'View', 'iconSize' => 32]
+                'delete' => ['class' => 'Delete', 'iconSize' => 22],
+                'edit' => [
+                    'class' => 'Edit',
+                    'iconSize' => 22,
+                    'url' => "\\mpf\\WebApp::get()->request()->createURL(\\mpf\\WebApp::get()->request()->getController(), 'editGroup', array('id' => \$row->id))"
+                ]
             ]
         ]
     ]
 ])->display();
 ?>
+<script>
+    $(document).ready(function(){
+        $('.forum-default-group-line a').click(function(){
+            $(this).hide();
+            $('form', this.parentNode).show();
+            return false;
+        })
+    })
+</script>
