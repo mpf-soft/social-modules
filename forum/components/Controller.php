@@ -113,7 +113,7 @@ class Controller extends \app\components\Controller {
      * @return bool|void
      */
     public function goToPage($controller, $action = null, $params = []) {
-        if ($this->sectionId)
+        if ($this->sectionId && 'get' == $this->sectionIdSource)
             $params['section'] = $this->sectionId;
         return parent::goToPage($controller, $action, $params);
     }
@@ -125,9 +125,22 @@ class Controller extends \app\components\Controller {
      * @return bool
      */
     public function goToAction($action, $params = []){
-        if ($this->sectionId)
+        if ($this->sectionId && 'get' == $this->sectionIdSource)
             $params['section'] = $this->sectionId;
         return parent::goToAction($action, $params);
+    }
+
+    public function getUrlForDatatableAction($action, $params = [], $controller = null, $key = 'id', $column = 'id'){
+        $controller = is_null($controller)?"\\mpf\\WebApp::get()->request()->getController()":"'$controller'";
+        if ($this->sectionId&& 'get' == $this->sectionIdSource){
+            $params[$this->sectionIdKey] = $this->sectionId;
+        }
+        $prms = ["\"$key\" => \$row->{$column}"];
+        foreach ($params as $name=>$value){
+            $prms[] = "\"$name\" => '$value'";
+        }
+        $prms = implode(", ", $prms);
+        return "\\mpf\\WebApp::get()->request()->createURL($controller, '$action', [$prms])";
     }
 
 }

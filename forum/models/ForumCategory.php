@@ -26,7 +26,7 @@ use mpf\WebApp;
  * @property int $section_id
  * @property \app\modules\forum\models\ForumSection $section
  * @property \app\modules\forum\models\ForumSubcategory[] $subcategories
- * @property \app\models\User $owner
+ * @property \app\models\User $author
  */
 class ForumCategory extends DbModel {
 
@@ -51,7 +51,7 @@ class ForumCategory extends DbModel {
             'name' => 'Name',
             'url_friendly_name' => 'Url Friendly Name',
             'order' => 'Order',
-            'user_id' => 'Owner',
+            'user_id' => 'Author',
             'section_id' => 'Section'
         ];
     }
@@ -63,7 +63,7 @@ class ForumCategory extends DbModel {
     public static function getRelations() {
         return [
             'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id'],
-            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
+            'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'subcategories' => [DbRelations::HAS_MANY, '\app\modules\forum\models\ForumSubcategory', 'category_id']
         ];
     }
@@ -114,14 +114,15 @@ class ForumCategory extends DbModel {
             $fields[] = [
                 'name' => 'groupRights[' . $group->id . ']',
                 'type' => 'select',
-                'fieldHtmlOptions' => ['multiple' => 'multiple'],
+                'htmlOptions' => ['multiple' => 'multiple', 'style' =>'height:85px;'],
                 'options' => [
                     'admin'=>'Admin',
                     'moderator' => 'Moderator',
                     'newthread' => 'Can Start a New Thread',
                     'threadreply' => 'Can Reply to an open Thread',
                     'canread' => 'Can View Threads'
-                ]
+                ],
+                'label' => $group->full_name
             ];
         }
         return $fields;
@@ -144,5 +145,33 @@ class ForumCategory extends DbModel {
             return false;
         }
         return parent::beforeDelete();
+    }
+
+    public function reloadGroupRights(){
+        $rights = $this->getDb()->table('forum_groups2categories')->where("category_id = :category")->setParam(":category", $this->id)->get();
+        $this->groupRights = [];
+        foreach($rights as $r){
+            $this->groupRights[$r['group_id']] = [
+                'admin' => $r['admin'],
+                'moderator' => $r['moderator'],
+                'newthread' => $r['newthread'],
+                'threadreply' => $r['threadreply'],
+                'canread' => $r['canread']
+            ];
+        }
+    }
+
+    public function updateGroupRights(){
+        foreach ($this->groupRights as $groupId=>$details){
+            $this->getDb()->table('forum_groups2categories')->insert([
+                'group_id' => $groupId,
+                'category_id' => $this->id,
+                'admin' => $details['admin'],
+                'moderator' => $details['moderator'],
+                'newthread' => $details['newthread'],
+                'threadreply' => $details['threadreply'],
+                'canread' => $details['canread']
+            ], $details);
+        }
     }
 }

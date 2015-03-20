@@ -1,6 +1,5 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
-<?php /* @var $model \app\modules\forum\models\ForumSubcategory */ ?>
-<?php /* @var $categories \app\modules\forum\models\ForumCategory[] */ ?>
+<?php /* @var $model \app\modules\forum\models\ForumCategory */ ?>
 <?= \app\components\htmltools\Page::get()->title("Forum - Categories & Subcategories", [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
@@ -13,10 +12,7 @@
     ],
     [
         'url' => $this->updateURLWithSection(['manage', 'newCategory']),
-        'label' => 'New Category',
-        'htmlOptions' => [
-            'onclick' => 'return createCategory();'
-        ]
+        'label' => 'New Category'
     ],
     [
         'url' => $this->updateURLWithSection(['manage', 'newSubcategory']),
@@ -27,20 +23,16 @@
 \mpf\widgets\datatable\Table::get([
     'dataProvider' => $model->getDataProvider(),
     'columns' => [
-        'title',
-        'category_id' => [
-            'value' => '$row->category->name',
-            'filter' => \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumCategory::findAll(), ['id' => 'name'])
-        ],
+        'name',
+        'url_friendly_name',
         'user_id' => [
-            'value' => '$row->owner->name'
+            'value' => '$row->author->name'
         ],
-        'description',
         [
             'class' => 'Actions',
             'buttons' => [
-                'delete' => ['class' => 'Delete', 'iconSize' => 32],
-                'view' => ['class' => 'View', 'iconSize' => 32]
+                'delete' => ['class' => 'Delete', 'iconSize' => 22, 'url' => $this->getUrlForDatatableAction('delete')],
+                'edit' => ['class' => 'Edit', 'iconSize' => 22, 'url' => $this->getUrlForDatatableAction('editCategory')]
             ]
         ]
     ]

@@ -41,7 +41,7 @@ class Manage extends Controller {
         if (isset($_POST['changedefaultgroup'])){
             if (ForumSection::findByPk($this->sectionId)->setDefaultGroup($_POST['group'])){
                 Messages::get()->success("Default group updated!");
-                $this->request->goBack();
+                $this->goBack();
             }
         }
         $model = ForumUserGroup::model();
@@ -56,7 +56,7 @@ class Manage extends Controller {
         $model->section_id = $this->sectionId;
         if (!UserAccess::get()->isSectionAdmin($model->section_id)){
             Messages::get()->error("Not enough rights to add a new user group for this forum!");
-            $this->request->goBack();
+            $this->goBack();
             die();
         }
         if (isset($_POST['ForumUserGroup'])){
@@ -74,7 +74,7 @@ class Manage extends Controller {
         $model = ForumUserGroup::findByPk($id);
         if (!UserAccess::get()->isSectionAdmin($model->section_id)){
             Messages::get()->error("Not enough rights to edit this user group!");
-            $this->request->goBack();
+            $this->goBack();
             die();
         }
         if (isset($_POST['ForumUserGroup'])){
@@ -105,10 +105,12 @@ class Manage extends Controller {
         if (isset($_POST['ForumCategory'])){
             $model->setAttributes($_POST['ForumCategory']);
             if ($model->save()){
+                $model->updateGroupRights();
                 Messages::get()->success("Category saved!");
                 $this->request->goBack();
             }
         }
+        $this->setPageLayout('category');
         $this->assign('model', $model);
     }
 
@@ -117,10 +119,13 @@ class Manage extends Controller {
         if (isset($_POST['ForumCategory'])){
             $model->setAttributes($_POST['ForumCategory']);
             if ($model->save()){
+                $model->updateGroupRights();
                 Messages::get()->success("Category saved!");
                 $this->request->goBack();
             }
         }
+        $this->setPageLayout('category');
+        $model->reloadGroupRights();
         $this->assign('model', $model);
     }
 
@@ -128,7 +133,7 @@ class Manage extends Controller {
         $category = ForumCategory::findByPk($category);
         if (!UserAccess::get()->isSectionAdmin($category->section_id)){
             Messages::get()->error("Not enough rights to edit subcategories for this category!");
-            $this->request->goBack();
+            $this->goBack();
             die();
         }
         $model = ForumSubcategory::model();
@@ -151,7 +156,7 @@ class Manage extends Controller {
                 $model->delete();
             }
             Messages::get()->success("Deleted!");
-            $this->request->goBack();
+            $this->goBack();
         }
         if (isset($_POST['ForumCategory'])){
             $models = ForumCategory::findAllByPk($_POST['ForumCategory']);
@@ -159,7 +164,7 @@ class Manage extends Controller {
                 $model->delete();
             }
             Messages::get()->success("Deleted!");
-            $this->request->goBack();
+            $this->goBack();
         }
     }
 

@@ -13,10 +13,7 @@
     ],
     [
         'url' => $this->updateURLWithSection(['manage', 'newCategory']),
-        'label' => 'New Category',
-        'htmlOptions' => [
-            'onclick' => 'return createCategory();'
-        ]
+        'label' => 'New Category'
     ],
     [
         'url' => $this->updateURLWithSection(['manage', 'newSubcategory']),
@@ -39,8 +36,8 @@
         [
             'class' => 'Actions',
             'buttons' => [
-                'delete' => ['class' => 'Delete', 'iconSize' => 32],
-                'view' => ['class' => 'View', 'iconSize' => 32]
+                'delete' => ['class' => 'Delete', 'iconSize' => 22, 'url' => $this->getUrlForDatatableAction('delete')],
+                'edit' => ['class' => 'Edit', 'iconSize' => 22, 'url' => $this->getUrlForDatatableAction('editSubcategory')]
             ]
         ]
     ]

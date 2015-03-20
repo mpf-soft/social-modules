@@ -38,11 +38,11 @@
         [
             'class' => 'Actions',
             'buttons' => [
-                'delete' => ['class' => 'Delete', 'iconSize' => 22],
+                'delete' => ['class' => 'Delete', 'iconSize' => 22, 'url' => $this->getUrlForDatatableAction('delete')],
                 'edit' => [
                     'class' => 'Edit',
                     'iconSize' => 22,
-                    'url' => "\\mpf\\WebApp::get()->request()->createURL(\\mpf\\WebApp::get()->request()->getController(), 'editGroup', array('id' => \$row->id))"
+                    'url' => $this->getUrlForDatatableAction('editGroup')
                 ]
             ]
         ]

@@ -1,23 +1,21 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
 <?php /* @var $model \app\modules\forum\models\ForumCategory */ ?>
-<?= \app\components\htmltools\Page::get()->title("Forum - " . $model->name, [
+<?= \app\components\htmltools\Page::get()->title("Forum - Categories - " . ($model->isNewRecord()?"Add New":"Edit " . $model->name), [
     [
-        'url' => ['manage', 'groups'],
+        'url' => $this->updateURLWithSection(['manage', 'groups']),
         'label' => 'Manage Groups'
     ],
     [
-        'url' => ['manage', 'categories'],
+        'url' => $this->updateURLWithSection(['manage', 'categories']),
         'label' => 'Manage Categories'
     ],
     [
-        'url' => '#',
+        'url' => $this->updateURLWithSection(['manage', 'newCategory']),
         'label' => 'New Category',
-        'htmlOptions' => [
-            'onclick' => 'return createCategory();'
-        ]
+        'htmlOptions' => $model->isNewRecord()?['class' => 'selected']:[]
     ],
     [
-        'url' => ['manage', 'newSubcategory'],
+        'url' => $this->updateURLWithSection(['manage', 'newSubcategory']),
         'label' => 'New Subcategory'
     ]
 ]); ?>
