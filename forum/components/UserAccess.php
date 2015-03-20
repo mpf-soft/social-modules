@@ -10,7 +10,10 @@ namespace app\modules\forum\components;
 
 
 use app\modules\forum\models\ForumSection;
+use app\modules\forum\models\ForumUserGroup;
 use mpf\base\Object;
+use mpf\helpers\ArrayHelper;
+use mpf\web\Session;
 use mpf\WebApp;
 
 class UserAccess extends Object{
@@ -19,6 +22,12 @@ class UserAccess extends Object{
      */
     private static $self;
 
+    public $sessionKey = "Forum-UserAccess";
+
+    public $userGroups = [];
+
+    public $userSectionsRights = [];
+
     /**
      * @return UserAccess
      */
@@ -26,6 +35,39 @@ class UserAccess extends Object{
         if (!self::$self)
             self::$self = new self();
         return self::$self;
+    }
+
+    public function reloadRights(){
+        Session::get()->delete($this->sessionKey);
+        $groupIDs = ArrayHelper::get()->transform(ForumUserGroup::getDb()->table('forums_users2groups')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get(), 'group_id');
+        $this->userGroups = $groupIDs;
+        $groups = ForumUserGroup::findAllByPk($groupIDs);
+        $this->userSectionsRights = [];
+        foreach ($groups as $group){
+            $this->userSectionsRights[$group->section_id] = [
+                'admin' => $group->admin,
+                'moderator' => $group->moderator,
+                'newthread' => $group->newthread,
+                'threadreply' => $group->threadreply,
+                'canread' => $group->canread
+            ];
+        }
+        Session::get()->set($this->sessionKey, [
+            'userGroups' => $this->userGroups,
+            'userSectionRights' => $this->userSectionsRights
+        ]);
+    }
+
+    public function init($config = []){
+        if (Session::get()->exists($this->sessionKey)){
+            $session = Session::get()->value($this->sessionKey);
+            $this->userGroups = $session['userGroups'];
+            $this->userSectionsRights = $session['userSectionRights'];
+        } else {
+            $this->reloadRights();
+        }
+
+        parent::init($config);
     }
 
     /**
@@ -40,6 +82,9 @@ class UserAccess extends Object{
      * @return bool
      */
     public function isSectionAdmin($sectionId){
+        if (isset($this->userSectionsRights[$sectionId])){
+            return (bool)$this->userSectionsRights[$sectionId]["admin"];
+        }
         if (!isset($this->sections[$sectionId])){
             $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
         }
