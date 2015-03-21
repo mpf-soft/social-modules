@@ -3,16 +3,20 @@
 <?php $menu = []; ?>
 <?php if (\app\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
     <?php
-        $menu = [
-            [
-                'url' => $this->updateURLWithSection(['manage', 'groups']),
-                'label' => 'Manage Groups'
-            ],
-            [
-                'url' => $this->updateURLWithSection(['manage', 'categories']),
-                'label' => 'Manage Categories'
-            ]
-        ];
+    $menu = [
+        [
+            'url' => $this->updateURLWithSection(['manage', 'groups']),
+            'label' => 'Manage Groups'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'categories']),
+            'label' => 'Manage Categories'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'users']),
+            'label' => 'Manage Users'
+        ]
+    ];
     ?>
 <?php } ?>
 <?= \app\components\htmltools\Page::get()->title("Forum", $menu); ?>

@@ -10,6 +10,7 @@ namespace app\modules\forum\controllers;
 
 
 use app\components\htmltools\Messages;
+use app\models\User;
 use app\modules\forum\components\Controller;
 use app\modules\forum\components\UserAccess;
 use app\modules\forum\models\ForumCategory;
@@ -174,8 +175,17 @@ class Manage extends Controller {
     }
 
 
-    public function actionUsers($group) {
-
+    public function actionUsers() {
+        if (isset($_POST['title_id'])){
+            User::update($_POST['id'], ['title_id' => $_POST['title_id']]);
+            Messages::get()->success("Title saved!");
+            $this->goBack();
+        }
+        $model = User::model();
+        if (isset($_GET['User'])){
+            $model->setAttributes($_GET['User']);
+        }
+        $this->assign('model', $model);
     }
 
     public function actionDelete(){
