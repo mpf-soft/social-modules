@@ -45,7 +45,10 @@ class UserAccess extends Object {
         if (!isset($this->sections[$sectionId]))
             $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
 
-        return $this->sections[$sectionId]->default_user_group_id;
+        if (!isset($this->sections[$sectionId]))
+            return false;
+
+        return $this->sections[$sectionId]->default_visitors_group_id;
     }
 
     public function reloadRights() {
