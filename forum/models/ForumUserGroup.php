@@ -9,6 +9,7 @@ namespace app\modules\forum\models;
 
 use app\components\htmltools\Messages;
 use app\modules\forum\components\UserAccess;
+use mpf\base\App;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -120,17 +121,21 @@ class ForumUserGroup extends DbModel {
     }
 
     public function beforeDelete(){
-        if (!UserAccess::get()->isSectionAdmin($this->section_id)){
-            Messages::get()->error("You don't have access to delete this user group!");
-            return false;
+        if (is_a(App::get(), '\mpf\WebApp')) {
+            if (!UserAccess::get()->isSectionAdmin($this->section_id)) {
+                Messages::get()->error("You don't have access to delete this user group!");
+                return false;
+            }
         }
         return parent::beforeDelete();
     }
 
     public function beforeSave(){
-        if (!UserAccess::get()->isSectionAdmin($this->section_id)){
-            Messages::get()->error("You don't have access to edit this user group!");
-            return false;
+        if (is_a(App::get(), '\mpf\WebApp')) {
+            if (!UserAccess::get()->isSectionAdmin($this->section_id)) {
+                Messages::get()->error("You don't have access to edit this user group!");
+                return false;
+            }
         }
         return parent::beforeSave();
     }

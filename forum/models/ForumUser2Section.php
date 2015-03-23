@@ -7,6 +7,7 @@
 
 namespace app\modules\forum\models;
 
+use mpf\base\App;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -115,8 +116,9 @@ class ForumUser2Section extends DbModel {
         $user->section_id = $sectionId;
         if (!$groupId){
             $section  =ForumSection::findByPk($sectionId);
-
+            $groupId = $section->default_members_group_id;
         }
+        App::get()->debug("User $userId assign to group $groupId from section $sectionId");
         $user->group_id = $groupId;
         return $user->save();
     }

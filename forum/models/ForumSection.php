@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\components\htmltools\Messages;
+use mpf\base\App;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -117,17 +118,22 @@ class ForumSection extends DbModel {
 
     /**
      * Creates a new section + default user groups + a single user title. Use "Main" name if you only have one.
-     * @param $name
-     * @param $user
+     * @param string $name
+     * @param int $userId
+     * @return int
      */
-    public static function createNew($name = "Main", $user){
+    public static function createNew($name = "Main", $userId){
         $section  = new self;
         $section->name = $name;
-        if ("Main" == $name){
-            $section->id = 0;
-        }
-        $section->owner_user_id = $user;
+        $section->owner_user_id = $userId;
         $section->save();
+        if ("Main" == $name){
+            App::get()->debug("Main section detected. Setting ID to 0!");
+            $section->id = 0;
+            $section->save();
+        }
+
+        App::get()->debug("Section $name:  #{$section->id} created!");
         $group = new ForumUserGroup();
         $group->section_id = $section->id;
         $group->full_name = 'Visitors';
@@ -135,34 +141,57 @@ class ForumSection extends DbModel {
         $group->admin = $group->moderator = $group->newthread = $group->threadreply = 0;
         $group->canread = 1;
         $group->save();
+        App::get()->debug("Group {$group->full_name}:  #{$group->id} created!");
         $section->default_visitors_group_id = $group->id;
         $group->full_name = "Members";
         $group->html_class = "members";
         $group->newthread = $group->threadreply = 1;
         $group->saveAsNew();
+        App::get()->debug("Group {$group->full_name}:  #{$group->id} created!");
         $section->default_members_group_id = $group->id;
         $section->save();
+        App::get()->debug("Section updated with default group ids!");
         $group->full_name = "Moderators";
         $group->html_class = "moderators";
         $group->moderator = 1;
         $group->saveAsNew();
+        App::get()->debug("Group {$group->full_name}:  #{$group->id} created!");
         $group->full_name = "Admins";
         $group->html_class = "admins";
         $group->admin = 1;
         $group->saveAsNew();
+        App::get()->debug("Group {$group->full_name}:  #{$group->id} created!");
         $title = new ForumTitle();
         $title->section_id = $section->id;
         $title->title = "New Comer";
         $title->icon = "default.png";
         $title->save();
+        App::get()->debug("Title {$title->title}:  #{$group->id} created!");
         $user = new ForumUser2Section();
-        $user->user_id = $user;
-        $user->section_id = $section;
+        $user->user_id = $userId;
+        $user->section_id = $section->id;
         $user->group_id = $group->id;
         $user->title_id = $title->id;
         $user->banned = $user->muted = 0;
         $user->save();
+        App::get()->debug("User assigned to section as admin! (Group: #{$group->id})");
         return $section->id;
+    }
+
+    /**
+     * This deletes all posts, users, sections, everything. To be used once when app goes from dev to production or when it is installed.
+     */
+    public static function resetForum(){
+        self::getDb()->execQuery("TRUNCATE TABLE `forum_categories`;
+TRUNCATE TABLE `forum_groups2categories`;
+TRUNCATE TABLE `forum_replies`;
+TRUNCATE TABLE `forum_sections`;
+TRUNCATE TABLE `forum_subcategories`;
+TRUNCATE TABLE `forum_threads`;
+TRUNCATE TABLE `forum_titles`;
+TRUNCATE TABLE `forum_users2groups`;
+TRUNCATE TABLE `forum_users2sections`;
+TRUNCATE TABLE `forum_user_groups`;");
     }
 
 }
