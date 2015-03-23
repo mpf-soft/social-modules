@@ -56,7 +56,7 @@ class UserAccess extends Object {
             return false; // no rights to load if no user is logged in
         }
         Session::get()->delete($this->sessionKey);
-        $groupIDs = ArrayHelper::get()->transform(ForumUserGroup::getDb()->table('forums_users2groups')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get(), 'group_id');
+        $groupIDs = ArrayHelper::get()->transform(ForumUserGroup::getDb()->table('forum_users2groups')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get(), 'group_id');
         $this->userGroups = [];
         $groups = ForumUserGroup::findAllByPk($groupIDs);
         $this->userSectionsRights = [];
