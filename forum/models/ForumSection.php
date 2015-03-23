@@ -116,13 +116,16 @@ class ForumSection extends DbModel {
     }
 
     /**
-     * Creates a new section + default user groups + a single user title.
+     * Creates a new section + default user groups + a single user title. Use "Main" name if you only have one.
      * @param $name
      * @param $user
      */
-    public static function createNew($name, $user){
+    public static function createNew($name = "Main", $user){
         $section  = new self;
         $section->name = $name;
+        if ("Main" == $name){
+            $section->id = 0;
+        }
         $section->owner_user_id = $user;
         $section->save();
         $group = new ForumUserGroup();
