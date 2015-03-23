@@ -32,9 +32,15 @@
     'name' => 'save',
     'model' => $model,
     'theme' => 'default-wide',
+    'formHtmlOptions' => ['enctype' => 'multipart/form-data'],
     'fields' => array_merge([
             'name',
             'url_friendly_name',
-            'order'
+            'order',
+            [
+                'name' => 'icon',
+                'type' => 'image',
+                'urlPrefix' => $this->getUploadUrl() . 'categories/'
+            ]
         ], $model->getGroupFields())
 ])->display(); ?>

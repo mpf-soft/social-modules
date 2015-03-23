@@ -31,13 +31,19 @@
     'name' => 'save',
     'model' => $model,
     'theme' => 'default-wide',
+    'formHtmlOptions' => ['enctype' => 'multipart/form-data'],
     'fields' => [
         'title',
         'description',
         [
             'name' => 'category_id',
             'type' => 'select',
-            'options' => \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumCategory::findAllBySection($this->sectionId), ['id' => 'name'])
+            'options' => \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumCategory::findAllBySection($this->sectionId), ['id' => 'name']),
+            [
+                'name' => 'icon',
+                'type' => 'image',
+                'urlPrefix' => $this->getUploadUrl() . 'subcategories/'
+            ]
         ]
     ]
 ])->display(); ?>

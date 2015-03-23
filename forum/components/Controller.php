@@ -9,6 +9,8 @@
 namespace app\modules\forum\components;
 
 
+use app\components\htmltools\Messages;
+use mpf\helpers\FileHelper;
 use mpf\web\Session;
 
 class Controller extends \app\components\Controller {
@@ -56,7 +58,56 @@ class Controller extends \app\components\Controller {
      * Folder location where uploads for categories icons can be uploaded
      * @var string
      */
-    public $uploadLocation = '';
+    public $uploadLocation = '{APP_ROOT}../htdocs/uploads{DIRECTORY_SEPARATOR}forum{DIRECTORY_SEPARATOR}';
+
+    /**
+     * Public URL for upload location
+     * @var string
+     */
+    public $uploadURL = '{WEB_ROOT}uploads/forum/';
+
+    public function getUploadFolder(){
+        $moduleFolder = $this->getRequest()->getModulePath();
+        $controllerFolder = $this->request->getController();
+        return str_replace(['{APP_ROOT}', '{MODULE_FOLDER}', '{CONTROLLER}', '{LIBS_FOLDER}', '{DIRECTORY_SEPARATOR}'],
+            [APP_ROOT, $moduleFolder, $controllerFolder, LIBS_FOLDER, DIRECTORY_SEPARATOR], $this->uploadLocation);
+    }
+
+    /**
+     * Upload image
+     * @param $for
+     * @param $name
+     * @param $id
+     * @return bool|string
+     */
+    public function uploadImage($for, $name, $id){
+        $folder = $this->getUploadFolder() . $for . DIRECTORY_SEPARATOR . $id . '-';
+        $finalName = "$id-";
+        if (isset($_FILES[$name]) && file_exists($_FILES[$name]['tmp_name'])){
+            if (FileHelper::get()->isImage($_FILES[$name]['tmp_name'])){
+                $fname = $_FILES[$name]['name'];
+                if (strlen($fname) > 100){
+                    $fname = trim(substr($fname, -100));
+                }
+                $finalName .= $fname;
+                if (FileHelper::get()->upload($name, $folder . $fname)) {
+                    return $finalName;
+                }
+                return false;
+            } else {
+                Messages::get()->error("Selected file isn't a image!");
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public function getUploadUrl(){
+        $moduleFolder = $this->getRequest()->getModulePath();
+        $controllerFolder = $this->request->getController();
+        return str_replace(['{WEB_ROOT}', '{LINK_ROOT}', '{MODULE_FOLDER}', '{CONTROLLER}', '{LIBS_FOLDER}'],
+            [$this->getWebRoot(), $this->getLinkRoot(), $moduleFolder, $controllerFolder, LIBS_FOLDER], $this->uploadURL);
+    }
 
     /**
      * Display single view component. It will automatically  prepend folder location and append file extension.

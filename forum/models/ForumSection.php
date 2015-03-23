@@ -150,6 +150,7 @@ class ForumSection extends DbModel {
         $title = new ForumTitle();
         $title->section_id = $section->id;
         $title->title = "New Comer";
+        $title->icon = "default.png";
         $title->save();
         $user = new ForumUser2Section();
         $user->user_id = $user;

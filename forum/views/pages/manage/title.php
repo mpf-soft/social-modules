@@ -27,7 +27,13 @@
     'name' => 'save',
     'model' => $model,
     'theme' => 'default-wide',
+    'formHtmlOptions' => ['enctype' => 'multipart/form-data'],
     'fields' => [
-        'title'
+        'title',
+        [
+            'name' => 'icon',
+            'type' => 'image',
+            'urlPrefix' => $this->getUploadUrl() . 'titles/'
+        ]
     ]
 ])->display(); ?>

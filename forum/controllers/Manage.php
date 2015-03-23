@@ -113,9 +113,19 @@ class Manage extends Controller {
     public function actionNewCategory(){
         $model = new ForumCategory();
         $model->section_id = $this->sectionId;
+        $model->icon = "default.png";
         if (isset($_POST['ForumCategory'])){
             $model->setAttributes($_POST['ForumCategory']);
             if ($model->save()){
+                if (false != ($icon = $this->uploadImage("categories", 'icon', $model->id))){
+                    if ($model->icon &&  $model->icon != "default.png"){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                    $model->icon = $icon;
+                    if (!$model->save()){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                }
                 $model->updateGroupRights();
                 Messages::get()->success("Category saved!");
                 $this->goToAction('categories');
@@ -130,9 +140,19 @@ class Manage extends Controller {
         if (isset($_POST['ForumCategory'])){
             $model->setAttributes($_POST['ForumCategory']);
             if ($model->save()){
+                if (false != ($icon = $this->uploadImage("categories", 'icon', $model->id))){
+                    if ($model->icon &&  $model->icon != "default.png"){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                    $model->icon = $icon;
+                    if (!$model->save()){
+                        Messages::get()->error("Error saving new icon!");
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                }
                 $model->updateGroupRights();
                 Messages::get()->success("Category saved!");
-                $this->goToAction('categories');
+             //   $this->goToAction('categories');
             }
         }
         $this->setPageLayout('category');
@@ -160,9 +180,19 @@ class Manage extends Controller {
         if ($category) {
             $model->category_id = $category;
         }
+        $model->icon = "default.png";
         if (isset($_POST['ForumSubcategory'])){
             $model->setAttributes($_POST['ForumSubcategory']);
             if ($model->save()){
+                if (false != ($icon = $this->uploadImage("subcategories", 'icon', $model->id))){
+                    if ($model->icon &&  $model->icon != "default.png"){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                    $model->icon = $icon;
+                    if (!$model->save()){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                }
                 Messages::get()->success("Subcategory saved!");
                 $this->goToAction('subcategories', ['category' => $model->category_id]);
             }
@@ -176,6 +206,15 @@ class Manage extends Controller {
         if (isset($_POST['ForumSubcategory'])){
             $model->setAttributes($_POST['ForumSubcategory']);
             if ($model->save()){
+                if (false != ($icon = $this->uploadImage("subcategories", 'icon', $model->id))){
+                    if ($model->icon &&  $model->icon != "default.png"){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                    $model->icon = $icon;
+                    if (!$model->save()){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                }
                 Messages::get()->success("Subcategory saved!");
                 $this->goToAction('subcategories', ['category' => $model->category_id]);
             }
@@ -224,6 +263,15 @@ class Manage extends Controller {
         if (isset($_POST['ForumTitle'])){
             $model->setAttributes($_POST['ForumTitle']);
             if ($model->save()){
+                if (false != ($icon = $this->uploadImage("titles", 'icon', $model->id))){
+                    if ($model->icon &&  $model->icon != "default.png"){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                    $model->icon = $icon;
+                    if (!$model->save()){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                }
                 Messages::get()->success("Title saved!");
                 $this->goToAction('titles');
             }
@@ -241,6 +289,15 @@ class Manage extends Controller {
         if (isset($_POST['ForumTitle'])){
             $model->setAttributes($_POST['ForumTitle']);
             if ($model->save()){
+                if (false != ($icon = $this->uploadImage("titles", 'icon', $model->id))){
+                    if ($model->icon &&  $model->icon != "default.png"){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                    $model->icon = $icon;
+                    if (!$model->save()){
+                        @unlink($this->getUploadFolder() . $model->icon);
+                    }
+                }
                 Messages::get()->success("Title saved!");
                 $this->goToAction('titles');
             }
