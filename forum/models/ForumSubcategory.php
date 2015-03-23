@@ -28,6 +28,7 @@ use mpf\WebApp;
  * @property string $last_update_time
  * @property string $last_response_time
  * @property int $last_active_user_id
+ * @property string $icon
  * @property \app\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
  */
@@ -48,16 +49,17 @@ class ForumSubcategory extends DbModel {
      */
     public static function getLabels() {
         return [
-             'id' => 'Id',
-             'category_id' => 'Category',
-             'user_id' => 'Owner',
-             'last_thread_created_id' => 'Newest Thread',
-             'last_thread_updated_id' => 'Lastest Updated Thread',
-             'title' => 'Title',
-             'description' => 'Description',
-             'last_update_time' => 'Last Update Time',
-             'last_response_time' => 'Last Response Time',
-             'last_active_user_id' => 'Last Active User'
+            'id' => 'Id',
+            'category_id' => 'Category',
+            'user_id' => 'Owner',
+            'last_thread_created_id' => 'Newest Thread',
+            'last_thread_updated_id' => 'Lastest Updated Thread',
+            'title' => 'Title',
+            'description' => 'Description',
+            'last_update_time' => 'Last Update Time',
+            'last_response_time' => 'Last Response Time',
+            'last_active_user_id' => 'Last Active User',
+            'icon' => 'Icon'
         ];
     }
 
@@ -65,10 +67,10 @@ class ForumSubcategory extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations(){
+    public static function getRelations() {
         return [
-             'category' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumCategory', 'category_id'],
-             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id']
+            'category' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumCategory', 'category_id'],
+            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id']
         ];
     }
 
@@ -76,7 +78,7 @@ class ForumSubcategory extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules(){
+    public static function getRules() {
         return [
             ["id, category_id, user_id, last_thread_created_id, last_thread_updated_id, title, description, last_update_time, last_response_time, last_active_user_id", "safe", "on" => "search"]
         ];
@@ -117,4 +119,5 @@ class ForumSubcategory extends DbModel {
         }
         return parent::beforeDelete();
     }
+
 }

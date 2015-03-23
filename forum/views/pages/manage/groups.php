@@ -15,18 +15,31 @@
         'label' => 'Manage Users'
     ],
     [
+        'url' => $this->updateURLWithSection(['manage', 'titles']),
+        'label' => 'Manage Titles'
+    ],
+    [
         'url' => $this->updateURLWithSection(['manage', 'newGroup']),
         'label' => 'New Group'
     ]
 ]); ?>
-    <div class="forum-default-group-line">
-        <span>Default group:</span>
-        <a href="#"><?= \app\modules\forum\models\ForumSection::findByPk($this->sectionId)->defaultGroup->full_name; ?></a>
-        <?= \mpf\web\helpers\Form::get()->openForm(['method' => 'post', 'style' => 'display:none;']); ?>
-        <?= \mpf\web\helpers\Form::get()->select('group', \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumUserGroup::findAllByAttributes(['section_id' => $this->sectionId]), ['id' => 'full_name'])); ?>
-        <input type="submit" name="changedefaultgroup" value="Update"/>
-        <?= \mpf\web\helpers\Form::get()->closeForm(); ?>
-    </div>
+<div class="forum-default-group-line">
+    <span>Default Visitors Group:</span>
+    <a href="#"><?= \app\modules\forum\models\ForumSection::findByPk($this->sectionId)->defaultVisitorsGroup->full_name; ?></a>
+    <?= \mpf\web\helpers\Form::get()->openForm(['method' => 'post', 'style' => 'display:none;']); ?>
+    <?= \mpf\web\helpers\Form::get()->select('group', \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumUserGroup::findAllByAttributes(['section_id' => $this->sectionId]), ['id' => 'full_name'])); ?>
+    <input type="submit" name="changedefaultvisitorsgroup" value="Update"/>
+    <?= \mpf\web\helpers\Form::get()->closeForm(); ?>
+</div>
+<div class="forum-default-group-line">
+    <span>Default Members Group:</span>
+    <a href="#"><?= \app\modules\forum\models\ForumSection::findByPk($this->sectionId)->defaultMembersGroup->full_name; ?></a>
+    <?= \mpf\web\helpers\Form::get()->openForm(['method' => 'post', 'style' => 'display:none;']); ?>
+    <?= \mpf\web\helpers\Form::get()->select('group', \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumUserGroup::findAllByAttributes(['section_id' => $this->sectionId]), ['id' => 'full_name'])); ?>
+    <input type="submit" name="changedefaultmembersgroup" value="Update"/>
+    <?= \mpf\web\helpers\Form::get()->closeForm(); ?>
+</div>
+
 
 <?php
 \mpf\widgets\datatable\Table::get([
@@ -54,8 +67,8 @@
 ])->display();
 ?>
 <script>
-    $(document).ready(function(){
-        $('.forum-default-group-line a').click(function(){
+    $(document).ready(function () {
+        $('.forum-default-group-line a').click(function () {
             $(this).hide();
             $('form', this.parentNode).show();
             return false;

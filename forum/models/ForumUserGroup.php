@@ -78,6 +78,29 @@ class ForumUserGroup extends DbModel {
     }
 
     /**
+     * @param $user
+     * @param $section
+     * @return static
+     */
+    public static function findByUserAndSection($user, $section){
+        $condition = new ModelCondition();
+        $condition->join = "INNER JOIN `forum_users2groups` ON group_id = `t`.`id` AND user_id = :user";
+        $condition->compareColumn("section_id", $section);
+        $condition->setParam(":user", $user);
+        $condition->fields = "`t`.*";
+        return self::find($condition);
+    }
+
+    /**
+     * @param $section
+     * @return static[]
+     */
+    public static function findAllBySection($section){
+        return self::findAllByAttributes(['section_id' => $section]);
+    }
+
+
+    /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @param int $sectionId
      * @return \mpf\datasources\sql\DataProvider

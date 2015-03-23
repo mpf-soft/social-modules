@@ -25,6 +25,7 @@ use mpf\WebApp;
  * @property int $order
  * @property int $user_id
  * @property int $section_id
+ * @property string $icon
  * @property \app\modules\forum\models\ForumSection $section
  * @property \app\modules\forum\models\ForumSubcategory[] $subcategories
  * @property \app\models\User $author
@@ -53,7 +54,8 @@ class ForumCategory extends DbModel {
             'url_friendly_name' => 'Url Friendly Name',
             'order' => 'Order',
             'user_id' => 'Author',
-            'section_id' => 'Section'
+            'section_id' => 'Section',
+            'icon' => 'Icon'
         ];
     }
 

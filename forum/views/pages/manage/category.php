@@ -14,6 +14,10 @@
         'label' => 'Manage Users'
     ],
     [
+        'url' => $this->updateURLWithSection(['manage', 'titles']),
+        'label' => 'Manage Titles'
+    ],
+    [
         'url' => $this->updateURLWithSection(['manage', 'newCategory']),
         'label' => 'New Category',
         'htmlOptions' => $model->isNewRecord()?['class' => 'selected']:[]

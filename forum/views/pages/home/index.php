@@ -15,7 +15,12 @@
         [
             'url' => $this->updateURLWithSection(['manage', 'users']),
             'label' => 'Manage Users'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'titles']),
+            'label' => 'Manage Titles'
         ]
+
     ];
     ?>
 <?php } ?>

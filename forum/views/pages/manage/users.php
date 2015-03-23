@@ -1,5 +1,7 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
-<?php /* @var $model \app\models\User */ ?>
+<?php /* @var $model \app\modules\forum\models\ForumUser2Section */ ?>
+<?php /* @var string[] $groups */ ?>
+<?php /* @var string[] $titles */ ?>
 <?= \app\components\htmltools\Page::get()->title("Forum - Users", [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
@@ -15,25 +17,41 @@
         'htmlOptions' => ['class' => 'selected']
     ],
     [
-        'url' => $this->updateURLWithSection(['manage', 'newGroup']),
-        'label' => 'New Group'
+        'url' => $this->updateURLWithSection(['manage', 'titles']),
+        'label' => 'Manage Titles'
     ]
 ]); ?>
 
 <?php
 \mpf\widgets\datatable\Table::get([
-    'dataProvider' => $model->getDataProvider(),
+    'dataProvider' => $model->getDataProvider($this->sectionId, 'forum'),
     'columns' => [
-        'name',
-        'register_date',
-        'last_login',
+        'name' => ['value' => '$row->user->name'],
+        'member_since' => ['class' => 'Date'],
+        'last_login' => ['class' => 'Date', 'value' => '$row->user->last_login?$row->user->last_login:"never"'],
         'title_id' => [
             'class' => 'InlineEdit',
             'type' => 'select',
-            'options' => \mpf\helpers\ArrayHelper::get()->transform(\app\models\UserTitle::findAll(), ['id' =>'title'])
+            'options' => $titles,
+            'filter' =>$titles
         ],
-        [
-            'value' => ''
+        'group_id' => [
+            'class' => 'InlineEdit',
+            'type' => 'select',
+            'filter' => $groups,
+            'options' => $groups
+        ],
+        'muted' => [
+            'class' => 'InlineEdit',
+            'type' => 'select',
+            'filter' => ['No', 'Yes'],
+            'options' => ['No', 'Yes']
+        ],
+        'banned' => [
+            'class' => 'InlineEdit',
+            'type' => 'select',
+            'filter' => ['No', 'Yes'],
+            'options' => ['No', 'Yes']
         ]
     ]
 ])->display();

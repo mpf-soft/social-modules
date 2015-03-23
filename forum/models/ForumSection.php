@@ -18,10 +18,12 @@ use mpf\datasources\sql\ModelCondition;
  * @package app\models
  * @property int $id
  * @property string $name
- * @property int $default_user_group_id
+ * @property int $default_visitors_group_id
  * @property int $owner_user_id
+ * @property int $default_members_group_id
  * @property \app\models\User $owner
- * @property \app\modules\forum\models\ForumUserGroup $defaultGroup
+ * @property \app\modules\forum\models\ForumUserGroup $defaultVisitorsGroup
+ * @property \app\modules\forum\models\ForumUserGroup $defaultMembersGroup
  */
 class ForumSection extends DbModel {
 
@@ -42,8 +44,9 @@ class ForumSection extends DbModel {
         return [
             'id' => 'Id',
             'name' => 'Name',
-            'default_user_group_id' => 'Default User Group',
-            'owner_user_id' => 'Owner'
+            'default_visitors_group_id' => 'Default Visitor Group',
+            'owner_user_id' => 'Owner',
+            'default_members_group_id' => 'Default Member Group'
         ];
     }
 
@@ -54,7 +57,8 @@ class ForumSection extends DbModel {
     public static function getRelations() {
         return [
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'owner_user_id'],
-            'defaultGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'default_user_group_id']
+            'defaultVisitorsGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'default_visitors_group_id'],
+            'defaultMembersGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'default_members_group_id']
         ];
     }
 
@@ -64,7 +68,7 @@ class ForumSection extends DbModel {
      */
     public static function getRules() {
         return [
-            ["id, name, default_user_group_id, owner_user_id", "safe", "on" => "search"]
+            ["id, name, default_visitors_group_id, default_members_group_id, owner_user_id", "safe", "on" => "search"]
         ];
     }
 
@@ -75,7 +79,7 @@ class ForumSection extends DbModel {
     public function getDataProvider() {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "name", "default_user_group_id", "owner_user_id"] as $column) {
+        foreach (["id", "name", "default_visitors_group_id", "default_members_group_id", "owner_user_id"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
@@ -89,10 +93,11 @@ class ForumSection extends DbModel {
      * Set a different default group for current section. It will check if group exists and if it's assigned to this
      * section but it will not check if user has access to this section as this method will also be used by automated
      * processes when a new section is generated.
-     * @param $groupId
+     * @param int $groupId
+     * @param string $for
      * @return bool
      */
-    public function setDefaultGroup($groupId){
+    public function setDefaultGroup($groupId, $for = 'visitor'){
         $group = ForumUserGroup::findByPk($groupId);
         if (!$group){
             Messages::get()->error("Group not found!");
@@ -102,7 +107,57 @@ class ForumSection extends DbModel {
             Messages::get()->error("Group is assigned to a different section of the forum!");
             return false;
         }
-        $this->default_user_group_id = $groupId;
+        if ('visitor' == $for) {
+            $this->default_visitors_group_id = $groupId;
+        } else {
+            $this->default_members_group_id = $groupId;
+        }
         return $this->save();
     }
+
+    /**
+     * Creates a new section + default user groups + a single user title.
+     * @param $name
+     * @param $user
+     */
+    public static function createNew($name, $user){
+        $section  = new self;
+        $section->name = $name;
+        $section->owner_user_id = $user;
+        $section->save();
+        $group = new ForumUserGroup();
+        $group->section_id = $section->id;
+        $group->full_name = 'Visitors';
+        $group->html_class = 'visitors';
+        $group->admin = $group->moderator = $group->newthread = $group->threadreply = 0;
+        $group->canread = 1;
+        $group->save();
+        $section->default_visitors_group_id = $group->id;
+        $group->full_name = "Members";
+        $group->html_class = "members";
+        $group->newthread = $group->threadreply = 1;
+        $group->saveAsNew();
+        $section->default_members_group_id = $group->id;
+        $section->save();
+        $group->full_name = "Moderators";
+        $group->html_class = "moderators";
+        $group->moderator = 1;
+        $group->saveAsNew();
+        $group->full_name = "Admins";
+        $group->html_class = "admins";
+        $group->admin = 1;
+        $group->saveAsNew();
+        $title = new ForumTitle();
+        $title->section_id = $section->id;
+        $title->title = "New Comer";
+        $title->save();
+        $user = new ForumUser2Section();
+        $user->user_id = $user;
+        $user->section_id = $section;
+        $user->group_id = $group->id;
+        $user->title_id = $title->id;
+        $user->banned = $user->muted = 0;
+        $user->save();
+    }
+
 }

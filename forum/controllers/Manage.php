@@ -11,12 +11,16 @@ namespace app\modules\forum\controllers;
 
 use app\components\htmltools\Messages;
 use app\models\User;
+use app\models\UserTitle;
 use app\modules\forum\components\Controller;
 use app\modules\forum\components\UserAccess;
 use app\modules\forum\models\ForumCategory;
 use app\modules\forum\models\ForumSection;
 use app\modules\forum\models\ForumSubcategory;
+use app\modules\forum\models\ForumTitle;
+use app\modules\forum\models\ForumUser2Section;
 use app\modules\forum\models\ForumUserGroup;
+use mpf\helpers\ArrayHelper;
 
 class Manage extends Controller {
     /**
@@ -39,8 +43,14 @@ class Manage extends Controller {
      * Edit groups, change default group and delete groups.
      */
     public function actionGroups() {
-        if (isset($_POST['changedefaultgroup'])){
-            if (ForumSection::findByPk($this->sectionId)->setDefaultGroup($_POST['group'])){
+        if (isset($_POST['changedefaultvisitorsgroup'])){
+            if (ForumSection::findByPk($this->sectionId)->setDefaultGroup($_POST['group'], 'visitors')){
+                Messages::get()->success("Default group updated!");
+                $this->goBack();
+            }
+        }
+        if (isset($_POST['changedefaultmembersgroup'])){
+            if (ForumSection::findByPk($this->sectionId)->setDefaultGroup($_POST['group'], 'members')){
                 Messages::get()->success("Default group updated!");
                 $this->goBack();
             }
@@ -176,17 +186,69 @@ class Manage extends Controller {
 
 
     public function actionUsers() {
-        if (isset($_POST['title_id'])){
-            User::update($_POST['id'], ['title_id' => $_POST['title_id']]);
-            Messages::get()->success("Title saved!");
-            $this->goBack();
+        foreach (['muted', 'banned', 'group_id', 'title_id'] as $field){
+            if (isset($_POST[$field])){
+                ForumUser2Section::update($_POST['id'], [$field => $_POST[$field]]);
+                Messages::get()->success("User saved!");
+                $this->goBack();
+            }
         }
-        $model = User::model();
-        if (isset($_GET['User'])){
-            $model->setAttributes($_GET['User']);
+        $model = ForumUser2Section::model();
+        if (isset($_GET['ForumUser2Section'])){
+            $model->setAttributes($_GET['ForumUser2Section']);
+        }
+        $this->assign('model', $model);
+        $this->assign('groups', ArrayHelper::get()->transform(ForumUserGroup::findAllBySection($this->sectionId), ['id' => 'full_name']));
+        $this->assign('titles', ArrayHelper::get()->transform(ForumTitle::findAll(), ['id' =>'title']));
+    }
+
+    public function actionMute(){
+        if ('mute' == $_POST['action']){
+
+        } elseif ('unmute'== $_POST['action']){
+
+        }
+    }
+
+    public function actionTitles(){
+        $model = ForumTitle::model();
+        if (isset($_GET['ForumTitle'])){
+            $model->setAttributes($_GET['ForumTitle']);
         }
         $this->assign('model', $model);
     }
+
+    public function actionNewTitle(){
+        $model = new ForumTitle();
+        $model->section_id = $this->sectionId;
+        if (isset($_POST['ForumTitle'])){
+            $model->setAttributes($_POST['ForumTitle']);
+            if ($model->save()){
+                Messages::get()->success("Title saved!");
+                $this->goToAction('titles');
+            }
+        }
+        $this->setPageLayout('title');
+        $this->assign('model', $model);
+    }
+
+    public function actionEditTitle($id){
+        $model = ForumTitle::findByPk($id);
+        if ($model->section_id != $this->sectionId){
+            Messages::get()->error("Access denied!");
+            $this->goBack();
+        }
+        if (isset($_POST['ForumTitle'])){
+            $model->setAttributes($_POST['ForumTitle']);
+            if ($model->save()){
+                Messages::get()->success("Title saved!");
+                $this->goToAction('titles');
+            }
+        }
+        $this->setPageLayout('title');
+        $this->assign('model', $model);
+    }
+
 
     public function actionDelete(){
         if (isset($_POST['ForumUserGroup'])){
