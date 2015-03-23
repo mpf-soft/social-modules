@@ -162,6 +162,7 @@ class ForumSection extends DbModel {
         $user->title_id = $title->id;
         $user->banned = $user->muted = 0;
         $user->save();
+        return $section->id;
     }
 
 }
