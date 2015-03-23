@@ -10,6 +10,7 @@ namespace app\modules\forum\components;
 
 
 use app\components\htmltools\Messages;
+use app\modules\forum\models\ForumSection;
 use mpf\helpers\FileHelper;
 use mpf\web\Session;
 
@@ -136,6 +137,10 @@ class Controller extends \app\components\Controller {
                 if (Session::get()->exists($this->sectionIdKey))
                     $this->sectionId = Session::get()->value($this->sectionIdKey);
                 break;
+        }
+        $section = ForumSection::findByPk($this->sectionId);
+        if (!$section){
+            $this->goToPage('special', 'notFound');
         }
         return parent::beforeAction($actionName);
     }
