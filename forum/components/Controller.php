@@ -138,9 +138,11 @@ class Controller extends \app\components\Controller {
                     $this->sectionId = Session::get()->value($this->sectionIdKey);
                 break;
         }
-        $section = ForumSection::findByPk($this->sectionId);
-        if (!$section){
-            $this->goToPage('special', 'notFound');
+        if ($actionName != 'notFound' || $actionName != 'accessDenied') {
+            $section = ForumSection::findByPk($this->sectionId);
+            if (!$section) {
+                $this->goToPage('special', 'notFound');
+            }
         }
         return parent::beforeAction($actionName);
     }
