@@ -55,7 +55,9 @@
                     ); ?>
                     <span><?= $subcategory->description; ?></span>
                 </h2>
-                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory'=>$subcategory->id]]), \app\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
+                <?php if (\app\modules\forum\components\UserAccess::get()->canCreateNewThread($subcategory->category_id)) { ?>
+                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \app\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
+                <?php } ?>
             </th>
         </tr>
         <tr class="threads-description-row">
@@ -80,8 +82,12 @@
                     <td class="thread-replies-column"><?= $thread->replies; ?></td>
                     <td class="thread-views-column"><?= $thread->views; ?></td>
                     <td class="thread-most-recent-column">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id]]), $thread->lastActiveUser->name); ?>
-                        <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date); ?></span>
+                        <?php if ($thread->last_reply_id) { ?>
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id]]), $thread->lastActiveUser->name); ?>
+                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date); ?></span>
+                        <?php } else { ?>
+                            <?= \app\modules\forum\components\Translator::get()->translate("no replies"); ?>
+                        <?php } ?>
                     </td>
                 </tr>
             <?php } ?>

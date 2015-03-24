@@ -133,7 +133,11 @@ class ForumSubcategory extends DbModel {
      * @return ForumThread[]
      */
     public function getTopPostsForCategoryPage(){
-        return [];
+        $condition = new ModelCondition(['model' => ForumThread::className()]);
+        $condition->compareColumn("subcategory_id", $this->id);
+        $condition->order = "`order` DESC";
+        $condition->limit = 10;
+        return ForumThread::findAll($condition);
     }
 
 }

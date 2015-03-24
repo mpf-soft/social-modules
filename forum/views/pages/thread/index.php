@@ -29,7 +29,9 @@
     . " " . $this->pageTitleSeparator . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['category', 'index', ['category' => $subcategory->category->url_friendly_name, 'id' => $subcategory->category_id]]), $subcategory->category->name)
     . " " . $this->pageTitleSeparator . " "
-    . $subcategory->title, $menu); ?>
+    . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['subcategory', 'index', ['category' => $subcategory->category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->category_id]]), $subcategory->title)
+    . " " . $this->pageTitleSeparator . " "
+    . $thread->title, $menu); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
@@ -38,4 +40,15 @@
         <?php $this->displayComponent('accessdenied', ['location' => 'subcategory']); ?>
         <?php return; ?>
     <?php } ?>
+
+    <div class="forum-thread-display">
+        <div class="forum-thread">
+            <?= $thread->content; ?>
+        </div>
+        <div class="forum-replies">
+
+        </div>
+    </div>
+
 </div>
+

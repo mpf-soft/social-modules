@@ -11,6 +11,7 @@ use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\WebApp;
 
 /**
  * Class ForumThread
@@ -20,6 +21,7 @@ use mpf\datasources\sql\ModelCondition;
  * @property int $subcategory_id
  * @property string $title
  * @property string $content
+ * @property string $keywords
  * @property int $score
  * @property int $replies
  * @property int $views
@@ -59,6 +61,7 @@ class ForumThread extends DbModel {
             'subcategory_id' => 'Subcategory',
             'title' => 'Title',
             'content' => 'Content',
+            'keywords' => 'Keywords',
             'score' => 'Score',
             'replies' => 'Replies',
             'views' => 'Views',
@@ -93,7 +96,8 @@ class ForumThread extends DbModel {
      */
     public static function getRules() {
         return [
-            ["id, user_id, subcategory_id, title, content, score, replies, views, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
+            ["title, content, keywords", "safe, required", "on" => "insert"],
+            ["id, user_id, subcategory_id, title, content, keywords, score, replies, views, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
         ];
     }
 
@@ -104,7 +108,7 @@ class ForumThread extends DbModel {
     public function getDataProvider() {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "user_id", "subcategory_id", "title", "content", "score", "replies", "views", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
+        foreach (["id", "user_id", "subcategory_id", "title", "content", "keywords", "score", "replies", "views", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
@@ -113,4 +117,19 @@ class ForumThread extends DbModel {
             'modelCondition' => $condition
         ]);
     }
+
+    /**
+     * After first time save to be called to update category info
+     * @param ForumSubcategory $subcategory
+     * @return bool
+     */
+    public function publishNew(ForumSubcategory $subcategory = null){
+        $subcategory = $subcategory?:ForumSubcategory::findByPk($this->subcategory_id);
+        $subcategory->last_thread_created_id = $subcategory->last_thread_updated_id = $this->id;
+        $subcategory->last_update_time = $subcategory->last_response_time = date('Y-m-d H:i:s');
+        $subcategory->last_active_user_id = $this->user_id;
+        $subcategory->numberofthreads += ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
+        return $subcategory->save();
+    }
+
 }
