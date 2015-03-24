@@ -67,6 +67,12 @@ class Controller extends \app\components\Controller {
      */
     public $uploadURL = '{WEB_ROOT}uploads/forum/';
 
+    /**
+     * Used to separate subpages in title.
+     * @var string
+     */
+    public $pageTitleSeparator = "-";
+
     public function getUploadFolder(){
         $moduleFolder = $this->getRequest()->getModulePath();
         $controllerFolder = $this->request->getController();

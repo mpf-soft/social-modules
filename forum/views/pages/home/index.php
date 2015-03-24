@@ -35,28 +35,43 @@
 
     <table class="forum-section">
         <?php foreach ($categories as $category) { ?>
-            <tr>
-                <th colspan="5"><?php $this->displayComponent('categorytitle', ['category' => $category]); ?></th>
+            <tr class="category-title-row">
+                <th colspan="4"><?php $this->displayComponent('categorytitle', ['category' => $category]); ?></th>
             </tr>
-            <tr>
+            <tr class="subcategory-description-row">
                 <th class="subcategory-title-column"><?= \app\modules\forum\components\Translator::get()->translate('Subcategory'); ?></th>
                 <th class="subcategory-options-column">&nbsp</th>
                 <th class="subcategory-activity-column">&nbsp</th>
                 <th class="subcategory-latest-post-column"><?= \app\modules\forum\components\Translator::get()->translate('Latest Post'); ?></th>
             </tr>
             <?php foreach ($category->subcategories as $subcategory) { ?>
-                <tr>
+                <tr class="subcategory-row">
                     <td class="subcategory-title-column">
-                        <b><?= $subcategory->title; ?></b>
+                        <?= \mpf\web\helpers\Html::get()->link(
+                            $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]),
+                            \mpf\web\helpers\Html::get()->image($this->getUploadUrl() . 'subcategories/' . $subcategory->icon),
+                            ['class' => 'subcategory-icon']
+                        ); ?>
+                        <?= \mpf\web\helpers\Html::get()->link(
+                            $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]),
+                            $subcategory->title,
+                            ['class' => 'subcategory-title']
+                        ); ?>
                         <span><?= $subcategory->description; ?></span>
                     </td>
                     <td class="subcategory-options-column">&nbsp;</td>
                     <td class="subcategory-activity-column">
-                        <b>0 threads</b>
-                        <b>0 replies</b>
+                        <b><?= $subcategory->numberofthreads; ?> <?= \app\modules\forum\components\Translator::get()->translate("threads"); ?></b>
+                        <b><?= $subcategory->numberofreplies; ?> <?= \app\modules\forum\components\Translator::get()->translate("replies"); ?></b>
                     </td>
                     <td class="subcategory-latest-post-column">
-                        <span> - no posts - </span>
+                        <span>
+                            <?php if ($subcategory->last_thread_updated_id) { ?>
+                                info about the last updates here
+                            <?php } else { ?>
+                                <?= \app\modules\forum\components\Translator::get()->translate("- no posts -"); ?>
+                            <?php } ?>
+                        </span>
                     </td>
                 </tr>
             <?php } ?>

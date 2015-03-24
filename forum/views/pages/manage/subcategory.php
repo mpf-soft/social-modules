@@ -1,6 +1,6 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
 <?php /* @var $model \app\modules\forum\models\ForumSubcategory */ ?>
-<?= \app\components\htmltools\Page::get()->title("Forum - New subcategory", [
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " - New subcategory", [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
         'label' => 'Manage Groups'
@@ -34,6 +34,7 @@
     'formHtmlOptions' => ['enctype' => 'multipart/form-data'],
     'fields' => [
         'title',
+        'url_friendly_title',
         'description',
         [
             'name' => 'category_id',

@@ -1,2 +1,7 @@
 <?php /* @var $category \app\modules\forum\models\ForumCategory */ ?>
-<h2><?= $category->name; ?></h2>
+<?php /* @var $this \app\modules\forum\components\Controller */ ?>
+<h2><?= \mpf\web\helpers\Html::get()->link(
+        $this->updateURLWithSection(['category', 'index', ['category' => $category->url_friendly_name, 'id' => $category->id]]),
+        \mpf\web\helpers\Html::get()->image($this->getUploadUrl() . 'categories/' . $category->icon) . $category->name,
+        ['class' => 'category']
+    ); ?></h2>

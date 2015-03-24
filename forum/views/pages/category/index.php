@@ -1,3 +1,87 @@
-<?php /* @var $this \app\modules\forum\components\Controller */ ?>
-<?= \app\components\htmltools\Page::get()->title("Forum"); ?>
-<?php $this->displayComponent('topuserpanel'); ?>
+<?php /* @var $this \app\modules\forum\controllers\Home */ ?>
+<?php /* @var $category \app\modules\forum\models\ForumCategory */ ?>
+<?php $menu = []; ?>
+<?php if (\app\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
+    <?php
+    $menu = [
+        [
+            'url' => $this->updateURLWithSection(['manage', 'groups']),
+            'label' => 'Manage Groups'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'categories']),
+            'label' => 'Manage Categories'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'users']),
+            'label' => 'Manage Users'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'titles']),
+            'label' => 'Manage Titles'
+        ]
+
+    ];
+    ?>
+<?php } ?>
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . $this->pageTitleSeparator . " " . $category->name, $menu); ?>
+
+<div class="forum-page <?= $this->forumPageTheme; ?>">
+    <?php $this->displayComponent('topuserpanel'); ?>
+
+    <?php if (!\app\modules\forum\components\UserAccess::get()->canRead($this->sectionId, $category->id)) { ?>
+        <?php $this->displayComponent('accessdenied', ['location' => 'category']); ?>
+        <?php return; ?>
+    <?php } ?>
+
+    <table class="forum-category">
+        <?php foreach ($category->subcategories as $subcategory) { ?>
+            <tr class="subcategory-title-row">
+                <th colspan="5">
+                    <h2>
+                        <?= \mpf\web\helpers\Html::get()->link(
+                            $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]),
+                            \mpf\web\helpers\Html::get()->image($this->getUploadUrl() . 'subcategories/' . $subcategory->icon),
+                            ['class' => 'subcategory-icon']
+                        ); ?>
+                        <?= \mpf\web\helpers\Html::get()->link(
+                            $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]),
+                            $subcategory->title,
+                            ['class' => 'subcategory-title']
+                        ); ?>
+                        <span><?= $subcategory->description; ?></span>
+                    </h2>
+                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory'=>$subcategory->id]]), \app\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
+                </th>
+            </tr>
+            <tr class="threads-description-row">
+                <th class="thread-title-column"><?= \app\modules\forum\components\Translator::get()->translate("Thread"); ?></th>
+                <th class="thread-started-by-column"><?= \app\modules\forum\components\Translator::get()->translate("Started By"); ?></th>
+                <th class="thread-replies-column"><?= \app\modules\forum\components\Translator::get()->translate("Replies"); ?></th>
+                <th class="thread-views-column"><?= \app\modules\forum\components\Translator::get()->translate("Views"); ?></th>
+                <th class="thread-most-recent-column"><?= \app\modules\forum\components\Translator::get()->translate("Most Recent"); ?></th>
+            </tr>
+            <?php if (!$subcategory->numberofthreads) { ?>
+                <tr class="no-threads-found-row">
+                    <td colspan="5"><?= \app\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
+                </tr>
+            <?php } else { ?>
+                <?php foreach ($subcategory->getTopPostsForCategoryPage() as $thread) { ?>
+                    <tr class="thread-row">
+                        <td class="thread-title-column"><?= $thread->title; ?></td>
+                        <td class="thread-started-by-column">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id'=>$thread->user_id]]), $thread->owner->name); ?>
+                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?></span>
+                        </td>
+                        <td class="thread-replies-column"><?= $thread->replies; ?></td>
+                        <td class="thread-views-column"><?= $thread->views; ?></td>
+                        <td class="thread-most-recent-column">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id'=>$thread->last_reply_user_id]]), $thread->lastActiveUser->name); ?>
+                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date); ?></span>
+                        </td>
+                    </tr>
+                <?php } ?>
+            <?php } ?>
+        <?php } ?>
+    </table>
+</div>

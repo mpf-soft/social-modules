@@ -1,6 +1,6 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
 <?php /* @var $model \app\modules\forum\models\ForumTitle */ ?>
-<?= \app\components\htmltools\Page::get()->title("Forum - Users", [
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " - Users", [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
         'label' => 'Manage Groups'

@@ -1,6 +1,6 @@
 <?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
 <?php /* @var $model \app\modules\forum\models\ForumUserGroup */ ?>
-<?= \app\components\htmltools\Page::get()->title("Forum - User Groups - " . ($model->isNewRecord()?'New Group':'Edit ' . $model->full_name), [
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " - User Groups - " . ($model->isNewRecord()?'New Group':'Edit ' . $model->full_name), [
     [
         'url' => ['manage', 'groups'],
         'label' => 'Manage Groups'

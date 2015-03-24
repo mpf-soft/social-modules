@@ -28,6 +28,9 @@ use mpf\WebApp;
  * @property string $last_update_time
  * @property string $last_response_time
  * @property int $last_active_user_id
+ * @property int $numberofthreads
+ * @property int $numberofreplies
+ * @property string $url_friendly_title
  * @property string $icon
  * @property \app\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
@@ -59,7 +62,10 @@ class ForumSubcategory extends DbModel {
             'last_update_time' => 'Last Update Time',
             'last_response_time' => 'Last Response Time',
             'last_active_user_id' => 'Last Active User',
-            'icon' => 'Icon'
+            'icon' => 'Icon',
+            'numberofthreads' => 'Threads',
+            'numberofreplies' => 'Replies',
+            'url_friendly_title' => 'URL Friendly Title'
         ];
     }
 
@@ -80,18 +86,21 @@ class ForumSubcategory extends DbModel {
      */
     public static function getRules() {
         return [
-            ["id, category_id, user_id, last_thread_created_id, last_thread_updated_id, title, description, last_update_time, last_response_time, last_active_user_id", "safe", "on" => "search"]
+            ["id, category_id, user_id, last_thread_created_id, last_thread_updated_id, title, url_friendly_title, description, last_update_time, last_response_time, last_active_user_id, numberofthreads, numberofreplies", "safe", "on" => "search"]
         ];
     }
 
     /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
+     * @param int $category
      * @return \mpf\datasources\sql\DataProvider
      */
-    public function getDataProvider() {
+    public function getDataProvider($category = null) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-
-        foreach (["id", "category_id", "user_id", "last_thread_created_id", "last_thread_updated_id", "title", "description", "last_update_time", "last_response_time", "last_active_user_id"] as $column) {
+        if ($category){
+            $condition->compareColumn("category_id", $category);
+        }
+        foreach (["id", "category_id", "user_id", "last_thread_created_id", "last_thread_updated_id", "title", "url_friendly_title", "description", "last_update_time", "last_response_time", "last_active_user_id", "numberofthreads", "numberofreplies"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
@@ -118,6 +127,13 @@ class ForumSubcategory extends DbModel {
             return false;
         }
         return parent::beforeDelete();
+    }
+
+    /**
+     * @return ForumThread[]
+     */
+    public function getTopPostsForCategoryPage(){
+        return [];
     }
 
 }

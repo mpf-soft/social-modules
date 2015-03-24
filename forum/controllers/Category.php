@@ -10,11 +10,12 @@ namespace app\modules\forum\controllers;
 
 
 use app\modules\forum\components\Controller;
+use app\modules\forum\models\ForumCategory;
 
 class Category extends Controller{
 
-    public function actionIndex(){
-
+    public function actionIndex($id){
+        $this->assign("category", ForumCategory::findByPk($id));
     }
 
 }

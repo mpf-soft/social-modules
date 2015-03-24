@@ -22,6 +22,7 @@ use mpf\datasources\sql\ModelCondition;
  * @property string $content
  * @property int $score
  * @property int $replies
+ * @property int $views
  * @property string $create_time
  * @property string $edit_time
  * @property int $edit_user_id
@@ -53,22 +54,23 @@ class ForumThread extends DbModel {
      */
     public static function getLabels() {
         return [
-             'id' => 'Id',
-             'user_id' => 'Owner',
-             'subcategory_id' => 'Subcategory',
-             'title' => 'Title',
-             'content' => 'Content',
-             'score' => 'Score',
-             'replies' => 'Replies',
-             'create_time' => 'Create Time',
-             'edit_time' => 'Edit Time',
-             'edit_user_id' => 'Updated by',
-             'sticky' => 'Sticky',
-             'order' => 'Order',
-             'closed' => 'Closed',
-             'last_reply_id' => 'Last Reply',
-             'last_reply_user_id' => 'Last User That Replied',
-             'last_reply_date' => 'Last Reply Date'
+            'id' => 'Id',
+            'user_id' => 'Owner',
+            'subcategory_id' => 'Subcategory',
+            'title' => 'Title',
+            'content' => 'Content',
+            'score' => 'Score',
+            'replies' => 'Replies',
+            'views' => 'Views',
+            'create_time' => 'Create Time',
+            'edit_time' => 'Edit Time',
+            'edit_user_id' => 'Updated by',
+            'sticky' => 'Sticky',
+            'order' => 'Order',
+            'closed' => 'Closed',
+            'last_reply_id' => 'Last Reply',
+            'last_reply_user_id' => 'Last User That Replied',
+            'last_reply_date' => 'Last Reply Date'
         ];
     }
 
@@ -76,12 +78,12 @@ class ForumThread extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations(){
+    public static function getRelations() {
         return [
-             'subcategory' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSubcategory', 'subcategory_id'],
-             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
-             'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_reply_user_id']
+            'subcategory' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSubcategory', 'subcategory_id'],
+            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
+            'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
+            'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_reply_user_id']
         ];
     }
 
@@ -89,9 +91,9 @@ class ForumThread extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules(){
+    public static function getRules() {
         return [
-            ["id, user_id, subcategory_id, title, content, score, replies, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
+            ["id, user_id, subcategory_id, title, content, score, replies, views, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
         ];
     }
 
@@ -102,7 +104,7 @@ class ForumThread extends DbModel {
     public function getDataProvider() {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "user_id", "subcategory_id", "title", "content", "score", "replies", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
+        foreach (["id", "user_id", "subcategory_id", "title", "content", "score", "replies", "views", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
