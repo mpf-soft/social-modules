@@ -166,7 +166,7 @@ class ForumSection extends DbModel {
         $title->title = "New Comer";
         $title->icon = "default.png";
         $title->save();
-        App::get()->debug("Title {$title->title}:  #{$group->id} created!");
+        App::get()->debug("Title {$title->title}:  #{$title->id} created!");
         $user = new ForumUser2Section();
         $user->user_id = $userId;
         $user->section_id = $section->id;
@@ -174,7 +174,7 @@ class ForumSection extends DbModel {
         $user->title_id = $title->id;
         $user->banned = $user->muted = 0;
         $user->save();
-        App::get()->debug("User assigned to section as admin! (Group: #{$group->id})");
+        App::get()->debug("User #$userId assigned to section as admin! (Group: #{$group->id})");
         return $section->id;
     }
 
@@ -189,7 +189,6 @@ TRUNCATE TABLE `forum_sections`;
 TRUNCATE TABLE `forum_subcategories`;
 TRUNCATE TABLE `forum_threads`;
 TRUNCATE TABLE `forum_titles`;
-TRUNCATE TABLE `forum_users2groups`;
 TRUNCATE TABLE `forum_users2sections`;
 TRUNCATE TABLE `forum_user_groups`;");
     }
