@@ -64,6 +64,7 @@
             <td class="forum-reply-content">
                 <div class="forum-reply-content-date"><?=  \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time);?></div>
                 <?= $thread->getContent(); ?>
+                <?= $thread->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
             </td>
         </tr>
         <?php foreach ($replies as $reply) { ?>
@@ -86,7 +87,8 @@
                 </td>
                 <td class="forum-reply-content">
                     <div class="forum-reply-content-date"><?=  \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time);?></div>
-                    <?= $thread->getContent(); ?>
+                    <?= $reply->getContent(); ?>
+                    <?= $reply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
                 </td>
             </tr>
         <?php } ?>

@@ -123,7 +123,6 @@ class ForumReply extends DbModel {
     }
 
     public function getContent(){
-
         return ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
             'linkRoot' => WebApp::get()->request()->getLinkRoot(),
             'webRoot' => WebApp::get()->request()->getWebRoot()
