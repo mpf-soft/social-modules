@@ -64,6 +64,7 @@
             <td class="forum-reply-content">
                 <div class="forum-reply-content-date"><?=  \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time);?></div>
                 <?= $thread->getContent(); ?>
+                <?= $this->threadSignatureSeparator; ?>
                 <?= $thread->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
             </td>
         </tr>
@@ -88,6 +89,7 @@
                 <td class="forum-reply-content">
                     <div class="forum-reply-content-date"><?=  \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time);?></div>
                     <?= $reply->getContent(); ?>
+                    <?= $this->threadSignatureSeparator; ?>
                     <?= $reply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
                 </td>
             </tr>

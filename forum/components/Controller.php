@@ -86,6 +86,12 @@ class Controller extends \app\components\Controller {
      */
     public $repliesPerPage = 10;
 
+    /**
+     * In post replies this will be used as separator between post and replies.
+     * @var string
+     */
+    public $threadSignatureSeparator = "<br /><br />";
+
     public function getUploadFolder(){
         $moduleFolder = $this->getRequest()->getModulePath();
         $controllerFolder = $this->request->getController();
