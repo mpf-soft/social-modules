@@ -94,7 +94,7 @@ class ForumReply extends DbModel {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
-        $condition->order = '`order` ASC, `id` DESC';
+        $condition->order = '`id` ASC';
         $condition->offset = ($page - 1) * $perPage;
         return self::findAll($condition);
 
