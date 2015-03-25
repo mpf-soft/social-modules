@@ -65,13 +65,18 @@
                         <b><?= $subcategory->numberofreplies; ?> <?= \app\modules\forum\components\Translator::get()->translate("replies"); ?></b>
                     </td>
                     <td class="subcategory-latest-post-column">
-                        <span>
                             <?php if ($subcategory->last_thread_updated_id) { ?>
-                                info about the last updates here
+                                <?= \mpf\web\helpers\Html::get()->link(
+                                    $this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $category->url_friendly_name, 'id' => $subcategory->lastThreadUpdated->id]]),
+                                    $subcategory->lastThreadUpdated->title,
+                                    ['class' => 'subcategory-latest-post-thread']); ?>
+                                <span class="subcategory-lastest-post-author">By <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subcategory->last_active_user_id]]), $subcategory->lastThreadAuthor->name); ?></span>
+                                <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_update_time)); ?></span>
                             <?php } else { ?>
+                        <span class="subcategory-no-posts">
                                 <?= \app\modules\forum\components\Translator::get()->translate("- no posts -"); ?>
-                            <?php } ?>
                         </span>
+                            <?php } ?>
                     </td>
                 </tr>
             <?php } ?>

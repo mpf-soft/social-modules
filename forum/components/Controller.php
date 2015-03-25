@@ -12,6 +12,7 @@ namespace app\modules\forum\components;
 use app\components\htmltools\Messages;
 use app\modules\forum\models\ForumSection;
 use mpf\helpers\FileHelper;
+use mpf\web\helpers\Html;
 use mpf\web\Session;
 
 class Controller extends \app\components\Controller {
@@ -72,6 +73,12 @@ class Controller extends \app\components\Controller {
      * @var string
      */
     public $pageTitleSeparator = "-";
+
+    /**
+     * Number of threads to display per page
+     * @var int
+     */
+    public $threadsPerPage = 15;
 
     public function getUploadFolder(){
         $moduleFolder = $this->getRequest()->getModulePath();
@@ -213,4 +220,21 @@ class Controller extends \app\components\Controller {
         return "\\mpf\\WebApp::get()->request()->createURL($controller, '$action', [$prms])";
     }
 
+    /**
+     * @param int $page
+     * @param string $label
+     * @return string
+     */
+    public function getPageLink($page, $label){
+        return Html::get()->link($this->getPageURL($page), $label);
+    }
+
+    /**
+     * @param $page
+     * @return string
+     */
+    public function getPageURL($page){
+
+        return "#";
+    }
 }

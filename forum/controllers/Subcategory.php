@@ -11,12 +11,15 @@ namespace app\modules\forum\controllers;
 
 use app\modules\forum\components\Controller;
 use app\modules\forum\models\ForumSubcategory;
+use app\modules\forum\models\ForumThread;
 
 class Subcategory extends Controller{
 
-    public function actionIndex($id){
+    public function actionIndex($id, $page = 1){
+        $page = ($page < 1) ? 1 : $page;
         $this->assign("subcategory", ForumSubcategory::findByPk($id));
-        $this->assign('threads', []);
+        $this->assign('threads', ForumThread::findAllForSubcategory($id, $page, $this->threadsPerPage));
+        $this->assign('currentPage', $page);
     }
 
 }

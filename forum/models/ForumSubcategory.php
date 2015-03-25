@@ -34,6 +34,8 @@ use mpf\WebApp;
  * @property string $icon
  * @property \app\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
+ * @property \app\models\User $lastThreadAuthor
+ * @property \app\modules\forum\models\ForumThread $lastThreadUpdated
  */
 class ForumSubcategory extends DbModel {
 
@@ -76,7 +78,9 @@ class ForumSubcategory extends DbModel {
     public static function getRelations() {
         return [
             'category' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumCategory', 'category_id'],
-            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id']
+            'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
+            'lastThreadUpdated' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumThread', 'last_thread_updated_id'],
+            'lastThreadAuthor' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_active_user_id']
         ];
     }
 

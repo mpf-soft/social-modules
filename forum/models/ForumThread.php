@@ -102,6 +102,22 @@ class ForumThread extends DbModel {
     }
 
     /**
+     * Find all threads for selected subcategory separated per page
+     * @param $subcategory
+     * @param int $page
+     * @param int $threadsPerPage
+     * @return static[]
+     */
+    public static function findAllForSubcategory($subcategory, $page = 1, $threadsPerPage = 20){
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->compareColumn("subcategory_id", $subcategory);
+        $condition->limit = $threadsPerPage;
+        $condition->order = '`order` ASC, `id` DESC';
+        $condition->offset = ($page - 1) * $threadsPerPage;
+        return self::findAll($condition);
+    }
+
+    /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @return \mpf\datasources\sql\DataProvider
      */
@@ -128,8 +144,16 @@ class ForumThread extends DbModel {
         $subcategory->last_thread_created_id = $subcategory->last_thread_updated_id = $this->id;
         $subcategory->last_update_time = $subcategory->last_response_time = date('Y-m-d H:i:s');
         $subcategory->last_active_user_id = $this->user_id;
-        $subcategory->numberofthreads += ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
+        $subcategory->numberofthreads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
         return $subcategory->save();
     }
 
+    public function getStatus(){
+        if ($this->sticky){
+            return 'sticky';
+        } elseif ($this->closed){
+            return 'closed';
+        }
+        return 'new';
+    }
 }

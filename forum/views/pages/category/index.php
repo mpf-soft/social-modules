@@ -37,7 +37,7 @@
     <table class="forum-category">
         <?php foreach ($category->subcategories as $subcategory) { ?>
             <tr class="subcategory-title-row">
-                <th colspan="5">
+                <th colspan="6">
                     <h2>
                         <?= \mpf\web\helpers\Html::get()->link(
                             $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]),
@@ -57,6 +57,7 @@
                 </th>
             </tr>
             <tr class="threads-description-row">
+                <th class="thread-status-icon-column">&nbsp;</th>
                 <th class="thread-title-column"><?= \app\modules\forum\components\Translator::get()->translate("Thread"); ?></th>
                 <th class="thread-started-by-column"><?= \app\modules\forum\components\Translator::get()->translate("Started By"); ?></th>
                 <th class="thread-replies-column"><?= \app\modules\forum\components\Translator::get()->translate("Replies"); ?></th>
@@ -65,24 +66,29 @@
             </tr>
             <?php if (!$subcategory->numberofthreads) { ?>
                 <tr class="no-threads-found-row">
-                    <td colspan="5"><?= \app\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
+                    <td colspan="6"><?= \app\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
                 </tr>
             <?php } else { ?>
                 <?php foreach ($subcategory->getTopPostsForCategoryPage() as $thread) { ?>
                     <tr class="thread-row">
-                        <td class="thread-title-column"><?= $thread->title; ?></td>
+                        <td class="thread-status-icon-column"><?= \mpf\web\helpers\Html::get()->image($this->getWebRoot() .'forum/statusicons/' . $thread->getStatus() . '.png', ucfirst($thread->getStatus())) ?></td>
+                        <td class="thread-title-column">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?>
+                        </td>
                         <td class="thread-started-by-column">
                             <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
-                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?></span>
+                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false ,false); ?></span>
                         </td>
                         <td class="thread-replies-column"><?= $thread->replies; ?></td>
                         <td class="thread-views-column"><?= $thread->views; ?></td>
                         <td class="thread-most-recent-column">
                             <?php if ($thread->last_reply_id) { ?>
                                 <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id]]), $thread->lastActiveUser->name); ?>
-                                <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date); ?></span>
+                                <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false ,false); ?></span>
                             <?php } else { ?>
-                                <?= \app\modules\forum\components\Translator::get()->translate("no replies"); ?>
+                                <span class="thread-no-replies-message">
+                                    <?= \app\modules\forum\components\Translator::get()->translate("no replies"); ?>
+                                </span>
                             <?php } ?>
                         </td>
                     </tr>
