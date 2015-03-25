@@ -12,6 +12,7 @@ namespace app\modules\forum\controllers;
 use app\components\htmltools\Messages;
 use app\modules\forum\components\Controller;
 use app\modules\forum\components\UserAccess;
+use app\modules\forum\models\ForumReply;
 use app\modules\forum\models\ForumSubcategory;
 use app\modules\forum\models\ForumThread;
 use mpf\WebApp;
@@ -23,7 +24,7 @@ class Thread extends Controller{
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);
-        $this->assign("replies", []);
+        $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, $this->repliesPerPage));
     }
 
     public function actionNew($subcategory){

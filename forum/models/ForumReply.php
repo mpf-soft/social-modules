@@ -89,6 +89,17 @@ class ForumReply extends DbModel {
         ];
     }
 
+
+    public static function findAllRepliesForThread($id, $page = 1, $perPage = 20){
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->compareColumn("thread_id", $id);
+        $condition->limit = $perPage;
+        $condition->order = '`order` ASC, `id` DESC';
+        $condition->offset = ($page - 1) * $perPage;
+        return self::findAll($condition);
+
+    }
+
     /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @return \mpf\datasources\sql\DataProvider
