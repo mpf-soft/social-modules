@@ -22,7 +22,8 @@ class Thread extends Controller{
         $thread = ForumThread::findByPk($id);
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
-        $this->assign("page", $page);
+        $this->assign("currentPage", $page);
+        $this->assign("replies", []);
     }
 
     public function actionNew($subcategory){

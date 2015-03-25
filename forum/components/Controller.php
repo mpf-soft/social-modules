@@ -80,6 +80,12 @@ class Controller extends \app\components\Controller {
      */
     public $threadsPerPage = 15;
 
+    /**
+     * Number of replies to display per page;
+     * @var int
+     */
+    public $repliesPerPage = 10;
+
     public function getUploadFolder(){
         $moduleFolder = $this->getRequest()->getModulePath();
         $controllerFolder = $this->request->getController();

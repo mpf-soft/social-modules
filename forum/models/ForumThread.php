@@ -7,11 +7,14 @@
 
 namespace app\modules\forum\models;
 
+use app\models\PageTag;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\web\helpers\Html;
 use mpf\WebApp;
+use mpf\widgets\form\fields\ForumTextarea;
 
 /**
  * Class ForumThread
@@ -156,4 +159,30 @@ class ForumThread extends DbModel {
         }
         return 'new';
     }
+
+    /**
+     * @var ForumUser2Section
+     */
+    protected $sectionUser;
+
+    /**
+     * @param $sectionId
+     * @return ForumUser2Section
+     */
+    public function getSectionUser($sectionId){
+        if (!$this->sectionUser){
+            $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id]);
+        }
+        return $this->sectionUser;
+    }
+
+    public function getContent(){
+        return ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
+            'linkRoot' => WebApp::get()->request()->getLinkRoot(),
+            'webRoot' => WebApp::get()->request()->getWebRoot()
+        ]) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
+        Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css').
+        Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
+    }
+
 }
