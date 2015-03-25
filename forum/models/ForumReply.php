@@ -134,10 +134,10 @@ class ForumReply extends DbModel {
     }
 
     public function getContent(){
-        return ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
+        return nl2br(ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
             'linkRoot' => WebApp::get()->request()->getLinkRoot(),
             'webRoot' => WebApp::get()->request()->getWebRoot()
-        ]) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
+        ])) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css').
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
