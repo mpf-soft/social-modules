@@ -64,7 +64,7 @@
                 <th class="thread-views-column"><?= \app\modules\forum\components\Translator::get()->translate("Views"); ?></th>
                 <th class="thread-most-recent-column"><?= \app\modules\forum\components\Translator::get()->translate("Most Recent"); ?></th>
             </tr>
-            <?php if (!$subcategory->numberofthreads) { ?>
+            <?php if (!$subcategory->number_of_threads) { ?>
                 <tr class="no-threads-found-row">
                     <td colspan="6"><?= \app\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
                 </tr>

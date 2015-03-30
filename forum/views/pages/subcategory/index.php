@@ -41,9 +41,9 @@
     <?php } ?>
     <?php $this->displayComponent("pagelist", [
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('threads'),
-        'totalElements' => $subcategory->numberofthreads,
+        'totalElements' => $subcategory->number_of_threads,
         'visibleElements' => count($threads),
-        'totalPages' => (int)(($subcategory->numberofthreads / $this->threadsPerPage) + (($subcategory->numberofthreads % $this->threadsPerPage)?1:0)),
+        'totalPages' => (int)(($subcategory->number_of_threads / $this->threadsPerPage) + (($subcategory->number_of_threads % $this->threadsPerPage)?1:0)),
         'currentPage' => $currentPage
     ]); ?>
     <table class="forum-category">
@@ -75,7 +75,7 @@
             <th class="thread-views-column"><?= \app\modules\forum\components\Translator::get()->translate("Views"); ?></th>
             <th class="thread-most-recent-column"><?= \app\modules\forum\components\Translator::get()->translate("Most Recent"); ?></th>
         </tr>
-        <?php if (!$subcategory->numberofthreads) { ?>
+        <?php if (!$subcategory->number_of_threads) { ?>
             <tr class="no-threads-found-row">
                 <td colspan="6"><?= \app\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
             </tr>
@@ -108,9 +108,9 @@
     </table>
     <?php $this->displayComponent("pagelist", [
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('threads'),
-        'totalElements' => $subcategory->numberofthreads,
+        'totalElements' => $subcategory->number_of_threads,
         'visibleElements' => count($threads),
-        'totalPages' => (int)(($subcategory->numberofthreads / $this->threadsPerPage) + (($subcategory->numberofthreads % $this->threadsPerPage)?1:0)),
+        'totalPages' => (int)(($subcategory->number_of_threads / $this->threadsPerPage) + (($subcategory->number_of_threads % $this->threadsPerPage)?1:0)),
         'currentPage' => $currentPage
     ]); ?>
 </div>
