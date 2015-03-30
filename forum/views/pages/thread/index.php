@@ -116,7 +116,7 @@
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Edit reply"),
                                 ['id' => $reply->id], [],
                                 false,
-                                \app\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can't undo this action!")
+                                \app\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
                             ); ?>
                         </div>
                     <?php } ?>
