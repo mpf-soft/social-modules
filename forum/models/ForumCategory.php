@@ -96,7 +96,7 @@ class ForumCategory extends DbModel {
         $condition = new ModelCondition(['model'=>__CLASS__]);
         $condition->join = "LEFT JOIN forum_groups2categories ON (category_id = id AND group_id = :group)";
         $condition->addCondition("canread IS NULL OR canread = 1");
-        $condition->setParam(":group", UserAccess::get()->getUserGroup($sectionId));
+        $condition->setParam(":group", UserAccess::get()->getUserGroup($sectionId, true));
         $condition->order = "`order` ASC";
         $condition->with = ['subcategories'];
         $condition->compareColumn("section_id", $sectionId);

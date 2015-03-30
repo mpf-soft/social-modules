@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\models\PageTag;
+use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -55,7 +56,7 @@ class ForumReply extends DbModel {
              'id' => 'Id',
              'user_id' => 'Author',
              'thread_id' => 'Thread',
-             'content' => 'Content',
+             'content' => 'Reply',
              'time' => 'Time',
              'edited' => 'Edited',
              'edit_time' => 'Edit Time',
@@ -140,5 +141,14 @@ class ForumReply extends DbModel {
         ])) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css').
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
+    }
+
+    public function saveReply($content, $sectionId){
+        $this->content = $content;
+        $this->user_id = WebApp::get()->user()->id;
+        $this->time = date('Y-m-d H:i:s');
+        $this->score = 0;
+        $this->user_group_id = UserAccess::get()->getUserGroup($sectionId, true);
+        return $this->save();
     }
 }

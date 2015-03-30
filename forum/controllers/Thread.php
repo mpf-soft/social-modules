@@ -21,12 +21,22 @@ class Thread extends Controller{
 
     public function actionIndex($id, $page = 1){
         $thread = ForumThread::findByPk($id);
+        if ($thread->subcategory->category->section_id != $this->sectionId){
+            $this->goToPage("special", "notFound");
+            return;
+        }
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);
         $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, $this->repliesPerPage));
         $replyModel = new ForumReply();
         $replyModel->thread_id = $id;
+        if (isset($_POST['ForumReply']) && !$thread->closed && UserAccess::get()->canReplyToThread($thread->subcategory->category_id)){
+            if ($replyModel->saveReply($_POST['ForumReply']['content'], $this->sectionId)){
+                Messages::get()->success("Reply saved!");
+                $this->goBack();
+            }
+        }
         $this->assign('replyModel', $replyModel);
     }
 

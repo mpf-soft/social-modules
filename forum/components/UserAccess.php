@@ -11,13 +11,13 @@ namespace app\modules\forum\components;
 
 use app\modules\forum\models\ForumSection;
 use app\modules\forum\models\ForumTitle;
+use app\modules\forum\models\ForumUser2Section;
 use app\modules\forum\models\ForumUserGroup;
-use mpf\base\Object;
-use mpf\helpers\ArrayHelper;
+use mpf\base\LogAwareObject;
 use mpf\web\Session;
 use mpf\WebApp;
 
-class UserAccess extends Object {
+class UserAccess extends LogAwareObject {
     /**
      * @var UserAccess
      */
@@ -25,9 +25,19 @@ class UserAccess extends Object {
 
     public $sessionKey = "Forum-UserAccess";
 
-    public $userGroups = [];
+    public $user2Sections = [];
 
-    public $userSectionsRights = [];
+    /**
+     * A function that returns true if it's admin or false if not
+     * @var callable
+     */
+    public $isSiteAdminCallback;
+
+    /**
+     * A function that returns true if it's moderator or false if not
+     * @var callable
+     */
+    public $isSiteModeratorCallback;
 
     /**
      * @return UserAccess
@@ -39,13 +49,14 @@ class UserAccess extends Object {
     }
 
     /**
-     * @param $sectionId
-     * @return ForumUserGroup
+     * @param int $sectionId
+     * @param bool $idOnly
+     * @return ForumUserGroup|int
      */
-    public function getUserGroup($sectionId) {
+    public function getUserGroup($sectionId, $idOnly = false) {
         if (WebApp::get()->user()->isConnected()) {
-            if (isset($this->userGroups[$sectionId]))
-                return $this->userGroups[$sectionId];
+            if (isset($this->user2Sections[$sectionId]))
+                return $idOnly ? $this->user2Sections[$sectionId]['group_id'] : ForumUserGroup::findByPk($this->user2Sections[$sectionId]['group_id']);
         }
         if (!isset($this->sections[$sectionId]))
             $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
@@ -53,15 +64,29 @@ class UserAccess extends Object {
         if (!isset($this->sections[$sectionId]))
             return false;
 
-        return $this->sections[$sectionId]->default_visitors_group_id;
+        return $idOnly ? $this->sections[$sectionId]->default_visitors_group_id : ForumUserGroup::findByPk($this->sections[$sectionId]->default_visitors_group_id);
     }
 
     /**
-     * @param $sectionId
-     * @return ForumTitle
+     * @param int $sectionId
+     * @param bool $stringTitleOnly
+     * @param bool $idOnly
+     * @return ForumTitle|string
      */
-    public function getUserTitle($sectionId){
-        return null;
+    public function getUserTitle($sectionId, $stringTitleOnly = false, $idOnly = false) {
+        if (WebApp::get()->user()->isGuest()) {
+            return $idOnly ? 0 : ($stringTitleOnly ? '' : null);
+        }
+        if (!isset($this->user2Sections[$sectionId])) {
+            return $idOnly ? 0 : ($stringTitleOnly ? '' : null);
+        }
+        if ($stringTitleOnly) {
+            return $this->user2Sections[$sectionId]['title_string'];
+        } elseif ($idOnly) {
+            return $this->user2Sections[$sectionId]['title_id'];
+        }
+        return ForumTitle::findByPk($this->user2Sections[$sectionId]['title_id']);
+
     }
 
     public function reloadRights() {
@@ -69,31 +94,35 @@ class UserAccess extends Object {
             return false; // no rights to load if no user is logged in
         }
         Session::get()->delete($this->sessionKey);
-        $groupIDs = ArrayHelper::get()->transform(ForumUserGroup::getDb()->table('forum_users2groups')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get(), 'group_id');
-        $this->userGroups = [];
-        $groups = ForumUserGroup::findAllByPk($groupIDs);
-        $this->userSectionsRights = [];
-        foreach ($groups as $group) {
-            $this->userGroups[$group->section_id] = $group->id;
-            $this->userSectionsRights[$group->section_id] = [
-                'admin' => $group->admin,
-                'moderator' => $group->moderator,
-                'newthread' => $group->newthread,
-                'threadreply' => $group->threadreply,
-                'canread' => $group->canread
+        $user2Sections = ForumUser2Section::findAllByAttributes(['user_id' => WebApp::get()->user()->id]);
+        $this->user2Sections = [];
+        foreach ($user2Sections as $user) {
+            $this->user2Sections[$user->section_id] = [
+                'muted' => $user->muted,
+                'banned' => $user->banned,
+                'title_id' => $user->title_id,
+                'title_string' => $user->title->title,
+                'group_id' => $user->group_id,
+                'group_string' => $user->group->full_name,
+                'member_since' => $user->member_since,
+                'groupRights' => [
+                    'admin' => $user->group->admin,
+                    'moderator' => $user->group->moderator,
+                    'newthread' => $user->group->newthread,
+                    'threadreply' => $user->group->threadreply,
+                    'canread' => $user->group->canread
+                ]
             ];
         }
         Session::get()->set($this->sessionKey, [
-            'userGroups' => $this->userGroups,
-            'userSectionRights' => $this->userSectionsRights
+            'user2Sections' => $this->user2Sections
         ]);
     }
 
     public function init($config = []) {
         if (Session::get()->exists($this->sessionKey)) {
             $session = Session::get()->value($this->sessionKey);
-            $this->userGroups = $session['userGroups'];
-            $this->userSectionsRights = $session['userSectionRights'];
+            $this->user2Sections = $session['user2Sections'];
         } else {
             $this->reloadRights();
         }
@@ -107,6 +136,30 @@ class UserAccess extends Object {
     private $sections = [];
 
     /**
+     * @return bool
+     */
+    public function isSiteAdmin() {
+        if (!$this->isSiteAdminCallback) {
+            $this->error("No callback found!");
+            return false;
+        }
+        $callback =$this->isSiteAdminCallback;
+        return $callback();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSiteModerator() {
+        if (!$this->isSiteModeratorCallback) {
+            $this->error("No callback found!");
+            return false;
+        }
+        $callback =$this->isSiteModeratorCallback;
+        return $callback();
+    }
+
+    /**
      * Check if is admin for this section of the forum. If is admin then it can create/delete categories,
      * create/delete groups and set another admins.
      * @param int $sectionId
@@ -116,19 +169,23 @@ class UserAccess extends Object {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
-        if (isset($this->userSectionsRights[$sectionId])) {
-            return (bool)$this->userSectionsRights[$sectionId]["admin"];
-        }
-        if (!isset($this->sections[$sectionId])) {
-            $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
-        }
-        if (!$this->sections[$sectionId]) { //section doesn't exists
-            return false;
-        }
-        if ($this->sections[$sectionId]->owner_user_id == WebApp::get()->user()->id) { // section creator so it is always true
+        if ($this->isSiteAdmin()) {
             return true;
         }
-        return true;
+        if (!isset($this->user2Sections[$sectionId])) {
+            if (!isset($this->sections[$sectionId])) {
+                $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
+            }
+            if (!$this->sections[$sectionId]) { //section doesn't exists
+                return false;
+            }
+            if ($this->sections[$sectionId]->owner_user_id == WebApp::get()->user()->id) { // section creator so it is always true
+                return true;
+            }
+            return false;
+        }
+
+        return (bool)$this->user2Sections[$sectionId]['groupRights']['admin'];
     }
 
     /**
@@ -141,7 +198,14 @@ class UserAccess extends Object {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
-        return true;
+        if ($this->isSiteModerator()) {
+            return true;
+        }
+        if (!isset($this->user2Sections[$sectionId])) {
+            return false;
+        }
+
+        return (bool)$this->user2Sections[$sectionId]['groupRights']['moderator'];
     }
 
     /**
@@ -149,14 +213,26 @@ class UserAccess extends Object {
      * @param int $sectionId
      * @return bool
      */
-    public function isCategoryAdmin($categoryId, $sectionId = null) {
+    public function isCategoryAdmin($categoryId, $sectionId) {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
+        }
+        if ($this->isSiteAdmin()) {
+            return true;
         }
         if ($this->isSectionAdmin($sectionId)) {
             return true;
         }
-        return true;
+        if (!isset($this->user2Sections[$sectionId])) {
+            return false;
+        }
+        $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
+            ':id' => $this->user2Sections[$sectionId]['group_id'],
+            ':cat' => $categoryId
+        ])->first();
+        if (!$categoryRights)
+            return false;
+        return (bool)$categoryRights['admin'];
     }
 
     /**
@@ -168,32 +244,90 @@ class UserAccess extends Object {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
+        if ($this->isSiteModerator()) {
+            return true;
+        }
         if ($this->isSectionModerator($sectionId)) {
             return true;
         }
-        return true;
+        if (!isset($this->user2Sections[$sectionId])) {
+            return false;
+        }
+        $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
+            ':id' => $this->user2Sections[$sectionId]['group_id'],
+            ':cat' => $categoryId
+        ])->first();
+        if (!$categoryRights)
+            return false;
+        return (bool)$categoryRights['moderator'];
+    }
+
+    /**
+     * Different that moderator&admin here it is a possibility that visitors can also create new threads.
+     * @param int $categoryId
+     * @param int $sectionId
+     * @return bool
+     */
+    public function canCreateNewThread($categoryId, $sectionId) {
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
+        if ($this->isSiteAdmin() || $this->isSiteModerator()){
+            return true;
+        }
+        if (isset($this->user2Sections[$sectionId])) {
+            $groupId = $this->user2Sections[$sectionId]['group_id'];
+        } else {
+            if (!isset($this->sections[$sectionId])) {
+                $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
+            }
+            if (!isset($this->sections[$sectionId])) {
+                return false; // section doesn't exists
+            }
+            $groupId = $this->sections[$sectionId]->default_visitors_group_id;
+        }
+        $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
+            ':id' => $groupId,
+            ':cat' => $categoryId
+        ])->first();
+        if (!$categoryRights) {
+            return (bool)ForumUserGroup::findByPk($groupId)->newthread;
+        }
+        return (bool)$categoryRights['newthread'];
     }
 
     /**
      * @param int $categoryId
+     * @param int $sectionId
      * @return bool
      */
-    public function canCreateNewThread($categoryId) {
+    public function canReplyToThread($categoryId, $sectionId) {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
-        return true;
-    }
+        if ($this->isSiteAdmin() || $this->isSiteModerator()){
+            return true;
+        }
 
-    /**
-     * @param int $categoryId
-     * @return bool
-     */
-    public function canReplyToThread($categoryId) {
-        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
-            return false;
+        if (isset($this->user2Sections[$sectionId])) {
+            $groupId = $this->user2Sections[$sectionId]['group_id'];
+        } else {
+            if (!isset($this->sections[$sectionId])) {
+                $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
+            }
+            if (!isset($this->sections[$sectionId])) {
+                return false; // section doesn't exists
+            }
+            $groupId = $this->sections[$sectionId]->default_visitors_group_id;
         }
-        return true;
+        $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
+            ':id' => $groupId,
+            ':cat' => $categoryId
+        ])->first();
+        if (!$categoryRights) {
+            return (bool)ForumUserGroup::findByPk($groupId)->threadreply;
+        }
+        return (bool)$categoryRights['threadreply'];
     }
 
     /**
@@ -202,6 +336,37 @@ class UserAccess extends Object {
      * @return bool
      */
     public function canRead($sectionId, $categoryId = null) {
-        return true;
+        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
+            return false;
+        }
+        if ($this->isSiteAdmin() || $this->isSiteModerator()){
+            return true;
+        }
+
+        if (isset($this->user2Sections[$sectionId])) {
+            $groupId = $this->user2Sections[$sectionId]['group_id'];
+            if (is_null($categoryId)) {
+                return (bool)$this->user2Sections[$sectionId]['groupRights']['canread'];
+            }
+        } else {
+            if (!isset($this->sections[$sectionId])) {
+                $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
+            }
+            if (!isset($this->sections[$sectionId])) {
+                return false; // section doesn't exists
+            }
+            $groupId = $this->sections[$sectionId]->default_visitors_group_id;
+        }
+        if (is_null($categoryId)) {
+            return (bool)ForumUserGroup::findByPk($groupId)->canread;
+        }
+        $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
+            ':id' => $groupId,
+            ':cat' => $categoryId
+        ])->first();
+        if (!$categoryRights) {
+            return (bool)ForumUserGroup::findByPk($groupId)->canread;
+        }
+        return (bool)$categoryRights['canread'];
     }
 }

@@ -115,7 +115,7 @@ class ForumSubcategory extends DbModel {
     }
 
     public function beforeSave() {
-        if (!UserAccess::get()->isCategoryAdmin($this->category_id)) {
+        if (!UserAccess::get()->isCategoryAdmin($this->category_id, $this->category->section_id)) {
             Messages::get()->error("You can't edit this subcategory!");
             return false;
         }
@@ -126,7 +126,7 @@ class ForumSubcategory extends DbModel {
     }
 
     public function beforeDelete() {
-        if (!UserAccess::get()->isCategoryAdmin($this->category_id)) {
+        if (!UserAccess::get()->isCategoryAdmin($this->category_id, $this->category->section_id)) {
             Messages::get()->error("You can't delete this category!");
             return false;
         }
