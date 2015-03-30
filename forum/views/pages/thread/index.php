@@ -64,6 +64,21 @@
                 </span>
             </td>
             <td class="forum-reply-content">
+                <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
+                    <div class="forum-reply-managment-links">
+                        <?= \mpf\web\helpers\Html::get()->link(
+                            $this->updateURLWithSection(['thread', 'edit', ['id' => $thread->id]]),
+                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
+                        ); ?>
+                        <?= \mpf\web\helpers\Html::get()->postLink(
+                            $this->updateURLWithSection(['thread', 'delete_thread']),
+                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Edit reply"),
+                            ['id' => $thread->id], [],
+                            false,
+                            \app\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can't undo this action!")
+                        ); ?>
+                    </div>
+                <?php } ?>
                 <div
                     class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?></div>
                 <?= $thread->getContent(); ?>
@@ -90,6 +105,21 @@
                 </span>
                 </td>
                 <td class="forum-reply-content">
+                    <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
+                        <div class="forum-reply-managment-links">
+                            <?= \mpf\web\helpers\Html::get()->link(
+                                $this->updateURLWithSection(['thread', 'edit_reply', ['id' => $reply->id]]),
+                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
+                            ); ?>
+                            <?= \mpf\web\helpers\Html::get()->postLink(
+                                $this->updateURLWithSection(['thread', 'delete_reply']),
+                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Edit reply"),
+                                ['id' => $reply->id], [],
+                                false,
+                                \app\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can't undo this action!")
+                            ); ?>
+                        </div>
+                    <?php } ?>
                     <div
                         class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time); ?></div>
                     <?= $reply->getContent(); ?>

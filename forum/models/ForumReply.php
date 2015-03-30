@@ -152,4 +152,26 @@ class ForumReply extends DbModel {
         $this->user_group_id = UserAccess::get()->getUserGroup($sectionId, true);
         return $this->save();
     }
+
+    /**
+     * @var bool
+     */
+    protected $_canEdit;
+
+    /**
+     * @param int $categoryId
+     * @param int $sectionId
+     * @return bool
+     */
+    public function canEdit($categoryId = null, $sectionId = null){
+        if ($this->user_id == WebApp::get()->user()->id) {
+            return true;
+        }
+        if (!is_null($this->_canEdit)){
+            return $this->_canEdit;
+        }
+        $categoryId = $categoryId?:$this->thread->subcategory->category_id;
+        $sectionId = $sectionId?:$this->thread->subcategory->category->section_id;
+        return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
+    }
 }

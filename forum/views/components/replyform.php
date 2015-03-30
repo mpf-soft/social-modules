@@ -1,7 +1,7 @@
 <?php /* @var $model \app\modules\forum\models\ForumReply */ ?>
 
 <?= \mpf\widgets\form\Form::get([
-    'name'=> 'reply',
+    'name'=> 'post_reply',
     'model' => $model,
     'theme' => 'default-wide',
     'fields' => [

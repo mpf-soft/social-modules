@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\models\PageTag;
+use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -185,4 +186,25 @@ class ForumThread extends DbModel {
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
 
+    /**
+     * @var bool
+     */
+    protected $_canEdit;
+
+    /**
+     * @param int $categoryId
+     * @param int $sectionId
+     * @return bool
+     */
+    public function canEdit($categoryId = null, $sectionId = null){
+        if ($this->user_id == WebApp::get()->user()->id) {
+            return true;
+        }
+        if (!is_null($this->_canEdit)){
+            return $this->_canEdit;
+        }
+        $categoryId = $categoryId?:$this->subcategory->category_id;
+        $sectionId = $sectionId?:$this->subcategory->category->section_id;
+        return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
+    }
 }
