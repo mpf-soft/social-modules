@@ -336,9 +336,6 @@ class UserAccess extends LogAwareObject {
      * @return bool
      */
     public function canRead($sectionId, $categoryId = null) {
-        if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
-            return false;
-        }
         if ($this->isSiteAdmin() || $this->isSiteModerator()){
             return true;
         }
