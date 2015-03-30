@@ -71,7 +71,7 @@
                                     $subcategory->lastThreadUpdated->title,
                                     ['class' => 'subcategory-latest-post-thread']); ?>
                                 <span class="subcategory-lastest-post-author">By <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subcategory->last_active_user_id]]), $subcategory->lastThreadAuthor->name); ?></span>
-                                <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_update_time)); ?></span>
+                                <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_update_time, false, false)); ?></span>
                             <?php } else { ?>
                         <span class="subcategory-no-posts">
                                 <?= \app\modules\forum\components\Translator::get()->translate("- no posts -"); ?>

@@ -144,13 +144,31 @@ class ForumReply extends DbModel {
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
 
+    /**
+     * It will save thread info(update with last reply info) + subcategory info
+     * @param string $content
+     * @param int $sectionId
+     * @return bool
+     */
     public function saveReply($content, $sectionId){
         $this->content = $content;
         $this->user_id = WebApp::get()->user()->id;
         $this->time = date('Y-m-d H:i:s');
         $this->score = 0;
         $this->user_group_id = UserAccess::get()->getUserGroup($sectionId, true);
-        return $this->save();
+        if (!$this->save()){
+            return false;
+        }
+        $thread = ForumThread::findByPk($this->thread_id);
+        $thread->replies = ForumReply::countByAttributes(['thread_id' => $this->thread_id]);
+        $thread->last_reply_id = $this->id;
+        $thread->last_reply_user_id = $this->user_id;
+        $thread->last_reply_date = $this->time;
+        $thread->save(false);
+        $thread->subcategory->last_thread_updated_id = $thread->id;
+        $thread->subcategory->last_response_time = $this->time;
+
+        return true;
     }
 
     /**
