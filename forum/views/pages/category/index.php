@@ -51,7 +51,7 @@
                         ); ?>
                         <span><?= $subcategory->description; ?></span>
                     </h2>
-                    <?php if (\app\modules\forum\components\UserAccess::get()->canCreateNewThread($category->id)) { ?>
+                    <?php if (\app\modules\forum\components\UserAccess::get()->canCreateNewThread($category->id, $this->sectionId)) { ?>
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \app\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
                     <?php } ?>
                 </th>

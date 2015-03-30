@@ -31,7 +31,7 @@ class Thread extends Controller{
         $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, $this->repliesPerPage));
         $replyModel = new ForumReply();
         $replyModel->thread_id = $id;
-        if (isset($_POST['ForumReply']) && !$thread->closed && UserAccess::get()->canReplyToThread($thread->subcategory->category_id)){
+        if (isset($_POST['ForumReply']) && !$thread->closed && UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $this->sectionId)){
             if ($replyModel->saveReply($_POST['ForumReply']['content'], $this->sectionId)){
                 Messages::get()->success("Reply saved!");
                 $this->goBack();
@@ -42,7 +42,11 @@ class Thread extends Controller{
 
     public function actionNew($subcategory){
         $subcategory = ForumSubcategory::findByPk($subcategory);
-        if (!UserAccess::get()->canCreateNewThread($subcategory->category_id)){
+        if ($subcategory->category->section_id != $this->sectionId){
+            $this->goToPage("special", "notFound");
+            return false;
+        }
+        if (!UserAccess::get()->canCreateNewThread($subcategory->category_id, $this->sectionId)){
             Messages::get()->error("Can't start a new thread in this category!");
             $this->goToPage('special', 'accessDenied');
             return false;

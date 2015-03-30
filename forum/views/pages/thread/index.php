@@ -40,7 +40,7 @@
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
                         <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false, false)); ?>
                     </span>
-                    <?php if (\app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id)) { ?>
+                    <?php if (\app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'reply', ['id' => $thread->id]]), \app\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button']); ?>
                     <?php } ?>
                 </h2>
@@ -98,7 +98,7 @@
                 </td>
             </tr>
         <?php } ?>
-        <?php if (!$thread->closed && \app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id)) { ?>
+        <?php if (!$thread->closed && \app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
             <tr class="forum-reply-form">
                 <td class="forum-user-details">
                     <b class="forum-user-details-name">
