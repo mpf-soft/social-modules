@@ -14,6 +14,7 @@ use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
 use mpf\web\helpers\Html;
+use mpf\web\Session;
 use mpf\WebApp;
 use mpf\widgets\form\fields\ForumTextarea;
 
@@ -207,5 +208,22 @@ class ForumThread extends DbModel {
         $categoryId = $categoryId?:$this->subcategory->category_id;
         $sectionId = $sectionId?:$this->subcategory->category->section_id;
         return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
+    }
+
+    public $sessionViewsTempKey = "forum-threads-visited";
+
+    public function updateViews(){
+        if (Session::get()->exists($this->sessionViewsTempKey)){
+            $threads = Session::get()->value($this->sessionViewsTempKey);
+        } else {
+            $threads = [];
+        }
+        if (!isset($threads[$this->id])){
+            $this->views++;
+            $this->save();
+            $threads[$this->id] = true;
+            Session::get()->set($this->sessionViewsTempKey, $threads);
+        }
+
     }
 }

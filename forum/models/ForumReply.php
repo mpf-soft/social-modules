@@ -187,14 +187,15 @@ class ForumReply extends DbModel {
      * @return bool
      */
     public function canEdit($categoryId = null, $sectionId = null){
-        if ($this->user_id == WebApp::get()->user()->id) {
+        $categoryId = $categoryId?:$this->thread->subcategory->category_id;
+        $sectionId = $sectionId?:$this->thread->subcategory->category->section_id;
+
+        if ($this->user_id == WebApp::get()->user()->id && (!($this->deleted || UserAccess::get()->isMuted($sectionId) || $this->thread->closed))) {
             return true;
         }
         if (!is_null($this->_canEdit)){
             return $this->_canEdit;
         }
-        $categoryId = $categoryId?:$this->thread->subcategory->category_id;
-        $sectionId = $sectionId?:$this->thread->subcategory->category->section_id;
         return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
     }
 }

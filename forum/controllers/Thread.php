@@ -15,9 +15,12 @@ use app\modules\forum\components\UserAccess;
 use app\modules\forum\models\ForumReply;
 use app\modules\forum\models\ForumSubcategory;
 use app\modules\forum\models\ForumThread;
+use mpf\web\Session;
 use mpf\WebApp;
 
 class Thread extends Controller{
+
+
 
     public function actionIndex($id, $page = 1){
         $thread = ForumThread::findByPk($id);
@@ -25,6 +28,7 @@ class Thread extends Controller{
             $this->goToPage("special", "notFound");
             return;
         }
+        $thread->updateViews();
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);

@@ -136,6 +136,30 @@ class UserAccess extends LogAwareObject {
     private $sections = [];
 
     /**
+     * Checks if user is banned for this section
+     * @param $sectionId
+     * @return bool
+     */
+    public function isBanned($sectionId){
+        if (isset($this->user2Sections[$sectionId]))
+            return (bool)$this->user2Sections[$sectionId]["banned"];
+        return false;
+    }
+
+    /**
+     * Check if user is muted for this section
+     * @param $sectionId
+     * @return bool
+     */
+    public function isMuted($sectionId){
+        if ($this->isBanned($sectionId))
+            return true;
+        if (isset($this->user2Sections[$sectionId]))
+            return (bool)$this->user2Sections[$sectionId]["muted"];
+        return false;
+    }
+
+    /**
      * @return bool
      */
     public function isSiteAdmin() {
@@ -220,6 +244,11 @@ class UserAccess extends LogAwareObject {
         if ($this->isSiteAdmin()) {
             return true;
         }
+
+        if ($this->isBanned($sectionId)){
+            return false;
+        }
+
         if ($this->isSectionAdmin($sectionId)) {
             return true;
         }
@@ -247,6 +276,11 @@ class UserAccess extends LogAwareObject {
         if ($this->isSiteModerator()) {
             return true;
         }
+
+        if ($this->isBanned($sectionId)){
+            return false;
+        }
+
         if ($this->isSectionModerator($sectionId)) {
             return true;
         }
@@ -272,9 +306,15 @@ class UserAccess extends LogAwareObject {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
+
         if ($this->isSiteAdmin() || $this->isSiteModerator()){
             return true;
         }
+
+        if ($this->isMuted($sectionId)){
+            return false;
+        }
+
         if (isset($this->user2Sections[$sectionId])) {
             $groupId = $this->user2Sections[$sectionId]['group_id'];
         } else {
@@ -309,6 +349,10 @@ class UserAccess extends LogAwareObject {
             return true;
         }
 
+        if ($this->isMuted($sectionId)){
+            return false;
+        }
+
         if (isset($this->user2Sections[$sectionId])) {
             $groupId = $this->user2Sections[$sectionId]['group_id'];
         } else {
@@ -338,6 +382,10 @@ class UserAccess extends LogAwareObject {
     public function canRead($sectionId, $categoryId = null) {
         if ($this->isSiteAdmin() || $this->isSiteModerator()){
             return true;
+        }
+
+        if ($this->isBanned($sectionId)){
+            return false; // can't read if it's banned
         }
 
         if (isset($this->user2Sections[$sectionId])) {
