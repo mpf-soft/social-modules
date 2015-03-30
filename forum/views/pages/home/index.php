@@ -61,17 +61,17 @@
                     </td>
                     <td class="subcategory-options-column">&nbsp;</td>
                     <td class="subcategory-activity-column">
-                        <b><?= $subcategory->numberofthreads; ?> <?= \app\modules\forum\components\Translator::get()->translate("threads"); ?></b>
-                        <b><?= $subcategory->numberofreplies; ?> <?= \app\modules\forum\components\Translator::get()->translate("replies"); ?></b>
+                        <b><?= $subcategory->number_of_threads; ?> <?= \app\modules\forum\components\Translator::get()->translate("threads"); ?></b>
+                        <b><?= $subcategory->number_of_replies; ?> <?= \app\modules\forum\components\Translator::get()->translate("replies"); ?></b>
                     </td>
                     <td class="subcategory-latest-post-column">
-                            <?php if ($subcategory->last_thread_updated_id) { ?>
+                            <?php if ($subcategory->last_active_thread_id) { ?>
                                 <?= \mpf\web\helpers\Html::get()->link(
-                                    $this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $category->url_friendly_name, 'id' => $subcategory->lastThreadUpdated->id]]),
-                                    $subcategory->lastThreadUpdated->title,
+                                    $this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $category->url_friendly_name, 'id' => $subcategory->last_active_thread_id]]),
+                                    $subcategory->lastActiveThread->title,
                                     ['class' => 'subcategory-latest-post-thread']); ?>
-                                <span class="subcategory-lastest-post-author">By <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subcategory->last_active_user_id]]), $subcategory->lastThreadAuthor->name); ?></span>
-                                <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_update_time, false, false)); ?></span>
+                                <span class="subcategory-lastest-post-author"><?= $subcategory->getActionForList(); ?> <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subcategory->last_active_user_id]]), $subcategory->lastActiveUser->name); ?></span>
+                                <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_activity_time, false, false)); ?></span>
                             <?php } else { ?>
                         <span class="subcategory-no-posts">
                                 <?= \app\modules\forum\components\Translator::get()->translate("- no posts -"); ?>

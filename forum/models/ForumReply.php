@@ -165,9 +165,14 @@ class ForumReply extends DbModel {
         $thread->last_reply_user_id = $this->user_id;
         $thread->last_reply_date = $this->time;
         $thread->save(false);
-        $thread->subcategory->last_thread_updated_id = $thread->id;
-        $thread->subcategory->last_response_time = $this->time;
-
+        $thread->subcategory->last_active_thread_id = $thread->id;
+        $thread->subcategory->last_activity_time = $this->time;
+        $thread->subcategory->last_activity = 'reply';
+        $thread->subcategory->last_active_user_id = $this->user_id;
+        $replies = $this->_db->table(ForumThread::getTableName())->fields("SUM(replies) as `replies`")
+                                        ->where("subcategory_id = :id")->setParam(":id", $thread->subcategory_id)->first();
+        $thread->subcategory->number_of_replies = $replies?$replies['replies']:0;
+        $thread->subcategory->save();
         return true;
     }
 

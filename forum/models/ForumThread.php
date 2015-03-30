@@ -145,10 +145,11 @@ class ForumThread extends DbModel {
      */
     public function publishNew(ForumSubcategory $subcategory = null){
         $subcategory = $subcategory?:ForumSubcategory::findByPk($this->subcategory_id);
-        $subcategory->last_thread_created_id = $subcategory->last_thread_updated_id = $this->id;
-        $subcategory->last_update_time = $subcategory->last_response_time = date('Y-m-d H:i:s');
+        $subcategory->last_active_thread_id = $this->id;
+        $subcategory->last_activity_time = date('Y-m-d H:i:s');
         $subcategory->last_active_user_id = $this->user_id;
-        $subcategory->numberofthreads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
+        $subcategory->last_activity = 'create';
+        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
         return $subcategory->save();
     }
 

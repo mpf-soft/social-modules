@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\components\htmltools\Messages;
+use app\modules\forum\components\Translator;
 use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -21,21 +22,20 @@ use mpf\WebApp;
  * @property int $id
  * @property int $category_id
  * @property int $user_id
- * @property int $last_thread_created_id
- * @property int $last_thread_updated_id
+ * @property int $last_active_thread_id
+ * @property int $last_activity
  * @property string $title
  * @property string $description
- * @property string $last_update_time
- * @property string $last_response_time
+ * @property string $last_activity_time
  * @property int $last_active_user_id
- * @property int $numberofthreads
- * @property int $numberofreplies
+ * @property int $number_of_threads
+ * @property int $number_of_replies
  * @property string $url_friendly_title
  * @property string $icon
  * @property \app\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
- * @property \app\models\User $lastThreadAuthor
- * @property \app\modules\forum\models\ForumThread $lastThreadUpdated
+ * @property \app\models\User $lastActiveUser
+ * @property \app\modules\forum\models\ForumThread $lastActiveThread
  */
 class ForumSubcategory extends DbModel {
 
@@ -57,16 +57,15 @@ class ForumSubcategory extends DbModel {
             'id' => 'Id',
             'category_id' => 'Category',
             'user_id' => 'Owner',
-            'last_thread_created_id' => 'Newest Thread',
-            'last_thread_updated_id' => 'Lastest Updated Thread',
             'title' => 'Title',
             'description' => 'Description',
-            'last_update_time' => 'Last Update Time',
-            'last_response_time' => 'Last Response Time',
+            'last_active_thread_id' => 'Newest Thread',
+            'last_activity' => 'Last action',
+            'last_activity_time' => 'Last Activity Time',
             'last_active_user_id' => 'Last Active User',
             'icon' => 'Icon',
-            'numberofthreads' => 'Threads',
-            'numberofreplies' => 'Replies',
+            'number_of_threads' => 'Threads',
+            'number_of_replies' => 'Replies',
             'url_friendly_title' => 'URL Friendly Title'
         ];
     }
@@ -79,8 +78,8 @@ class ForumSubcategory extends DbModel {
         return [
             'category' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumCategory', 'category_id'],
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-            'lastThreadUpdated' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumThread', 'last_thread_updated_id'],
-            'lastThreadAuthor' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_active_user_id']
+            'lastActiveThread' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumThread', 'last_active_thread_id'],
+            'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_active_user_id']
         ];
     }
 
@@ -90,7 +89,7 @@ class ForumSubcategory extends DbModel {
      */
     public static function getRules() {
         return [
-            ["id, category_id, user_id, last_thread_created_id, last_thread_updated_id, title, url_friendly_title, description, last_update_time, last_response_time, last_active_user_id, numberofthreads, numberofreplies", "safe", "on" => "search"]
+            ["id, category_id, user_id, last_active_thread_id, last_activity, title, url_friendly_title, description, last_activity_time, last_active_user_id, number_of_threads, number_of_replies", "safe", "on" => "search"]
         ];
     }
 
@@ -104,7 +103,7 @@ class ForumSubcategory extends DbModel {
         if ($category){
             $condition->compareColumn("category_id", $category);
         }
-        foreach (["id", "category_id", "user_id", "last_thread_created_id", "last_thread_updated_id", "title", "url_friendly_title", "description", "last_update_time", "last_response_time", "last_active_user_id", "numberofthreads", "numberofreplies"] as $column) {
+        foreach (["id", "category_id", "user_id", "last_active_thread_id", "last_activity", "title", "url_friendly_title", "description", "last_activity_time", "last_active_user_id", "number_of_threads", "number_of_replies"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
@@ -115,10 +114,6 @@ class ForumSubcategory extends DbModel {
     }
 
     public function beforeSave() {
-        if (!UserAccess::get()->isCategoryAdmin($this->category_id, $this->category->section_id)) {
-            Messages::get()->error("You can't edit this subcategory!");
-            return false;
-        }
         if ($this->isNewRecord()) {
             $this->user_id = WebApp::get()->user()->id;
         }
@@ -142,6 +137,20 @@ class ForumSubcategory extends DbModel {
         $condition->order = "`order` DESC";
         $condition->limit = 10;
         return ForumThread::findAll($condition);
+    }
+
+    /**
+     * @return string
+     */
+    public function getActionForList(){
+        switch ($this->last_activity){
+            case "create":
+                return Translator::get()->translate("Created By");
+            case "edit":
+                return Translator::get()->translate("Edited By");
+            case "reply":
+                return Translator::get()->translate("Reply from");
+        }
     }
 
 }
