@@ -86,6 +86,7 @@ class ForumReply extends DbModel {
      */
     public static function getRules(){
         return [
+            ['content', 'safe, required', 'on' => 'insert, edit'],
             ["id, user_id, thread_id, content, time, edited, edit_time, edit_user_id, deleted, score, user_group_id", "safe", "on" => "search"]
         ];
     }
