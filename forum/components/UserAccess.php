@@ -10,6 +10,7 @@ namespace app\modules\forum\components;
 
 
 use app\modules\forum\models\ForumSection;
+use app\modules\forum\models\ForumTitle;
 use app\modules\forum\models\ForumUserGroup;
 use mpf\base\Object;
 use mpf\helpers\ArrayHelper;
@@ -37,6 +38,10 @@ class UserAccess extends Object {
         return self::$self;
     }
 
+    /**
+     * @param $sectionId
+     * @return ForumUserGroup
+     */
     public function getUserGroup($sectionId) {
         if (WebApp::get()->user()->isConnected()) {
             if (isset($this->userGroups[$sectionId]))
@@ -49,6 +54,14 @@ class UserAccess extends Object {
             return false;
 
         return $this->sections[$sectionId]->default_visitors_group_id;
+    }
+
+    /**
+     * @param $sectionId
+     * @return ForumTitle
+     */
+    public function getUserTitle($sectionId){
+        return null;
     }
 
     public function reloadRights() {

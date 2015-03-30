@@ -25,6 +25,9 @@ class Thread extends Controller{
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);
         $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, $this->repliesPerPage));
+        $replyModel = new ForumReply();
+        $replyModel->thread_id = $id;
+        $this->assign('replyModel', $replyModel);
     }
 
     public function actionNew($subcategory){
@@ -51,10 +54,6 @@ class Thread extends Controller{
     }
 
     public function actionEdit($id){
-
-    }
-
-    public function actionReply($id){
 
     }
 

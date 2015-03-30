@@ -1,7 +1,8 @@
 <?php /* @var $this \app\modules\forum\controllers\Home */ ?>
 <?php /* @var $subcategory \app\modules\forum\models\ForumSubcategory */ ?>
 <?php /* @var $thread \app\modules\forum\models\ForumThread */ ?>
-<?php /* @var $replies \app\modules\forum\models\ForumReply[] */?>
+<?php /* @var $replies \app\modules\forum\models\ForumReply[] */ ?>
+<?php /* @var $replyModel \app\modules\forum\models\ForumReply */ ?>
 <?php /* @var $currentPage int */ ?>
 <?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum")
     . " " . $this->pageTitleSeparator . " "
@@ -23,20 +24,21 @@
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('replies'),
         'totalElements' => $thread->replies,
         'visibleElements' => count($replies),
-        'totalPages' => (int)(($thread->replies / $this->repliesPerPage) + (($thread->replies % $this->repliesPerPage)?1:0)),
+        'totalPages' => (int)(($thread->replies / $this->repliesPerPage) + (($thread->replies % $this->repliesPerPage) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
 
-    <table class="forum-thread <?= $currentPage == 1 ? "first-page": ""; ?>">
+    <table class="forum-thread <?= $currentPage == 1 ? "first-page" : ""; ?>">
         <tr>
             <th colspan="2">
                 <h2 class="forum-thread-title">
                     <?= \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg"); ?>
-                    <span class="forum-thread-title"><?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?></span>
+                    <span
+                        class="forum-thread-title"><?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?></span>
                     <span class="forum-author-info">
                         <?= \app\modules\forum\components\Translator::get()->translate("Started by"); ?>
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
-                        <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false ,false)); ?>
+                        <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false, false)); ?>
                     </span>
                     <?php if (\app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id)) { ?>
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'reply', ['id' => $thread->id]]), \app\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button']); ?>
@@ -58,11 +60,12 @@
                 </span>
                 <span class="forum-user-details-date">
                     <?= \app\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false ,false)); ?>
+                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
                 </span>
             </td>
             <td class="forum-reply-content">
-                <div class="forum-reply-content-date"><?=  \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time);?></div>
+                <div
+                    class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?></div>
                 <?= $thread->getContent(); ?>
                 <?= $this->threadSignatureSeparator; ?>
                 <?= $thread->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
@@ -83,14 +86,39 @@
                     </span>
                 <span class="forum-user-details-date">
                     <?= \app\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->getSectionUser($subcategory->category->section_id)->member_since, false ,false)); ?>
+                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
                 </span>
                 </td>
                 <td class="forum-reply-content">
-                    <div class="forum-reply-content-date"><?=  \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time);?></div>
+                    <div
+                        class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time); ?></div>
                     <?= $reply->getContent(); ?>
                     <?= $this->threadSignatureSeparator; ?>
                     <?= $reply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
+                </td>
+            </tr>
+        <?php } ?>
+        <?php if (!$thread->closed && \app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id)) { ?>
+            <tr class="forum-reply-form">
+                <td class="forum-user-details">
+                    <b class="forum-user-details-name">
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id]]), \mpf\WebApp::get()->user()->name); ?>
+                    </b>
+                    <span class="forum-user-details-title">
+                        <?= ($t = \app\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
+                    </span>
+                    <?= \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg"); ?>
+                    <span class="forum-user-details-group">
+                    <?= ($g = \app\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
+                </span>
+                <span class="forum-user-details-date">
+                    <?= \app\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                </span>
+
+                </td>
+                <td class="forum-reply-form-column">
+                    <?php $this->displayComponent("replyform", ['model' => $replyModel]); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -100,7 +128,7 @@
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('replies'),
         'totalElements' => $thread->replies,
         'visibleElements' => count($replies),
-        'totalPages' => (int)(($thread->replies / $this->threadsPerPage) + (($thread->replies % $this->repliesPerPage)?1:0)),
+        'totalPages' => (int)(($thread->replies / $this->threadsPerPage) + (($thread->replies % $this->repliesPerPage) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
 
