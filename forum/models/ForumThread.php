@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\models\PageTag;
+use app\models\User;
 use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -199,14 +200,18 @@ class ForumThread extends DbModel {
      * @return bool
      */
     public function canEdit($categoryId = null, $sectionId = null){
+        $categoryId = $categoryId?:$this->subcategory->category_id;
+        $sectionId = $sectionId?:$this->subcategory->category->section_id;
+
+        if ($this->closed || UserAccess::get()->isMuted($sectionId)){
+            return false;
+        }
         if ($this->user_id == WebApp::get()->user()->id) {
             return true;
         }
         if (!is_null($this->_canEdit)){
             return $this->_canEdit;
         }
-        $categoryId = $categoryId?:$this->subcategory->category_id;
-        $sectionId = $sectionId?:$this->subcategory->category->section_id;
         return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
     }
 
