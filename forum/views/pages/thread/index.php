@@ -88,7 +88,7 @@
             </td>
             <td class="forum-reply-content">
                 <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
-                    <div class="forum-reply-managment-links">
+                    <div class="forum-reply-management-links">
                         <?= \mpf\web\helpers\Html::get()->link(
                             $this->updateURLWithSection(['thread', 'edit', ['id' => $thread->id]]),
                             \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit post")
@@ -141,7 +141,7 @@
                 </td>
                 <td class="forum-reply-content">
                     <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
-                        <div class="forum-reply-managment-links">
+                        <div class="forum-reply-management-links">
                             <?= \mpf\web\helpers\Html::get()->link(
                                 $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id]]),
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
