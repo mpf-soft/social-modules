@@ -200,19 +200,20 @@ class ForumThread extends DbModel {
      * @return bool
      */
     public function canEdit($categoryId = null, $sectionId = null){
-        $categoryId = $categoryId?:$this->subcategory->category_id;
-        $sectionId = $sectionId?:$this->subcategory->category->section_id;
-
-        if ($this->closed || UserAccess::get()->isMuted($sectionId)){
-            return false;
-        }
-        if ($this->user_id == WebApp::get()->user()->id) {
-            return true;
-        }
         if (!is_null($this->_canEdit)){
             return $this->_canEdit;
         }
-        return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
+
+        $categoryId = $categoryId?:$this->subcategory->category_id;
+        $sectionId = $sectionId?:$this->subcategory->category->section_id;
+
+        if (($this->closed && !($moderator =  UserAccess::get()->isCategoryModerator($categoryId, $sectionId))) || UserAccess::get()->isMuted($sectionId)){
+            return $this->_canEdit = false;
+        }
+        if ($this->user_id == WebApp::get()->user()->id) {
+            return $this->_canEdit = true;
+        }
+        return $this->_canEdit = isset($moderator)?$moderator:UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
     }
 
     public $sessionViewsTempKey = "forum-threads-visited";
