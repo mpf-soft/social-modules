@@ -230,6 +230,16 @@ class ForumThread extends DbModel {
             $threads[$this->id] = true;
             Session::get()->set($this->sessionViewsTempKey, $threads);
         }
+    }
 
+    public function afterMove($oldSub){
+        if ($oldSub == $this->subcategory_id)
+            return; // same sub;
+        $subcategory = ForumSubcategory::findByPk($oldSub);
+        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
+        $subcategory->save();
+        $subcategory = ForumSubcategory::findByPk($this->subcategory_id);
+        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
+        $subcategory->save();
     }
 }

@@ -93,6 +93,18 @@ class ForumSubcategory extends DbModel {
         ];
     }
 
+    public static function getAllForSelectTree($sectionId){
+        $categories = ForumCategory::findAllByAttributes(['section_id' => $sectionId]);
+        $options = [];
+        foreach ($categories as $cat){
+            $options[$cat->name] = [];
+            foreach ($cat->subcategories as $sub){
+                $options[$cat->name][$sub->id] = $sub->title;
+            }
+        }
+        return $options;
+    }
+
     /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @param int $category

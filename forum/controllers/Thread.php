@@ -128,6 +128,21 @@ class Thread extends Controller {
     }
 
     public function actionMove($id) {
+        $thread = ForumThread::findByPk($id);
+        if (!$thread->canEdit()){
+            $this->goToPage("special", "accessDenied");
+            return false;
+        }
+        if (isset($_POST['ForumThread'])){
+            $old = $thread->subcategory_id;
+            $thread->setAttributes($_POST['ForumThread']);
+            if ($thread->save()){
+                $thread->afterMove($old);
+                $this->goToAction('index', ['id'=> $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
+            }
+        }
+
+        $this->assign('model', $thread);
 
     }
 
