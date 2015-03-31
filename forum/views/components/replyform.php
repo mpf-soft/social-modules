@@ -9,7 +9,7 @@
             'name' => 'content',
             'type' => 'forumTextarea',
             'tags' => \app\models\PageTag::getTagHints(true),
-            'htmlOptions' => ['style' => 'min-height: 150px;']
+            'htmlOptions' => ['style' => 'min-height: ' . (isset($height)?$height:'150px;')]
         ]
     ]
 ])->display(); ?>

@@ -35,7 +35,7 @@
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
 
-    <?php if (!\app\modules\forum\components\UserAccess::get()->canCreateNewThread($subcategory->category_id)) { ?>
+    <?php if (!\app\modules\forum\components\UserAccess::get()->canCreateNewThread($subcategory->category_id, $this->sectionId)) { ?>
         <?php $this->displayComponent('accessdenied', ['location' => 'newThread']); ?>
         <?php return; ?>
     <?php } ?>

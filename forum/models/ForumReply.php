@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\models\PageTag;
+use app\modules\forum\components\Translator;
 use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -136,6 +137,9 @@ class ForumReply extends DbModel {
     }
 
     public function getContent(){
+        if ($this->deleted){
+            return Html::get()->tag("div", Translator::get()->translate("[DELETED]"), ['class' => "forum-reply-deleted-message"]);
+        }
         return nl2br(ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
             'linkRoot' => WebApp::get()->request()->getLinkRoot(),
             'webRoot' => WebApp::get()->request()->getWebRoot()
@@ -177,6 +181,19 @@ class ForumReply extends DbModel {
     }
 
     /**
+     * Adds extra info required by edit.
+     * @param string $content
+     * @return bool
+     */
+    public function updateReply($content){
+        $this->content = $content;
+        $this->edit_user_id = WebApp::get()->user()->id;
+        $this->edit_time = date('Y-m-d H:i:s');
+        $this->edited = 1;
+        return $this->save();
+    }
+
+    /**
      * @var bool
      */
     protected $_canEdit;
@@ -187,6 +204,8 @@ class ForumReply extends DbModel {
      * @return bool
      */
     public function canEdit($categoryId = null, $sectionId = null){
+        if ($this->deleted)
+            return false;
         $categoryId = $categoryId?:$this->thread->subcategory->category_id;
         $sectionId = $sectionId?:$this->thread->subcategory->category->section_id;
 
