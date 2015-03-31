@@ -77,7 +77,7 @@
                     <span class="forum-user-details-title">
                         <?= $thread->getSectionUser($subcategory->category->section_id)->title->title; ?>
                     </span>
-                <?= \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg"); ?>
+                <?= \mpf\web\helpers\Html::get()->image($thread->getAuthorIcon()); ?>
                 <span class="forum-user-details-group">
                         <?= $thread->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
                 </span>
@@ -130,7 +130,7 @@
                     <span class="forum-user-details-title">
                         <?= $reply->getSectionUser($subcategory->category->section_id)->title->title; ?>
                     </span>
-                    <?= \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg"); ?>
+                    <?= \mpf\web\helpers\Html::get()->image($reply->getAuthorIcon()); ?>
                     <span class="forum-user-details-group">
                         <?= $reply->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
                     </span>
@@ -184,7 +184,7 @@
                     <span class="forum-user-details-title">
                         <?= ($t = \app\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
                     </span>
-                    <?= \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg"); ?>
+                    <?= \mpf\web\helpers\Html::get()->image(\app\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . \mpf\WebApp::get()->user()->icon); ?>
                     <span class="forum-user-details-group">
                     <?= ($g = \app\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
                 </span>

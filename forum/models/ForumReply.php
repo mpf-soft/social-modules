@@ -8,6 +8,7 @@
 namespace app\modules\forum\models;
 
 use app\models\PageTag;
+use app\modules\forum\components\Config;
 use app\modules\forum\components\Translator;
 use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
@@ -216,5 +217,9 @@ class ForumReply extends DbModel {
             return $this->_canEdit;
         }
         return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
+    }
+
+    public function getAuthorIcon(){
+        return Config::value('USER_ICON_FOLDER_URL') . ($this->author->icon?:'default.png');
     }
 }

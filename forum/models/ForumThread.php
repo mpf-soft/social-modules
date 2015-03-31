@@ -9,6 +9,7 @@ namespace app\modules\forum\models;
 
 use app\models\PageTag;
 use app\models\User;
+use app\modules\forum\components\Config;
 use app\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -241,5 +242,9 @@ class ForumThread extends DbModel {
         $subcategory = ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
         $subcategory->save();
+    }
+
+    public function getAuthorIcon(){
+        return Config::value('USER_ICON_FOLDER_URL') . ($this->owner->icon?:'default.png');
     }
 }
