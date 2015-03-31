@@ -175,7 +175,7 @@
                 </td>
             </tr>
         <?php } ?>
-        <?php if (!$thread->closed && \app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+        <?php if ((!$thread->closed || \app\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \app\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
             <tr class="forum-reply-form">
                 <td class="forum-user-details"><a name="reply-form"></a>
                     <b class="forum-user-details-name">
