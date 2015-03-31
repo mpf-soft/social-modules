@@ -40,6 +40,34 @@ class ForumUser2Section extends DbModel {
     public $last_login;
 
     /**
+     * A callable method that will be used when a new icon is loaded.
+     * Param that will be sent:
+     *      - iconKey ( used by $_FILES )
+     *
+     * If it's not set then "iconColumnName" will be used to save date for user;
+     * @var callable
+     */
+    public $iconUploadHandle;
+
+    /**
+     *
+     * @var string
+     */
+    public $iconColumnName = 'icon';
+
+    /**
+     * Path to user icons folder. Used only if iconUploadHandle is not set.
+     * @var string
+     */
+    public $iconLocationPath = "{APP_ROOT}..{DIRECTORY_SEPARATOR}htdocs{DIRECTORY_SEPARATOR}uploads{DIRECTORY_SEPARATOR}user-avatars{DIRECTORY_SEPARATOR}";
+
+    /**
+     * URL to user icons folder. Required to display user icons.
+     * @var string
+     */
+    public $iconLocationURL = "{WEB_ROOT}uploads/user-avatars/";
+
+    /**
      * Get database table name.
      * @return string
      */
@@ -147,6 +175,13 @@ class ForumUser2Section extends DbModel {
             return Html::get()->link(['user', 'index', ['id' => $this->id, 'name' => $this->user->name, WebApp::get()->getController()->sectionIdKey => $this->section_id]], $this->user->name);
         } else {
             return Html::get()->link(['user', 'index', ['id' => $this->id, 'name' => $this->user->name]], $this->user->name);
+        }
+    }
+
+    public function changeIcon(){
+        if ($this->iconUploadHandle){
+            $function = $this->iconUploadHandle;
+            return $function('icon');
         }
     }
 }

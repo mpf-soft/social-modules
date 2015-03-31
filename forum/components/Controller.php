@@ -60,7 +60,7 @@ class Controller extends \app\components\Controller {
      * Folder location where uploads for categories icons can be uploaded
      * @var string
      */
-    public $uploadLocation = '{APP_ROOT}../htdocs/uploads{DIRECTORY_SEPARATOR}forum{DIRECTORY_SEPARATOR}';
+    public $uploadLocation = '{APP_ROOT}..{DIRECTORY_SEPARATOR}htdocs{DIRECTORY_SEPARATOR}uploads{DIRECTORY_SEPARATOR}forum{DIRECTORY_SEPARATOR}';
 
     /**
      * Public URL for upload location

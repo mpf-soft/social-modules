@@ -7,7 +7,7 @@
     </div>
     <div class="forum-user-panel-about">
         <?= \mpf\web\helpers\Html::get()->link(['user', 'profile', ['name' => \mpf\WebApp::get()->user()->name]], \mpf\WebApp::get()->user()->name, ['class' => 'form-user-panel-about-name']); ?>
-        <?= \mpf\web\helpers\Html::get()->link(['user', 'profile', ['name' => \mpf\WebApp::get()->user()->title]], \mpf\WebApp::get()->user()->title, ['class' => 'form-user-panel-about-title']); ?>
+        <span class="form-user-panel-about-title"><?= \app\modules\forum\components\UserAccess::get()->getUserTitle($this->sectionId, true); ?></span>
     </div>
     <div class="forum-user-panel-links">
         <?= \mpf\web\helpers\Html::get()->link(['home'], 'Categories'); ?>
