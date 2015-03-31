@@ -414,4 +414,13 @@ class UserAccess extends LogAwareObject {
         }
         return (bool)$categoryRights['canread'];
     }
+
+    /**
+     * Check if it is or not a member of current section
+     * @param $sectionId
+     * @return bool
+     */
+    public function isMember($sectionId){
+        return isset($this->user2Sections[$sectionId]);
+    }
 }

@@ -70,7 +70,7 @@
                                     $this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $category->url_friendly_name, 'id' => $subcategory->last_active_thread_id]]),
                                     $subcategory->lastActiveThread->title,
                                     ['class' => 'subcategory-latest-post-thread']); ?>
-                                <span class="subcategory-lastest-post-author"><?= $subcategory->getActionForList(); ?> <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subcategory->last_active_user_id]]), $subcategory->lastActiveUser->name); ?></span>
+                                <span class="subcategory-lastest-post-author"><?= $subcategory->getActionForList(); ?> <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subcategory->last_active_user_id, 'name'=> $subcategory->lastActiveUser->name]]), $subcategory->lastActiveUser->name); ?></span>
                                 <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_activity_time, false, false)); ?></span>
                             <?php } else { ?>
                         <span class="subcategory-no-posts">

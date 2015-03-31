@@ -95,12 +95,17 @@ class ForumUser2Section extends DbModel {
      */
     public function getDataProvider($sectionId) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $condition->with = ['user'];
+        $condition->with = ['user', 'group', 'title'];
         $condition->compareColumn("section_id", $sectionId);
-        foreach (["id", "user_id", "section_id", "muted", "banned", "title_id", "group_id", "member_since", "signature"] as $column) {
+        foreach (["id", "section_id", "muted", "banned", "title_id", "group_id", "member_since", "signature"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
+        }
+        if ($this->user_id && !is_numeric($this->user_id)) {
+            $condition->compareColumn('user.name', $this->user_id);
+        } elseif ($this->user_id) {
+            $condition->compareColumn('user_id', $this->user_id);
         }
         return new DataProvider([
             'modelCondition' => $condition
@@ -114,12 +119,12 @@ class ForumUser2Section extends DbModel {
      * @param $groupId
      * @return bool
      */
-    public static function makeMember($userId, $sectionId = 0, $groupId = null){
+    public static function makeMember($userId, $sectionId = 0, $groupId = null) {
         $user = new self();
         $user->user_id = $userId;
         $user->section_id = $sectionId;
-        if (!$groupId){
-            $section  =ForumSection::findByPk($sectionId);
+        if (!$groupId) {
+            $section = ForumSection::findByPk($sectionId);
             $groupId = $section->default_members_group_id;
         }
         App::get()->debug("User $userId assign to group $groupId from section $sectionId");
@@ -127,13 +132,21 @@ class ForumUser2Section extends DbModel {
         return $user->save();
     }
 
-    public function getSignature(){
+    public function getSignature() {
         return ForumTextarea::parseText($this->signature, PageTag::getTagRules(), [
             'linkRoot' => WebApp::get()->request()->getLinkRoot(),
             'webRoot' => WebApp::get()->request()->getWebRoot()
         ]) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
-        Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css').
+        Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
 
+    }
+
+    public function getProfileLink() {
+        if ($this->section_id) {
+            return Html::get()->link(['user', 'index', ['id' => $this->id, 'name' => $this->user->name, WebApp::get()->getController()->sectionIdKey => $this->section_id]], $this->user->name);
+        } else {
+            return Html::get()->link(['user', 'index', ['id' => $this->id, 'name' => $this->user->name]], $this->user->name);
+        }
     }
 }

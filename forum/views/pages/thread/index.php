@@ -72,7 +72,7 @@
         <tr class="forum-reply forum-main-post <?= $thread->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
             <td class="forum-user-details">
                 <b class="forum-user-details-name">
-                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
+                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id, 'name' => $thread->owner->name]]), $thread->owner->name); ?>
                 </b>
                     <span class="forum-user-details-title">
                         <?= $thread->getSectionUser($subcategory->category->section_id)->title->title; ?>
@@ -125,7 +125,7 @@
             <tr class="forum-reply  <?= $reply->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
                 <td class="forum-user-details">
                     <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id]]), $reply->author->name); ?>
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name'=>$reply->author->name]]), $reply->author->name); ?>
                     </b>
                     <span class="forum-user-details-title">
                         <?= $reply->getSectionUser($subcategory->category->section_id)->title->title; ?>
@@ -179,7 +179,7 @@
             <tr class="forum-reply-form">
                 <td class="forum-user-details"><a name="reply-form"></a>
                     <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id]]), \mpf\WebApp::get()->user()->name); ?>
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
                     </b>
                     <span class="forum-user-details-title">
                         <?= ($t = \app\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>

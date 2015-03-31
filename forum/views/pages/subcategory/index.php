@@ -94,7 +94,7 @@
                     <td class="thread-views-column"><?= $thread->views; ?></td>
                     <td class="thread-most-recent-column">
                         <?php if ($thread->last_reply_id) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id]]), $thread->lastActiveUser->name); ?>
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id, 'name' => $thread->lastActiveUser->name]]), $thread->lastActiveUser->name); ?>
                             <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false ,false); ?></span>
                         <?php } else { ?>
                             <span class="thread-no-replies-message">
