@@ -27,9 +27,9 @@
     ?>
 <?php } ?>
 <?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum")
-    . " " . $this->pageTitleSeparator . " "
+    . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['category', 'index', ['category' => $subcategory->category->url_friendly_name, 'id' => $subcategory->category_id]]), $subcategory->category->name)
-    . " " . $this->pageTitleSeparator . " "
+    . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . $subcategory->title, $menu); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
@@ -43,7 +43,7 @@
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('threads'),
         'totalElements' => $subcategory->number_of_threads,
         'visibleElements' => count($threads),
-        'totalPages' => (int)(($subcategory->number_of_threads / $this->threadsPerPage) + (($subcategory->number_of_threads % $this->threadsPerPage)?1:0)),
+        'totalPages' => (int)(($subcategory->number_of_threads / \app\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($subcategory->number_of_threads % \app\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE'))?1:0)),
         'currentPage' => $currentPage
     ]); ?>
     <table class="forum-category">
@@ -110,7 +110,7 @@
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('threads'),
         'totalElements' => $subcategory->number_of_threads,
         'visibleElements' => count($threads),
-        'totalPages' => (int)(($subcategory->number_of_threads / $this->threadsPerPage) + (($subcategory->number_of_threads % $this->threadsPerPage)?1:0)),
+        'totalPages' => (int)(($subcategory->number_of_threads / \app\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($subcategory->number_of_threads % \app\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE'))?1:0)),
         'currentPage' => $currentPage
     ]); ?>
 </div>

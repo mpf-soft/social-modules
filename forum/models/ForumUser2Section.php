@@ -8,11 +8,13 @@
 namespace app\modules\forum\models;
 
 use app\models\PageTag;
+use app\modules\forum\components\Config;
 use mpf\base\App;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\helpers\FileHelper;
 use mpf\web\helpers\Html;
 use mpf\WebApp;
 use mpf\widgets\form\fields\ForumTextarea;
@@ -39,6 +41,8 @@ class ForumUser2Section extends DbModel {
     public $name;
     public $last_login;
 
+    public $icon;
+
     /**
      * A callable method that will be used when a new icon is loaded.
      * Param that will be sent:
@@ -49,23 +53,23 @@ class ForumUser2Section extends DbModel {
      */
     public $iconUploadHandle;
 
-    /**
-     *
-     * @var string
-     */
-    public $iconColumnName = 'icon';
+    public function getIconLocationURL(){
+        return str_replace([
+            '{WEB_ROOT}'
+        ],[
+            WebApp::get()->request()->getWebRoot()
+        ], Config::value('USER_ICON_FOLDER_URL'));
+    }
 
-    /**
-     * Path to user icons folder. Used only if iconUploadHandle is not set.
-     * @var string
-     */
-    public $iconLocationPath = "{APP_ROOT}..{DIRECTORY_SEPARATOR}htdocs{DIRECTORY_SEPARATOR}uploads{DIRECTORY_SEPARATOR}user-avatars{DIRECTORY_SEPARATOR}";
-
-    /**
-     * URL to user icons folder. Required to display user icons.
-     * @var string
-     */
-    public $iconLocationURL = "{WEB_ROOT}uploads/user-avatars/";
+    public function getIconLocationPath(){
+        return str_replace([
+            '{APP_ROOT}',
+            '{DIRECTORY_SEPARATOR}'
+        ], [
+            APP_ROOT,
+            DIRECTORY_SEPARATOR
+        ], Config::value('USER_ICON_FOLDER_PATH'));
+    }
 
     /**
      * Get database table name.
@@ -179,9 +183,21 @@ class ForumUser2Section extends DbModel {
     }
 
     public function changeIcon(){
+        if (!isset($_FILES['icon'])){
+            return null;
+        }
         if ($this->iconUploadHandle){
             $function = $this->iconUploadHandle;
             return $function('icon');
         }
+        $name = $this->user_id . substr($_FILES['icon']['name'], -30);
+        FileHelper::get()->upload('icon', $this->getIconLocationPath() . $name);
+        $column = Config::value('USER_ICON_COLUMN_NAME');
+        $old = $this->user->$column;
+        if ($old && 'default.png' != $old && $name != $old){
+            @unlink($old);
+        }
+        $this->user->$column = $name;
+        $this->user->save();
     }
 }

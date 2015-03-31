@@ -36,6 +36,24 @@
         <?php return; ?>
     <?php } ?>
 
-
+    <?= \mpf\widgets\form\Form::get([
+        'name' => 'save',
+        'model' => $model,
+        'theme' => 'default-wide',
+        'formHtmlOptions' => ['enctype' => 'multipart/form-data'],
+        'fields' => [
+            [
+                'name' => 'signature',
+                'type' => 'forumTextarea',
+                'tags' => \app\models\PageTag::getTagHints(true),
+                'htmlOptions' => ['style' => 'min-height: 200px;']
+            ],
+            [
+                'name' => 'icon',
+                'type' => 'image',
+                'urlPrefix' => $model->getIconLocationURL()
+            ]
+        ]
+    ])->display(); ?>
 
 </div>

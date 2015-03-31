@@ -11,6 +11,7 @@ namespace app\modules\forum\controllers;
 
 use app\components\htmltools\Messages;
 use app\controllers\User;
+use app\modules\forum\components\Config;
 use app\modules\forum\components\Controller;
 use app\modules\forum\components\UserAccess;
 use app\modules\forum\models\ForumReply;
@@ -32,7 +33,7 @@ class Thread extends Controller {
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);
-        $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, $this->repliesPerPage));
+        $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, Config::value('FORUM_REPLIES_PER_PAGE')));
         $replyModel = new ForumReply();
         $replyModel->thread_id = $id;
         if (isset($_POST['ForumReply']) && !$thread->closed && UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $this->sectionId)) {

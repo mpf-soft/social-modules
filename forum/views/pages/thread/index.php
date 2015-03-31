@@ -5,11 +5,11 @@
 <?php /* @var $replyModel \app\modules\forum\models\ForumReply */ ?>
 <?php /* @var $currentPage int */ ?>
 <?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum")
-    . " " . $this->pageTitleSeparator . " "
+    . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['category', 'index', ['category' => $subcategory->category->url_friendly_name, 'id' => $subcategory->category_id]]), $subcategory->category->name)
-    . " " . $this->pageTitleSeparator . " "
+    . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['subcategory', 'index', ['category' => $subcategory->category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->category_id]]), $subcategory->title)
-    . " " . $this->pageTitleSeparator . " "
+    . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . $thread->title); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
@@ -24,7 +24,7 @@
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('replies'),
         'totalElements' => $thread->replies,
         'visibleElements' => count($replies),
-        'totalPages' => (int)(($thread->replies / $this->repliesPerPage) + (($thread->replies % $this->repliesPerPage) ? 1 : 0)),
+        'totalPages' => (int)(($thread->replies / \app\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->replies % \app\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
 
@@ -117,7 +117,7 @@
                         <?php } ?>
                     </div>
                 <?php } ?>
-                <?= $this->threadSignatureSeparator; ?>
+                <?= \app\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
                 <?= $thread->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
             </td>
         </tr>
@@ -170,7 +170,7 @@
                             <?php } ?>
                         </div>
                     <?php } ?>
-                    <?= $this->threadSignatureSeparator; ?>
+                    <?= \app\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
                     <?= $reply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
                 </td>
             </tr>
@@ -205,7 +205,7 @@
         'elementsName' => \app\modules\forum\components\Translator::get()->translate('replies'),
         'totalElements' => $thread->replies,
         'visibleElements' => count($replies),
-        'totalPages' => (int)(($thread->replies / $this->threadsPerPage) + (($thread->replies % $this->repliesPerPage) ? 1 : 0)),
+        'totalPages' => (int)(($thread->replies / \app\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->replies % \app\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
 

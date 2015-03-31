@@ -36,67 +36,8 @@ class Controller extends \app\components\Controller {
      */
     public $sectionId = 0;
 
-    /**
-     * Key to be used when generating links where section is needed (cp links for section admins + home of the forum)
-     * @var string
-     */
-    public $sectionIdKey = 'section';
-
-    /**
-     * Section ID will be sent in links only if source is set to "get". It will also automatically read section id
-     * if source has one of the following values: get, post, session. If not it will let the user to manage the section ID
-     * and to update it to controller.
-     * @var string
-     */
-    public $sectionIdSource = 'get';
-
-    /**
-     * Change this for special aliases.
-     * @var string
-     */
-    public $forumModuleAlias = 'forum';
-
-    /**
-     * Folder location where uploads for categories icons can be uploaded
-     * @var string
-     */
-    public $uploadLocation = '{APP_ROOT}..{DIRECTORY_SEPARATOR}htdocs{DIRECTORY_SEPARATOR}uploads{DIRECTORY_SEPARATOR}forum{DIRECTORY_SEPARATOR}';
-
-    /**
-     * Public URL for upload location
-     * @var string
-     */
-    public $uploadURL = '{WEB_ROOT}uploads/forum/';
-
-    /**
-     * Used to separate subpages in title.
-     * @var string
-     */
-    public $pageTitleSeparator = "-";
-
-    /**
-     * Number of threads to display per page
-     * @var int
-     */
-    public $threadsPerPage = 15;
-
-    /**
-     * Number of replies to display per page;
-     * @var int
-     */
-    public $repliesPerPage = 10;
-
-    /**
-     * In post replies this will be used as separator between post and replies.
-     * @var string
-     */
-    public $threadSignatureSeparator = "<br /><br />";
-
     public function getUploadFolder(){
-        $moduleFolder = $this->getRequest()->getModulePath();
-        $controllerFolder = $this->request->getController();
-        return str_replace(['{APP_ROOT}', '{MODULE_FOLDER}', '{CONTROLLER}', '{LIBS_FOLDER}', '{DIRECTORY_SEPARATOR}'],
-            [APP_ROOT, $moduleFolder, $controllerFolder, LIBS_FOLDER, DIRECTORY_SEPARATOR], $this->uploadLocation);
+        return Config::value('FORUM_UPLOAD_LOCATION');
     }
 
     /**
@@ -111,11 +52,7 @@ class Controller extends \app\components\Controller {
         $finalName = "$id-";
         if (isset($_FILES[$name]) && file_exists($_FILES[$name]['tmp_name'])){
             if (FileHelper::get()->isImage($_FILES[$name]['tmp_name'])){
-                $fname = $_FILES[$name]['name'];
-                if (strlen($fname) > 100){
-                    $fname = trim(substr($fname, -100));
-                }
-                $finalName .= $fname;
+                $finalName .= ($fname = trim(substr($_FILES[$name]['name'], -100)));
                 if (FileHelper::get()->upload($name, $folder . $fname)) {
                     return $finalName;
                 }
@@ -129,10 +66,7 @@ class Controller extends \app\components\Controller {
     }
 
     public function getUploadUrl(){
-        $moduleFolder = $this->getRequest()->getModulePath();
-        $controllerFolder = $this->request->getController();
-        return str_replace(['{WEB_ROOT}', '{LINK_ROOT}', '{MODULE_FOLDER}', '{CONTROLLER}', '{LIBS_FOLDER}'],
-            [$this->getWebRoot(), $this->getLinkRoot(), $moduleFolder, $controllerFolder, LIBS_FOLDER], $this->uploadURL);
+        return Config::value('FORUM_UPLOAD_URL');
     }
 
     /**
@@ -149,18 +83,19 @@ class Controller extends \app\components\Controller {
     }
 
     public function beforeAction($actionName) {
-        switch ($this->sectionIdSource) {
+        $key = Config::value('FORUM_SECTION_ID_KEY');
+        switch (Config::value('FORUM_SECTION_ID_SOURCE')) {
             case 'get':
-                if (isset($_GET[$this->sectionIdKey]))
-                    $this->sectionId = $_GET[$this->sectionIdKey];
+                if (isset($_GET[$key]))
+                    $this->sectionId = $_GET[$key];
                 break;
             case 'post':
-                if (isset($_POST[$this->sectionIdKey]))
-                    $this->sectionId = $_POST[$this->sectionIdKey];
+                if (isset($_POST[$key]))
+                    $this->sectionId = $_POST[$key];
                 break;
             case 'session':
-                if (Session::get()->exists($this->sectionIdKey))
-                    $this->sectionId = Session::get()->value($this->sectionIdKey);
+                if (Session::get()->exists($key))
+                    $this->sectionId = Session::get()->value($key);
                 break;
         }
         if (!in_array($actionName, ['notFound', 'accesDenied'])) {
@@ -180,15 +115,15 @@ class Controller extends \app\components\Controller {
     public function updateURLWithSection($original) {
         if (!$this->sectionId)
             return $original;
-        if ('get' != $this->sectionIdSource)
+        if ('get' != Config::value('FORUM_SECTION_ID_SOURCE'))
             return $original;
         if (isset($original[2]) && is_array($original[2])) {
-            $original[2][$this->sectionIdKey] = $this->sectionId;
+            $original[2][Config::value('FORUM_SECTION_ID_KEY')] = $this->sectionId;
         } elseif (isset($original[2])) {
             $original[3] = $original[2];
-            $original[2] = [$this->sectionIdKey => $this->sectionId];
+            $original[2] = [Config::value('FORUM_SECTION_ID_KEY') => $this->sectionId];
         } else {
-            $original[2] = [$this->sectionIdKey => $this->sectionId];
+            $original[2] = [Config::value('FORUM_SECTION_ID_KEY') => $this->sectionId];
         }
 
         return $original;
@@ -202,8 +137,8 @@ class Controller extends \app\components\Controller {
      * @return bool|void
      */
     public function goToPage($controller, $action = null, $params = []) {
-        if ($this->sectionId && 'get' == $this->sectionIdSource)
-            $params['section'] = $this->sectionId;
+        if ($this->sectionId && 'get' == Config::value('FORUM_SECTION_ID_SOURCE'))
+            $params[Config::value('FORUM_SECTION_ID_KEY')] = $this->sectionId;
         return parent::goToPage($controller, $action, $params);
     }
 
@@ -214,15 +149,15 @@ class Controller extends \app\components\Controller {
      * @return bool
      */
     public function goToAction($action, $params = []){
-        if ($this->sectionId && 'get' == $this->sectionIdSource)
-            $params['section'] = $this->sectionId;
+        if ($this->sectionId && 'get' == Config::value('FORUM_SECTION_ID_SOURCE'))
+            $params[Config::value('FORUM_SECTION_ID_KEY')] = $this->sectionId;
         return parent::goToAction($action, $params);
     }
 
     public function getUrlForDatatableAction($action, $params = [], $controller = null, $key = 'id', $column = 'id'){
         $controller = is_null($controller)?"\\mpf\\WebApp::get()->request()->getController()":"'$controller'";
-        if ($this->sectionId&& 'get' == $this->sectionIdSource){
-            $params[$this->sectionIdKey] = $this->sectionId;
+        if ($this->sectionId&& 'get' == Config::value('FORUM_SECTION_ID_SOURCE')){
+            $params[Config::value('FORUM_SECTION_ID_KEY')] = $this->sectionId;
         }
         $prms = ["\"$key\" => \$row->{$column}"];
         foreach ($params as $name=>$value){
