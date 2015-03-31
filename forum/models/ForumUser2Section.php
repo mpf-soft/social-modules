@@ -183,7 +183,7 @@ class ForumUser2Section extends DbModel {
     }
 
     public function changeIcon(){
-        if (!isset($_FILES['icon'])){
+        if (!isset($_FILES['icon']) || !$_FILES['icon']['tmp_name']){
             return null;
         }
         if ($this->iconUploadHandle){
