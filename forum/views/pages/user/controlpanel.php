@@ -24,7 +24,7 @@
     ];
     ?>
 <?php } ?>
-<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . $this->pageTitleSeparator . " Control Panel", $menu); ?>
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " Control Panel", $menu); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>

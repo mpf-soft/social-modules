@@ -3,7 +3,7 @@
 <?php } ?>
 <div class="forum-user-panel">
     <div class="forum-user-panel-icon">
-        <?= \mpf\web\helpers\Html::get()->link(['user', 'controlPanel'], \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg")); ?>
+        <?= \mpf\web\helpers\Html::get()->link(['user', 'controlPanel'], \mpf\web\helpers\Html::get()->image(\app\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . \mpf\WebApp::get()->user()->icon)); ?>
     </div>
     <div class="forum-user-panel-about">
         <?= \mpf\web\helpers\Html::get()->link(['user', 'profile', ['name' => \mpf\WebApp::get()->user()->name]], \mpf\WebApp::get()->user()->name, ['class' => 'form-user-panel-about-name']); ?>

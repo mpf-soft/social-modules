@@ -26,6 +26,7 @@ class User extends Controller{
             $user->signature = $_POST['ForumUser2Section']['signature'];
             $user->save();
             $user->changeIcon();
+            $user->icon = $user->user->icon;
             WebApp::get()->user()->setState('icon', $user->user->icon);
         }
         $this->assign('model', $user);
