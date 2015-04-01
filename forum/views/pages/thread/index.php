@@ -32,7 +32,7 @@
         <tr>
             <th colspan="2">
                 <h2 class="forum-thread-title">
-                    <?= \mpf\web\helpers\Html::get()->image("https://robertsspaceindustries.com/media/7psqknsdcm40ur/avatar/25721.jpg"); ?>
+                    <?= \mpf\web\helpers\Html::get()->image($thread->getAuthorIcon()); ?>
                     <span class="forum-thread-title">
                         <?php if ($thread->sticky) { ?>
                             <?= \mpf\web\helpers\Html::get()->image($this->getWebRoot() . 'forum/statusicons/sticky.png', "Sticky"); ?>
@@ -184,7 +184,7 @@
                     <span class="forum-user-details-title">
                         <?= ($t = \app\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
                     </span>
-                    <?= \mpf\web\helpers\Html::get()->image(\app\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . \mpf\WebApp::get()->user()->icon); ?>
+                    <?= \mpf\web\helpers\Html::get()->image(\app\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . (\mpf\WebApp::get()->user()->icon?:'default.png')); ?>
                     <span class="forum-user-details-group">
                     <?= ($g = \app\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
                 </span>
