@@ -31,6 +31,12 @@ class Controller extends \app\components\Controller {
     public $forumPageTheme = 'basic-forum-page';
 
     /**
+     * Path to current layout
+     * @var string
+     */
+    public $layoutFolder = '{APP_ROOT}views{DIRECTORY_SEPARATOR}layout';
+
+    /**
      * Will record the ID of the current section;
      * @var int
      */
