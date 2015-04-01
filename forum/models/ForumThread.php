@@ -5,12 +5,12 @@
  * Time: 13:45
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\models\PageTag;
 use app\models\User;
-use app\modules\forum\components\Config;
-use app\modules\forum\components\UserAccess;
+use mpf\modules\forum\components\Config;
+use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -41,7 +41,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $last_reply_id
  * @property int $last_reply_user_id
  * @property string $last_reply_date
- * @property \app\modules\forum\models\ForumSubcategory $subcategory
+ * @property \mpf\modules\forum\models\ForumSubcategory $subcategory
  * @property \app\models\User $owner
  * @property \app\models\User $editor
  * @property \app\models\User $lastActiveUser
@@ -90,7 +90,7 @@ class ForumThread extends DbModel {
      */
     public static function getRelations() {
         return [
-            'subcategory' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSubcategory', 'subcategory_id'],
+            'subcategory' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSubcategory', 'subcategory_id'],
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
             'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_reply_user_id']

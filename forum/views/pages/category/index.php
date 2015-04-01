@@ -1,7 +1,7 @@
-<?php /* @var $this \app\modules\forum\controllers\Home */ ?>
-<?php /* @var $category \app\modules\forum\models\ForumCategory */ ?>
+<?php /* @var $this \mpf\modules\forum\controllers\Home */ ?>
+<?php /* @var $category \mpf\modules\forum\models\ForumCategory */ ?>
 <?php $menu = []; ?>
-<?php if (\app\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
+<?php if (\mpf\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
     <?php
     $menu = [
         [
@@ -24,12 +24,12 @@
     ];
     ?>
 <?php } ?>
-<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " " . $category->name, $menu); ?>
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " " . $category->name, $menu); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
 
-    <?php if (!\app\modules\forum\components\UserAccess::get()->canRead($this->sectionId, $category->id)) { ?>
+    <?php if (!\mpf\modules\forum\components\UserAccess::get()->canRead($this->sectionId, $category->id)) { ?>
         <?php $this->displayComponent('accessdenied', ['location' => 'category']); ?>
         <?php return; ?>
     <?php } ?>
@@ -51,22 +51,22 @@
                         ); ?>
                         <span><?= $subcategory->description; ?></span>
                     </h2>
-                    <?php if (\app\modules\forum\components\UserAccess::get()->canCreateNewThread($category->id, $this->sectionId)) { ?>
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \app\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
+                    <?php if (\mpf\modules\forum\components\UserAccess::get()->canCreateNewThread($category->id, $this->sectionId)) { ?>
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \mpf\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
                     <?php } ?>
                 </th>
             </tr>
             <tr class="threads-description-row">
                 <th class="thread-status-icon-column">&nbsp;</th>
-                <th class="thread-title-column"><?= \app\modules\forum\components\Translator::get()->translate("Thread"); ?></th>
-                <th class="thread-started-by-column"><?= \app\modules\forum\components\Translator::get()->translate("Started By"); ?></th>
-                <th class="thread-replies-column"><?= \app\modules\forum\components\Translator::get()->translate("Replies"); ?></th>
-                <th class="thread-views-column"><?= \app\modules\forum\components\Translator::get()->translate("Views"); ?></th>
-                <th class="thread-most-recent-column"><?= \app\modules\forum\components\Translator::get()->translate("Most Recent"); ?></th>
+                <th class="thread-title-column"><?= \mpf\modules\forum\components\Translator::get()->translate("Thread"); ?></th>
+                <th class="thread-started-by-column"><?= \mpf\modules\forum\components\Translator::get()->translate("Started By"); ?></th>
+                <th class="thread-replies-column"><?= \mpf\modules\forum\components\Translator::get()->translate("Replies"); ?></th>
+                <th class="thread-views-column"><?= \mpf\modules\forum\components\Translator::get()->translate("Views"); ?></th>
+                <th class="thread-most-recent-column"><?= \mpf\modules\forum\components\Translator::get()->translate("Most Recent"); ?></th>
             </tr>
             <?php if (!$subcategory->number_of_threads) { ?>
                 <tr class="no-threads-found-row">
-                    <td colspan="6"><?= \app\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
+                    <td colspan="6"><?= \mpf\modules\forum\components\Translator::get()->translate("No Threads Found Yet!"); ?></td>
                 </tr>
             <?php } else { ?>
                 <?php foreach ($subcategory->getTopPostsForCategoryPage() as $thread) { ?>
@@ -87,7 +87,7 @@
                                 <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false ,false); ?></span>
                             <?php } else { ?>
                                 <span class="thread-no-replies-message">
-                                    <?= \app\modules\forum\components\Translator::get()->translate("no replies"); ?>
+                                    <?= \mpf\modules\forum\components\Translator::get()->translate("no replies"); ?>
                                 </span>
                             <?php } ?>
                         </td>

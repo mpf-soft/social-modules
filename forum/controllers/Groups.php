@@ -6,10 +6,10 @@
  * Time: 15:20
  */
 
-namespace app\modules\forum\controllers;
+namespace mpf\modules\forum\controllers;
 
 
-use app\modules\forum\components\Controller;
+use mpf\modules\forum\components\Controller;
 
 class Groups extends Controller{
 

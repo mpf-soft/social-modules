@@ -6,17 +6,17 @@
  * Time: 15:18
  */
 
-namespace app\modules\forum\controllers;
+namespace mpf\modules\forum\controllers;
 
 
 use app\components\htmltools\Messages;
 use app\controllers\User;
-use app\modules\forum\components\Config;
-use app\modules\forum\components\Controller;
-use app\modules\forum\components\UserAccess;
-use app\modules\forum\models\ForumReply;
-use app\modules\forum\models\ForumSubcategory;
-use app\modules\forum\models\ForumThread;
+use mpf\modules\forum\components\Config;
+use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\components\UserAccess;
+use mpf\modules\forum\models\ForumReply;
+use mpf\modules\forum\models\ForumSubcategory;
+use mpf\modules\forum\models\ForumThread;
 use mpf\web\Session;
 use mpf\WebApp;
 

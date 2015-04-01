@@ -6,7 +6,7 @@
  * Time: 11:50
  */
 
-namespace app\modules\forum\components;
+namespace mpf\modules\forum\components;
 
 
 use mpf\base\TranslatableObject;

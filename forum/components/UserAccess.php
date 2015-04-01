@@ -6,13 +6,13 @@
  * Time: 10:56
  */
 
-namespace app\modules\forum\components;
+namespace mpf\modules\forum\components;
 
 
-use app\modules\forum\models\ForumSection;
-use app\modules\forum\models\ForumTitle;
-use app\modules\forum\models\ForumUser2Section;
-use app\modules\forum\models\ForumUserGroup;
+use mpf\modules\forum\models\ForumSection;
+use mpf\modules\forum\models\ForumTitle;
+use mpf\modules\forum\models\ForumUser2Section;
+use mpf\modules\forum\models\ForumUserGroup;
 use mpf\base\LogAwareObject;
 use mpf\web\Session;
 use mpf\WebApp;
@@ -131,7 +131,7 @@ class UserAccess extends LogAwareObject {
     }
 
     /**
-     * @var \app\modules\forum\models\ForumSection[]
+     * @var \mpf\modules\forum\models\ForumSection[]
      */
     private $sections = [];
 

@@ -6,7 +6,7 @@
  * Time: 19:58
  */
 
-namespace app\modules\forum\components;
+namespace mpf\modules\forum\components;
 
 
 use app\models\GlobalConfig;

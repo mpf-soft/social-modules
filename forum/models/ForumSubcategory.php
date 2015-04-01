@@ -5,11 +5,11 @@
  * Time: 13:43
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\components\htmltools\Messages;
-use app\modules\forum\components\Translator;
-use app\modules\forum\components\UserAccess;
+use mpf\modules\forum\components\Translator;
+use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -32,10 +32,10 @@ use mpf\WebApp;
  * @property int $number_of_replies
  * @property string $url_friendly_title
  * @property string $icon
- * @property \app\modules\forum\models\ForumCategory $category
+ * @property \mpf\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
  * @property \app\models\User $lastActiveUser
- * @property \app\modules\forum\models\ForumThread $lastActiveThread
+ * @property \mpf\modules\forum\models\ForumThread $lastActiveThread
  */
 class ForumSubcategory extends DbModel {
 
@@ -76,9 +76,9 @@ class ForumSubcategory extends DbModel {
      */
     public static function getRelations() {
         return [
-            'category' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumCategory', 'category_id'],
+            'category' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumCategory', 'category_id'],
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-            'lastActiveThread' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumThread', 'last_active_thread_id'],
+            'lastActiveThread' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumThread', 'last_active_thread_id'],
             'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_active_user_id']
         ];
     }

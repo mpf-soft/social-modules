@@ -5,10 +5,10 @@
  * Time: 12:50
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\models\PageTag;
-use app\modules\forum\components\Config;
+use mpf\modules\forum\components\Config;
 use mpf\base\App;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -32,9 +32,9 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property string $member_since
  * @property string $signature
  * @property \app\models\User $user
- * @property \app\modules\forum\models\ForumSection $section
- * @property \app\modules\forum\models\ForumUserGroup $group
- * @property \app\modules\forum\models\ForumTitle $title
+ * @property \mpf\modules\forum\models\ForumSection $section
+ * @property \mpf\modules\forum\models\ForumUserGroup $group
+ * @property \mpf\modules\forum\models\ForumTitle $title
  */
 class ForumUser2Section extends DbModel {
 
@@ -105,9 +105,9 @@ class ForumUser2Section extends DbModel {
     public static function getRelations() {
         return [
             'user' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-            'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id'],
-            'group' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'group_id'],
-            'title' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumTitle', 'title_id']
+            'section' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSection', 'section_id'],
+            'group' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'group_id'],
+            'title' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumTitle', 'title_id']
         ];
     }
 

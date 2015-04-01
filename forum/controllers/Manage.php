@@ -6,20 +6,20 @@
  * Time: 13:25
  */
 
-namespace app\modules\forum\controllers;
+namespace mpf\modules\forum\controllers;
 
 
 use app\components\htmltools\Messages;
 use app\models\User;
 use app\models\UserTitle;
-use app\modules\forum\components\Controller;
-use app\modules\forum\components\UserAccess;
-use app\modules\forum\models\ForumCategory;
-use app\modules\forum\models\ForumSection;
-use app\modules\forum\models\ForumSubcategory;
-use app\modules\forum\models\ForumTitle;
-use app\modules\forum\models\ForumUser2Section;
-use app\modules\forum\models\ForumUserGroup;
+use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\components\UserAccess;
+use mpf\modules\forum\models\ForumCategory;
+use mpf\modules\forum\models\ForumSection;
+use mpf\modules\forum\models\ForumSubcategory;
+use mpf\modules\forum\models\ForumTitle;
+use mpf\modules\forum\models\ForumUser2Section;
+use mpf\modules\forum\models\ForumUserGroup;
 use mpf\helpers\ArrayHelper;
 
 class Manage extends Controller {

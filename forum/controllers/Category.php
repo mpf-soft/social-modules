@@ -6,11 +6,11 @@
  * Time: 15:18
  */
 
-namespace app\modules\forum\controllers;
+namespace mpf\modules\forum\controllers;
 
 
-use app\modules\forum\components\Controller;
-use app\modules\forum\models\ForumCategory;
+use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\models\ForumCategory;
 
 class Category extends Controller{
 

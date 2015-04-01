@@ -6,10 +6,10 @@
  * Time: 13:20
  */
 
-namespace app\modules\forum\controllers;
+namespace mpf\modules\forum\controllers;
 
 
-use app\modules\forum\components\Controller;
+use mpf\modules\forum\components\Controller;
 
 class Special extends Controller {
     public function actionNotFound() {

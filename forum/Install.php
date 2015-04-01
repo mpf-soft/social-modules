@@ -6,7 +6,7 @@
  * Time: 14:44
  */
 
-namespace app\modules\forum;
+namespace mpf\modules\forum;
 
 
 class Install {

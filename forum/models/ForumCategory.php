@@ -5,11 +5,11 @@
  * Time: 12:55
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\components\htmltools\Messages;
 use app\controllers\User;
-use app\modules\forum\components\UserAccess;
+use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -26,8 +26,8 @@ use mpf\WebApp;
  * @property int $user_id
  * @property int $section_id
  * @property string $icon
- * @property \app\modules\forum\models\ForumSection $section
- * @property \app\modules\forum\models\ForumSubcategory[] $subcategories
+ * @property \mpf\modules\forum\models\ForumSection $section
+ * @property \mpf\modules\forum\models\ForumSubcategory[] $subcategories
  * @property \app\models\User $author
  */
 class ForumCategory extends DbModel {
@@ -65,10 +65,10 @@ class ForumCategory extends DbModel {
      */
     public static function getRelations() {
         return [
-            'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id'],
+            'section' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSection', 'section_id'],
             'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-            'subcategories' => [DbRelations::HAS_MANY, '\app\modules\forum\models\ForumSubcategory', 'category_id'],
-            'groups' => [DbRelations::MANY_TO_MANY, '\app\modules\forum\models\ForumUserGroup', 'forum_groups2categories(category_id, group_id)']
+            'subcategories' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumSubcategory', 'category_id'],
+            'groups' => [DbRelations::MANY_TO_MANY, '\mpf\modules\forum\models\ForumUserGroup', 'forum_groups2categories(category_id, group_id)']
         ];
     }
 

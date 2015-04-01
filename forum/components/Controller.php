@@ -6,11 +6,11 @@
  * Time: 15:16
  */
 
-namespace app\modules\forum\components;
+namespace mpf\modules\forum\components;
 
 
 use app\components\htmltools\Messages;
-use app\modules\forum\models\ForumSection;
+use mpf\modules\forum\models\ForumSection;
 use mpf\helpers\FileHelper;
 use mpf\web\helpers\Html;
 use mpf\web\Session;

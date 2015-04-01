@@ -1,7 +1,7 @@
-<?php /* @var $this \app\modules\forum\controllers\Home */ ?>
-<?php /* @var $categories \app\modules\forum\models\ForumCategory[] */ ?>
+<?php /* @var $this \mpf\modules\forum\controllers\Home */ ?>
+<?php /* @var $categories \mpf\modules\forum\models\ForumCategory[] */ ?>
 <?php $menu = []; ?>
-<?php if (\app\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
+<?php if (\mpf\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
     <?php
     $menu = [
         [
@@ -28,7 +28,7 @@
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
 
-    <?php if (!\app\modules\forum\components\UserAccess::get()->canRead($this->sectionId)) { ?>
+    <?php if (!\mpf\modules\forum\components\UserAccess::get()->canRead($this->sectionId)) { ?>
         <?php $this->displayComponent('accessdenied', ['location' => 'section']); ?>
         <?php return; ?>
     <?php } ?>
@@ -39,10 +39,10 @@
                 <th colspan="4"><?php $this->displayComponent('categorytitle', ['category' => $category]); ?></th>
             </tr>
             <tr class="subcategory-description-row">
-                <th class="subcategory-title-column"><?= \app\modules\forum\components\Translator::get()->translate('Subcategory'); ?></th>
+                <th class="subcategory-title-column"><?= \mpf\modules\forum\components\Translator::get()->translate('Subcategory'); ?></th>
                 <th class="subcategory-options-column">&nbsp</th>
                 <th class="subcategory-activity-column">&nbsp</th>
-                <th class="subcategory-latest-post-column"><?= \app\modules\forum\components\Translator::get()->translate('Latest Post'); ?></th>
+                <th class="subcategory-latest-post-column"><?= \mpf\modules\forum\components\Translator::get()->translate('Latest Post'); ?></th>
             </tr>
             <?php foreach ($category->subcategories as $subcategory) { ?>
                 <tr class="subcategory-row">
@@ -61,8 +61,8 @@
                     </td>
                     <td class="subcategory-options-column">&nbsp;</td>
                     <td class="subcategory-activity-column">
-                        <b><?= $subcategory->number_of_threads; ?> <?= \app\modules\forum\components\Translator::get()->translate("threads"); ?></b>
-                        <b><?= $subcategory->number_of_replies; ?> <?= \app\modules\forum\components\Translator::get()->translate("replies"); ?></b>
+                        <b><?= $subcategory->number_of_threads; ?> <?= \mpf\modules\forum\components\Translator::get()->translate("threads"); ?></b>
+                        <b><?= $subcategory->number_of_replies; ?> <?= \mpf\modules\forum\components\Translator::get()->translate("replies"); ?></b>
                     </td>
                     <td class="subcategory-latest-post-column">
                             <?php if ($subcategory->last_active_thread_id) { ?>
@@ -74,7 +74,7 @@
                                 <span class="subcategory-lastest-post-date">, <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subcategory->last_activity_time, false, false)); ?></span>
                             <?php } else { ?>
                         <span class="subcategory-no-posts">
-                                <?= \app\modules\forum\components\Translator::get()->translate("- no posts -"); ?>
+                                <?= \mpf\modules\forum\components\Translator::get()->translate("- no posts -"); ?>
                         </span>
                             <?php } ?>
                     </td>

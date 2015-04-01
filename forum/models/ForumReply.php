@@ -5,12 +5,12 @@
  * Time: 13:49
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\models\PageTag;
-use app\modules\forum\components\Config;
-use app\modules\forum\components\Translator;
-use app\modules\forum\components\UserAccess;
+use mpf\modules\forum\components\Config;
+use mpf\modules\forum\components\Translator;
+use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
@@ -34,9 +34,9 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $score
  * @property int $user_group_id
  * @property \app\models\User $author
- * @property \app\modules\forum\models\ForumThread $thread
+ * @property \mpf\modules\forum\models\ForumThread $thread
  * @property \app\models\User $editor
- * @property \app\modules\forum\models\ForumUserGroup $authorGroup
+ * @property \mpf\modules\forum\models\ForumUserGroup $authorGroup
  */
 class ForumReply extends DbModel {
 
@@ -76,9 +76,9 @@ class ForumReply extends DbModel {
     public static function getRelations(){
         return [
              'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
-             'thread' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumThread', 'thread_id'],
+             'thread' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumThread', 'thread_id'],
              'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
-             'authorGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'user_group_id']
+             'authorGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'user_group_id']
         ];
     }
 

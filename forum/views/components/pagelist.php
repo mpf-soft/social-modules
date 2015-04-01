@@ -4,7 +4,7 @@
  * User: mirel
  * Date: 25.03.2015
  * Time: 12:53
- * @var \app\modules\forum\components\Controller $this
+ * @var \mpf\modules\forum\components\Controller $this
  * This requires 3 variables:
  * @var string $elementsName
  * @var int $totalElements

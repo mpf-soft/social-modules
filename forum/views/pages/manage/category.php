@@ -1,6 +1,6 @@
-<?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
-<?php /* @var $model \app\modules\forum\models\ForumCategory */ ?>
-<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " .\app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') ." Categories " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " " . ($model->isNewRecord()?"Add New":"Edit " . $model->name), [
+<?php /* @var $this \mpf\modules\forum\controllers\Manage */ ?>
+<?php /* @var $model \mpf\modules\forum\models\ForumCategory */ ?>
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " .\mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') ." Categories " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " " . ($model->isNewRecord()?"Add New":"Edit " . $model->name), [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
         'label' => 'Manage Groups'

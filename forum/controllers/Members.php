@@ -6,11 +6,11 @@
  * Time: 15:03
  */
 
-namespace app\modules\forum\controllers;
+namespace mpf\modules\forum\controllers;
 
 
-use app\modules\forum\components\Controller;
-use app\modules\forum\models\ForumUser2Section;
+use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\models\ForumUser2Section;
 
 class Members extends Controller{
     public function actionIndex(){

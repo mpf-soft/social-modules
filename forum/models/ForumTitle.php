@@ -5,7 +5,7 @@
  * Time: 12:55
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;

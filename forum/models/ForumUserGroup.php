@@ -5,10 +5,10 @@
  * Time: 12:54
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\components\htmltools\Messages;
-use app\modules\forum\components\UserAccess;
+use mpf\modules\forum\components\UserAccess;
 use mpf\base\App;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -27,7 +27,7 @@ use mpf\datasources\sql\ModelCondition;
  * @property int $newthread
  * @property int $threadreply
  * @property int $canread
- * @property \app\modules\forum\models\ForumSection $section
+ * @property \mpf\modules\forum\models\ForumSection $section
  */
 class ForumUserGroup extends DbModel {
 
@@ -64,7 +64,7 @@ class ForumUserGroup extends DbModel {
      */
     public static function getRelations() {
         return [
-            'section' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumSection', 'section_id']
+            'section' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSection', 'section_id']
         ];
     }
 

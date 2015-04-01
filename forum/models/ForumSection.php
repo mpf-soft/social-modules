@@ -5,7 +5,7 @@
  * Time: 12:53
  */
 
-namespace app\modules\forum\models;
+namespace mpf\modules\forum\models;
 
 use app\components\htmltools\Messages;
 use mpf\base\App;
@@ -23,8 +23,8 @@ use mpf\datasources\sql\ModelCondition;
  * @property int $owner_user_id
  * @property int $default_members_group_id
  * @property \app\models\User $owner
- * @property \app\modules\forum\models\ForumUserGroup $defaultVisitorsGroup
- * @property \app\modules\forum\models\ForumUserGroup $defaultMembersGroup
+ * @property \mpf\modules\forum\models\ForumUserGroup $defaultVisitorsGroup
+ * @property \mpf\modules\forum\models\ForumUserGroup $defaultMembersGroup
  */
 class ForumSection extends DbModel {
 
@@ -58,8 +58,8 @@ class ForumSection extends DbModel {
     public static function getRelations() {
         return [
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'owner_user_id'],
-            'defaultVisitorsGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'default_visitors_group_id'],
-            'defaultMembersGroup' => [DbRelations::BELONGS_TO, '\app\modules\forum\models\ForumUserGroup', 'default_members_group_id']
+            'defaultVisitorsGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'default_visitors_group_id'],
+            'defaultMembersGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'default_members_group_id']
         ];
     }
 

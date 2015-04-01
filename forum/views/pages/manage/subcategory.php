@@ -1,6 +1,6 @@
-<?php /* @var $this \app\modules\forum\controllers\Manage */ ?>
-<?php /* @var $model \app\modules\forum\models\ForumSubcategory */ ?>
-<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . \app\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " New subcategory", [
+<?php /* @var $this \mpf\modules\forum\controllers\Manage */ ?>
+<?php /* @var $model \mpf\modules\forum\models\ForumSubcategory */ ?>
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " New subcategory", [
     [
         'url' => $this->updateURLWithSection(['manage', 'groups']),
         'label' => 'Manage Groups'
@@ -39,7 +39,7 @@
         [
             'name' => 'category_id',
             'type' => 'select',
-            'options' => \mpf\helpers\ArrayHelper::get()->transform(\app\modules\forum\models\ForumCategory::findAllBySection($this->sectionId), ['id' => 'name']),
+            'options' => \mpf\helpers\ArrayHelper::get()->transform(\mpf\modules\forum\models\ForumCategory::findAllBySection($this->sectionId), ['id' => 'name']),
             [
                 'name' => 'icon',
                 'type' => 'image',

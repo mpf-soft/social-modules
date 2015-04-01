@@ -1,4 +1,4 @@
-<?php /* @var $model \app\modules\forum\models\ForumReply */ ?>
+<?php /* @var $model \mpf\modules\forum\models\ForumReply */ ?>
 
 <?= \mpf\widgets\form\Form::get([
     'name'=> 'post_reply',
