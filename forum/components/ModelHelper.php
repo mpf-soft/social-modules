@@ -28,6 +28,66 @@ class ModelHelper extends Object{
         'ForumThread' => '\mpf\modules\forum\models\ForumThread',
         'ForumTitle' => '\mpf\modules\forum\models\ForumTitle',
         'ForumUser2Section' => '\mpf\modules\forum\models\ForumUser2Section',
-        'ForumUserGroup' => '\mpf\modules\forum\models\ForumUserGroup'
+        'ForumUserGroup' => '\mpf\modules\forum\models\ForumUserGroup',
+        'User' => '\app\models\User',
+        'GlobalConfig' => '\app\models\GlobalConfig'
     ];
+
+    protected static $_self;
+
+    public static function get(){
+        if (!self::$_self)
+            self::$_self = new static();
+        return self::$_self;
+    }
+
+    /**
+     * @param string $method
+     * @param array $params
+     * @return mixed
+     */
+    public static function __callStatic($method, $params = []){
+        $model = self::get()->models[$params[0]];
+        unset($params[0]);
+        return call_user_func_array($model.'::'.$method, array_values($params));
+    }
+
+    /**
+     * @param $model
+     * @return \mpf\datasources\sql\DbModel
+     */
+    public static function model($model){
+        $model = self::get()->models[$model];
+        return $model::model();
+    }
+
+    /**
+     * @param string $model
+     * @param string|int $pk
+     * @return \mpf\datasources\sql\DbModel
+     */
+    public static function findByPk($model, $pk){
+        $model = self::get()->models[$model];
+        return $model::findByPk($pk);
+    }
+
+    /**
+     * @param string $model
+     * @param string[] $attributes
+     * @return \mpf\datasources\sql\DbModel
+     */
+    public static function findByAttributes($model, $attributes){
+        $model = self::get()->models[$model];
+        return $model::findByAttributes($attributes);
+    }
+
+    /**
+     * @param $model
+     * @return \mpf\datasources\sql\DbModel
+     */
+    public static function getNew($model){
+        $model = self::get()->models[$model];
+        return new $model();
+    }
+
 }

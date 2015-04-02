@@ -8,7 +8,7 @@
 namespace mpf\modules\forum\models;
 
 use app\models\PageTag;
-use app\models\User;
+use mpf\helpers\ArrayHelper;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
@@ -121,6 +121,23 @@ class ForumThread extends DbModel {
         $condition->limit = $threadsPerPage;
         $condition->order = '`order` ASC, `id` DESC';
         $condition->offset = ($page - 1) * $threadsPerPage;
+        return self::findAll($condition);
+    }
+
+    /**
+     * @param int $section
+     * @return static[]
+     */
+    public static function findRecent($section){
+        $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
+        $condition->with = ['category'];
+        $condition->compareColumn("category.section_id", $section);
+        $condition->fields = ['t.id'];
+        $ids = ArrayHelper::get()->transform(ForumSubcategory::findAll($condition), 'id');
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->addInCondition('subcategory_id', $ids);
+        $condition->order = "id DESC";
+        $condition->limit = 20;
         return self::findAll($condition);
     }
 
