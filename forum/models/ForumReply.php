@@ -98,9 +98,14 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->with = ['author', 'editor', 'authorGroup', 'replies' //, Must optimize this and fix errors from db
+//            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup',
+//            'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
+//            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor', 'replies.replies.replies.authorGroup'
+                        ];
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
-        $condition->order = '`id` ASC';
+        $condition->order = '`t`.`id` ASC';
         $condition->offset = ($page - 1) * $perPage;
         return self::findAll($condition);
 
@@ -126,6 +131,11 @@ class ForumReply extends DbModel {
     }
 
     /**
+     * @var array
+     */
+    protected  static $sectionUsers =[];
+
+    /**
      * @var ForumUser2Section
      */
     protected $sectionUser;
@@ -135,8 +145,14 @@ class ForumReply extends DbModel {
      * @return ForumUser2Section
      */
     public function getSectionUser($sectionId) {
+        if (isset(self::$sectionUsers[$sectionId][$this->user_id])){
+            return self::$sectionUsers[$sectionId][$this->user_id];
+        }
+        if (!isset(self::$sectionUsers[$sectionId])){
+            self::$sectionUsers[$sectionId] = [];
+        }
         if (!$this->sectionUser) {
-            $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id]);
+            self::$sectionUsers[$sectionId][$this->user_id] = $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id]);
         }
         return $this->sectionUser;
     }
