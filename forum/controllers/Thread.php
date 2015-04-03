@@ -10,14 +10,12 @@ namespace mpf\modules\forum\controllers;
 
 
 use app\components\htmltools\Messages;
-use app\controllers\User;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Controller;
 use mpf\modules\forum\components\UserAccess;
 use mpf\modules\forum\models\ForumReply;
 use mpf\modules\forum\models\ForumSubcategory;
 use mpf\modules\forum\models\ForumThread;
-use mpf\web\Session;
 use mpf\WebApp;
 
 class Thread extends Controller {
@@ -90,6 +88,8 @@ class Thread extends Controller {
         }
         $thread = new ForumThread();
         $thread->subcategory_id = $subcategory->id;
+        $thread->category_id = $subcategory->category_id;
+        $thread->section_id = $subcategory->category->section_id;
         $thread->user_id = WebApp::get()->user()->id;
         if (isset($_POST['ForumThread'])) {
             if (isset($_POST['sticky']) && UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) {

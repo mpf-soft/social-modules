@@ -26,6 +26,8 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $id
  * @property int $user_id
  * @property int $subcategory_id
+ * @property int $category_id
+ * @property int $section_id
  * @property string $title
  * @property string $content
  * @property string $keywords
@@ -66,6 +68,8 @@ class ForumThread extends DbModel {
             'id' => 'Id',
             'user_id' => 'Owner',
             'subcategory_id' => 'Subcategory',
+            'category_id' => 'Category',
+            'section_id' => 'Section',
             'title' => 'Title',
             'content' => 'Content',
             'keywords' => 'Keywords',
@@ -104,7 +108,7 @@ class ForumThread extends DbModel {
     public static function getRules() {
         return [
             ["title, content, keywords", "safe, required", "on" => "insert"],
-            ["id, user_id, subcategory_id, title, content, keywords, score, replies, views, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
+            ["id, user_id, subcategory_id, category_id, section_id, title, content, keywords, score, replies, views, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
         ];
     }
 
@@ -148,7 +152,7 @@ class ForumThread extends DbModel {
     public function getDataProvider() {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "user_id", "subcategory_id", "title", "content", "keywords", "score", "replies", "views", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
+        foreach (["id", "user_id", "subcategory_id", "category_id", "section_id", "title", "content", "keywords", "score", "replies", "views", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }

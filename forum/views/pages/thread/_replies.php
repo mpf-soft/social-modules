@@ -14,15 +14,15 @@
                     <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subReply->user_id, 'name' => $subReply->author->name]]), $subReply->author->name); ?>
                 </b>
                                 <span class="forum-user-details-title">
-                                    <?= $subReply->getSectionUser($subcategory->category->section_id)->title->title; ?>
+                                    <?= $subReply->sectionAuthor->title->title; ?>
                                 </span>
                 <?= \mpf\web\helpers\Html::get()->image($subReply->getAuthorIcon()); ?>
                 <span class="forum-user-details-group">
-                                    <?= $subReply->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
+                                    <?= $subReply->sectionAuthor->group->full_name; ?>
                                 </span>
                                 <span class="forum-user-details-date">
                                     <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subReply->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subReply->sectionAuthor->member_since, false, false)); ?>
                                 </span>
             </td>
             <td class="forum-reply-content">
@@ -62,7 +62,7 @@
                     </div>
                 <?php } ?>
                 <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
-                <?= $subReply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
+                <?= $subReply->sectionAuthor->getSignature(); ?>
                 <?php $this->display("_replies", ['reply' => $subReply, 'level' => $level + 1]); ?>
             </td>
         </tr>

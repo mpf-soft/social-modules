@@ -128,15 +128,15 @@
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
                     </b>
                     <span class="forum-user-details-title">
-                        <?= $reply->getSectionUser($subcategory->category->section_id)->title->title; ?>
+                        <?= $reply->sectionAuthor->title->title; ?>
                     </span>
                     <?= \mpf\web\helpers\Html::get()->image($reply->getAuthorIcon()); ?>
                     <span class="forum-user-details-group">
-                        <?= $reply->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
+                        <?= $reply->sectionAuthor->group->full_name; ?>
                     </span>
                 <span class="forum-user-details-date">
                     <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->sectionAuthor->member_since, false, false)); ?>
                 </span>
                 </td>
                 <td class="forum-reply-content">
@@ -176,7 +176,7 @@
                         </div>
                     <?php } ?>
                     <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
-                    <?= $reply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
+                    <?= $reply->sectionAuthor->getSignature(); ?>
                     <?php $this->display("_replies", ['reply' => $reply, 'level' => 2]); ?>
                 </td>
             </tr>

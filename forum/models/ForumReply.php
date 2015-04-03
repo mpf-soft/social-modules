@@ -25,6 +25,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $id
  * @property int $user_id
  * @property int $thread_id
+ * @property int $section_id
  * @property string $content
  * @property string $time
  * @property int $edited
@@ -38,6 +39,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property \app\models\User $editor
  * @property \mpf\modules\forum\models\ForumUserGroup $authorGroup
  * @property \mpf\modules\forum\models\ForumReplySecond[] $replies
+ * @property \mpf\modules\forum\models\ForumUser2Section $sectionAuthor
  */
 class ForumReply extends DbModel {
 
@@ -59,6 +61,7 @@ class ForumReply extends DbModel {
             'id' => 'Id',
             'user_id' => 'Author',
             'thread_id' => 'Thread',
+            'section_id' => 'Section',
             'content' => 'Reply',
             'time' => 'Time',
             'edited' => 'Edited',
@@ -78,6 +81,7 @@ class ForumReply extends DbModel {
         return [
             'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'thread' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumThread', 'thread_id'],
+            'sectionAuthor' => [DbRelations::BELONGS_TO, ForumUser2Section::className(), 'user_id'],
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
             'authorGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'user_group_id'],
             'replies' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplySecond', 'reply_id']
@@ -91,18 +95,19 @@ class ForumReply extends DbModel {
     public static function getRules() {
         return [
             ['content', 'safe, required', 'on' => 'insert, edit'],
-            ["id, user_id, thread_id, content, time, edited, edit_time, edit_user_id, deleted, score, user_group_id, reply_id", "safe", "on" => "search"]
+            ["id, user_id, thread_id, content, section_id, time, edited, edit_time, edit_user_id, deleted, score, user_group_id, reply_id", "safe", "on" => "search"]
         ];
     }
 
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $condition->with = ['author', 'editor', 'authorGroup', 'replies' //, Must optimize this and fix errors from db
+        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor'//, 'sectionAuthor.group', 'sectionAuthor.title' //, Must optimize this and fix errors from db
 //            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup',
 //            'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
 //            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor', 'replies.replies.replies.authorGroup'
                         ];
+        $condition->together = true;
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
         $condition->order = '`t`.`id` ASC';
@@ -118,7 +123,7 @@ class ForumReply extends DbModel {
     public function getDataProvider() {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "user_id", "reply_id", "thread_id", "content", "time", "edited", "edit_time", "edit_user_id", "deleted", "score", "user_group_id"] as $column) {
+        foreach (["id", "user_id", "reply_id", "section_id", "thread_id", "content", "time", "edited", "edit_time", "edit_user_id", "deleted", "score", "user_group_id"] as $column) {
             if ($column == "reply_id" && $this->_tableName == 'forum_replies')
                 continue;
             if ($this->$column) {
@@ -128,33 +133,6 @@ class ForumReply extends DbModel {
         return new DataProvider([
             'modelCondition' => $condition
         ]);
-    }
-
-    /**
-     * @var array
-     */
-    protected  static $sectionUsers =[];
-
-    /**
-     * @var ForumUser2Section
-     */
-    protected $sectionUser;
-
-    /**
-     * @param $sectionId
-     * @return ForumUser2Section
-     */
-    public function getSectionUser($sectionId) {
-        if (isset(self::$sectionUsers[$sectionId][$this->user_id])){
-            return self::$sectionUsers[$sectionId][$this->user_id];
-        }
-        if (!isset(self::$sectionUsers[$sectionId])){
-            self::$sectionUsers[$sectionId] = [];
-        }
-        if (!$this->sectionUser) {
-            self::$sectionUsers[$sectionId][$this->user_id] = $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id]);
-        }
-        return $this->sectionUser;
     }
 
     public function getContent() {
