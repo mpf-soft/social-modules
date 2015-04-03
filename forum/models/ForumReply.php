@@ -102,12 +102,11 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor'//, 'sectionAuthor.group', 'sectionAuthor.title' //, Must optimize this and fix errors from db
+        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor', 'sectionAuthor.group', 'sectionAuthor.title' //, Must optimize this and fix errors from db
 //            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup',
 //            'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
 //            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor', 'replies.replies.replies.authorGroup'
                         ];
-        $condition->together = true;
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
         $condition->order = '`t`.`id` ASC';

@@ -122,7 +122,7 @@
             </td>
         </tr>
         <?php foreach ($replies as $reply) { ?>
-            <tr class="forum-reply  <?= $reply->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
+            <tr class="forum-reply  <?= $reply->sectionAuthor->group->html_class; ?>">
                 <td class="forum-user-details">
                     <b class="forum-user-details-name">
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
