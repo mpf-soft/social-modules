@@ -22,6 +22,43 @@ use mpf\WebApp;
 
 class Thread extends Controller {
 
+    public function actionReply(){
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
+        if (isset($_POST['ForumReply'])){
+            $model = $models[$_POST['level']];
+            $_POST[$model] = $_POST['ForumReply'];
+            if ('ForumReply' != $model)
+                unset($_POST['ForumReply']);
+        }
+        $noneFound = true;
+        foreach ($models as $modelClass){
+            if (!isset($_POST[$modelClass]))
+                continue;
+            $noneFound = false;
+            $model = '\mpf\modules\forum\models\\' . $modelClass;
+            $model = new $model(); /* @var $model \mpf\modules\forum\models\ForumReply */
+            $model->setAttributes($_POST[$modelClass]);
+            $model->thread_id = $_POST['thread_id'];
+            if ($_POST['parent']){
+                $model->reply_id = $_POST['parent'];
+            }
+            $thread = ForumThread::findByPk($model->thread_id);
+            if (!$thread || $thread->closed || !UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $thread->subcategory->category->section_id)){
+                Messages::get()->error("Can't reply to this thread!");
+                $this->goBack();
+                return;
+            }
+            if ($model->saveReply($thread->subcategory->category->section_id)){
+                Messages::get()->success("Reply saved!");
+                $this->goToAction('index', ['id' => $model->thread_id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
+            }
+            $this->assign("model", $model);
+        }
+        if ($noneFound){
+            $this->goToPage('forum', 'index');
+        }
+    }
+
 
     public function actionIndex($id, $page = 1) {
         $thread = ForumThread::findByPk($id);
@@ -34,14 +71,9 @@ class Thread extends Controller {
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);
         $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, Config::value('FORUM_REPLIES_PER_PAGE')));
+
         $replyModel = new ForumReply();
         $replyModel->thread_id = $id;
-        if (isset($_POST['ForumReply']) && !$thread->closed && UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $this->sectionId)) {
-            if ($replyModel->saveReply($_POST['ForumReply']['content'], $this->sectionId)) {
-                Messages::get()->success("Reply saved!");
-                $this->goBack();
-            }
-        }
         $this->assign('replyModel', $replyModel);
     }
 
@@ -93,8 +125,11 @@ class Thread extends Controller {
         $this->assign('model', $thread);
     }
 
-    public function actionEditReply($id) {
-        $reply = ForumReply::findByPk($id);
+    public function actionEditReply($id, $level) {
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
+        $modelClass = $models[$level];
+        $reply = "\\mpf\\modules\\forum\\models\\" . $modelClass;
+        $reply = $reply::findByPk($id);
         if (!$reply) {
             $this->goBack();
         }
@@ -102,8 +137,8 @@ class Thread extends Controller {
             $this->goToPage('special', 'accessDenied');
             return false;
         }
-        if (isset($_POST['ForumReply'])) {
-            if ($reply->updateReply($_POST['ForumReply']['content'])) {
+        if (isset($_POST[$modelClass])) {
+            if ($reply->updateReply($_POST[$modelClass]['content'])) {
                 Messages::get()->success("Reply updated!");
                 $this->goToAction('index', ['id' => $reply->thread_id,
                     'subcategory' => $reply->thread->subcategory->url_friendly_title,
@@ -114,7 +149,10 @@ class Thread extends Controller {
     }
 
     public function actionDeleteReply() {
-        $reply = ForumReply::findByPk($_POST['id']);
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
+        $modelClass = $models[$_POST['level']];
+        $reply = "\\mpf\\modules\\forum\\models\\" . $modelClass;
+        $reply = $reply::findByPk($_POST['id']);
         if (!$reply) {
             $this->goBack();
         }

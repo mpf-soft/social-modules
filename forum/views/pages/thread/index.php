@@ -125,7 +125,7 @@
             <tr class="forum-reply  <?= $reply->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
                 <td class="forum-user-details">
                     <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name'=>$reply->author->name]]), $reply->author->name); ?>
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
                     </b>
                     <span class="forum-user-details-title">
                         <?= $reply->getSectionUser($subcategory->category->section_id)->title->title; ?>
@@ -143,13 +143,13 @@
                     <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
                         <div class="forum-reply-management-links">
                             <?= \mpf\web\helpers\Html::get()->link(
-                                $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id]]),
+                                $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id, 'level' => 1]]),
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
                             ); ?>
                             <?= \mpf\web\helpers\Html::get()->postLink(
                                 $this->updateURLWithSection(['thread', 'deleteReply']),
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Delete reply"),
-                                ['id' => $reply->id], [],
+                                ['id' => $reply->id, 'level' => 1], [],
                                 false,
                                 \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
                             ); ?>
@@ -170,8 +170,14 @@
                             <?php } ?>
                         </div>
                     <?php } ?>
+                    <?php if (!$reply->deleted && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+                        <div class="forum-thread-reply-actions">
+                            <?= \mpf\web\helpers\Html::get()->link('#reply-for-1-' . $reply->id, \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button reply-to-existing-reply']); ?>
+                        </div>
+                    <?php } ?>
                     <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
                     <?= $reply->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
+                    <?php $this->display("_replies", ['reply' => $reply, 'level' => 2]); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -184,7 +190,7 @@
                     <span class="forum-user-details-title">
                         <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
                     </span>
-                    <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . (\mpf\WebApp::get()->user()->icon?:'default.png')); ?>
+                    <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . (\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
                     <span class="forum-user-details-group">
                     <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
                 </span>
@@ -211,3 +217,22 @@
 
 </div>
 
+<script>
+    $(document).ready(function () {
+        $('.reply-to-existing-reply').each(function () {
+            var className= $(this).attr('href').substring(11);
+            $(this).click(function () {
+                $('.forum-subreply-' + className).show();
+                var _self = $('.forum-subreply-' + className, this.parentNode.parentNode);
+                setTimeout(function () {
+                    $('textarea', _self).focus();
+                }, 200);
+            });
+        });
+    });
+
+    function hideReplyForm(element) {
+        $(element.parentNode.parentNode.parentNode).hide();
+        return false;
+    }
+</script>
