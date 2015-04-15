@@ -145,8 +145,9 @@ class ForumSubcategory extends DbModel {
      */
     public function getTopPostsForCategoryPage(){
         $condition = new ModelCondition(['model' => ForumThread::className()]);
+        $condition->with = ['lastActiveUser', 'owner'];
         $condition->compareColumn("subcategory_id", $this->id);
-        $condition->order = "`order` DESC";
+        $condition->order = "`t`.`order` DESC";
         $condition->limit = 10;
         return ForumThread::findAll($condition);
     }

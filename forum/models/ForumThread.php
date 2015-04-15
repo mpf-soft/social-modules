@@ -122,8 +122,9 @@ class ForumThread extends DbModel {
     public static function findAllForSubcategory($subcategory, $page = 1, $threadsPerPage = 20){
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("subcategory_id", $subcategory);
+        $condition->with = ['lastActiveUser', 'owner'];
         $condition->limit = $threadsPerPage;
-        $condition->order = '`order` ASC, `id` DESC';
+        $condition->order = '`t`.`order` ASC, `t`.`id` DESC';
         $condition->offset = ($page - 1) * $threadsPerPage;
         return self::findAll($condition);
     }

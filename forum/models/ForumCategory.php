@@ -98,7 +98,7 @@ class ForumCategory extends DbModel {
         $condition->addCondition("canread IS NULL OR canread = 1");
         $condition->setParam(":group", UserAccess::get()->getUserGroup($sectionId, true));
         $condition->order = "`order` ASC";
-        $condition->with = ['subcategories'];
+        $condition->with = ['subcategories', 'subcategories.lastActiveThread', 'subcategories.lastActiveUser'];
         $condition->compareColumn("section_id", $sectionId);
         return self::findAll($condition);
     }

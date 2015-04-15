@@ -8,6 +8,7 @@
 namespace mpf\modules\forum\models;
 
 use app\models\PageTag;
+use mpf\datasources\sql\DbRelation;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Translator;
 use mpf\modules\forum\components\UserAccess;
@@ -42,6 +43,8 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property \mpf\modules\forum\models\ForumUser2Section $sectionAuthor
  */
 class ForumReply extends DbModel {
+
+    public static $currentSection = 0;
 
     /**
      * Get database table name.
@@ -81,7 +84,7 @@ class ForumReply extends DbModel {
         return [
             'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'thread' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumThread', 'thread_id'],
-            'sectionAuthor' => [DbRelations::BELONGS_TO, ForumUser2Section::className(), 'user_id'],
+            'sectionAuthor' => DbRelation::belongsTo(ForumUser2Section::className(), 'user_id')->hasAttributeValue('section_id', 'currentSection'),
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
             'authorGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'user_group_id'],
             'replies' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplySecond', 'reply_id']

@@ -60,6 +60,7 @@ class Thread extends Controller {
 
     public function actionIndex($id, $page = 1) {
         $thread = ForumThread::findByPk($id);
+        ForumReply::$currentSection = 0;
         if ($thread->subcategory->category->section_id != $this->sectionId) {
             $this->goToPage("special", "notFound");
             return;
