@@ -87,7 +87,7 @@
                 </span>
             </td>
             <td class="forum-reply-content">
-                <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
+                <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
                     <div class="forum-reply-management-links">
                         <?= \mpf\web\helpers\Html::get()->link(
                             $this->updateURLWithSection(['thread', 'edit', ['id' => $thread->id]]),
@@ -140,7 +140,7 @@
                 </span>
                 </td>
                 <td class="forum-reply-content">
-                    <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id)) { ?>
+                    <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
                         <div class="forum-reply-management-links">
                             <?= \mpf\web\helpers\Html::get()->link(
                                 $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id, 'level' => 1]]),

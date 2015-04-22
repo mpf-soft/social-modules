@@ -198,7 +198,7 @@ class ForumThread extends DbModel {
      */
     public function getSectionUser($sectionId){
         if (!$this->sectionUser){
-            $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id]);
+            $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id], ['with' => ['group', 'title']]);
         }
         return $this->sectionUser;
     }

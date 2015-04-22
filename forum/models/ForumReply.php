@@ -105,11 +105,10 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor', 'sectionAuthor.group', 'sectionAuthor.title' //, Must optimize this and fix errors from db
-//            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup',
-//            'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
-//            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor', 'replies.replies.replies.authorGroup'
-                        ];
+        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor', 'sectionAuthor.group', 'sectionAuthor.title',
+            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup',
+            'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
+            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor', 'replies.replies.replies.authorGroup'];
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
         $condition->order = '`t`.`id` ASC';
@@ -202,18 +201,20 @@ class ForumReply extends DbModel {
     /**
      * @param int $categoryId
      * @param int $sectionId
+     * @param ForumThread $thread
      * @return bool
      */
-    public function canEdit($categoryId = null, $sectionId = null) {
+    public function canEdit($categoryId = null, $sectionId = null, ForumThread $thread = null) {
         if ($this->deleted)
             return false;
-        $categoryId = $categoryId ?: $this->thread->subcategory->category_id;
-        $sectionId = $sectionId ?: $this->thread->subcategory->category->section_id;
-        if (WebApp::get()->user()->isGuest()){ //added a fix for guests;
+        $thread = $thread?:$this->thread;
+        $categoryId = $categoryId ?: $thread->subcategory->category_id;
+        $sectionId = !is_null($sectionId) ? $sectionId : $thread->subcategory->category->section_id;
+        if (WebApp::get()->user()->isGuest()) { //added a fix for guests;
             return false;
         }
 
-        if ($this->user_id == WebApp::get()->user()->id && (!($this->deleted || UserAccess::get()->isMuted($sectionId) || $this->thread->closed))) {
+        if ($this->user_id == WebApp::get()->user()->id && (!($this->deleted || UserAccess::get()->isMuted($sectionId) || $thread->closed))) {
             return true;
         }
         if (!is_null($this->_canEdit)) {
@@ -227,6 +228,6 @@ class ForumReply extends DbModel {
     }
 
     public function hasReplies() {
-        return count($this->replies);
+        return (bool)$this->replies;
     }
 }

@@ -19,9 +19,14 @@ use mpf\WebApp;
 
 class UserAccess extends LogAwareObject {
     /**
+     * A quick cache for repeated requests with same params;
+     * @var array
+     */
+    protected $quickCache = [];
+    /**
      * @var UserAccess
      */
-    private static $self;
+    protected static $self;
 
     public $sessionKey = "Forum-UserAccess";
 
@@ -48,6 +53,8 @@ class UserAccess extends LogAwareObject {
         return self::$self;
     }
 
+    protected $forumUserGroups = [];
+
     /**
      * @param int $sectionId
      * @param bool $idOnly
@@ -56,16 +63,33 @@ class UserAccess extends LogAwareObject {
     public function getUserGroup($sectionId, $idOnly = false) {
         if (WebApp::get()->user()->isConnected()) {
             if (isset($this->user2Sections[$sectionId]))
-                return $idOnly ? $this->user2Sections[$sectionId]['group_id'] : ForumUserGroup::findByPk($this->user2Sections[$sectionId]['group_id']);
+                if ($idOnly){
+                    return $this->user2Sections[$sectionId]['group_id'];
+                } else {
+                    if (!isset($this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']])){
+                        $this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']] = ForumUserGroup::findByPk($this->user2Sections[$sectionId]['group_id']);
+                    }
+                    return $this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']];
+                }
         }
         if (!isset($this->sections[$sectionId]))
             $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
 
         if (!isset($this->sections[$sectionId]))
             return false;
-
-        return $idOnly ? $this->sections[$sectionId]->default_visitors_group_id : ForumUserGroup::findByPk($this->sections[$sectionId]->default_visitors_group_id);
+        if ($idOnly){
+            return $this->sections[$sectionId]->default_visitors_group_id;
+        }
+        if (!isset($this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id])){
+            $this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id] = ForumUserGroup::findByPk($this->sections[$sectionId]->default_visitors_group_id);
+        }
+        return $this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id];
     }
+
+    /**
+     * @var ForumTitle[]
+     */
+    protected $forumTitles = [];
 
     /**
      * @param int $sectionId
@@ -85,7 +109,10 @@ class UserAccess extends LogAwareObject {
         } elseif ($idOnly) {
             return $this->user2Sections[$sectionId]['title_id'];
         }
-        return ForumTitle::findByPk($this->user2Sections[$sectionId]['title_id']);
+        if (!isset($this->forumTitles[$this->user2Sections[$sectionId]['title_id']])){
+            $this->forumTitles[$this->user2Sections[$sectionId]['title_id']] = ForumTitle::findByPk($this->user2Sections[$sectionId]['title_id']);
+        }
+        return $this->forumTitles[$this->user2Sections[$sectionId]['title_id']];
 
     }
 
@@ -140,7 +167,7 @@ class UserAccess extends LogAwareObject {
      * @param $sectionId
      * @return bool
      */
-    public function isBanned($sectionId){
+    public function isBanned($sectionId) {
         if (isset($this->user2Sections[$sectionId]))
             return (bool)$this->user2Sections[$sectionId]["banned"];
         return false;
@@ -151,7 +178,7 @@ class UserAccess extends LogAwareObject {
      * @param $sectionId
      * @return bool
      */
-    public function isMuted($sectionId){
+    public function isMuted($sectionId) {
         if ($this->isBanned($sectionId))
             return true;
         if (isset($this->user2Sections[$sectionId]))
@@ -167,7 +194,7 @@ class UserAccess extends LogAwareObject {
             $this->error("No callback found!");
             return false;
         }
-        $callback =$this->isSiteAdminCallback;
+        $callback = $this->isSiteAdminCallback;
         return $callback();
     }
 
@@ -179,7 +206,7 @@ class UserAccess extends LogAwareObject {
             $this->error("No callback found!");
             return false;
         }
-        $callback =$this->isSiteModeratorCallback;
+        $callback = $this->isSiteModeratorCallback;
         return $callback();
     }
 
@@ -241,26 +268,38 @@ class UserAccess extends LogAwareObject {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
+        if (isset($this->quickCache['categoryAdmin'][$categoryId])) {
+            return $this->quickCache['categoryAdmin'][$categoryId];
+        } elseif (!isset($this->quickCache['categoryAdmin'])) {
+            $this->quickCache['categoryAdmin'] = [];
+        }
         if ($this->isSiteAdmin()) {
+            $this->quickCache['categoryAdmin'][$categoryId] = true;
             return true;
         }
 
-        if ($this->isBanned($sectionId)){
+        if ($this->isBanned($sectionId)) {
+            $this->quickCache['categoryAdmin'][$categoryId] = false;
             return false;
         }
 
         if ($this->isSectionAdmin($sectionId)) {
+            $this->quickCache['categoryAdmin'][$categoryId] = true;
             return true;
         }
         if (!isset($this->user2Sections[$sectionId])) {
+            $this->quickCache['categoryAdmin'][$categoryId] = false;
             return false;
         }
         $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
             ':id' => $this->user2Sections[$sectionId]['group_id'],
             ':cat' => $categoryId
         ])->first();
-        if (!$categoryRights)
+        if (!$categoryRights) {
+            $this->quickCache['categoryAdmin'][$categoryId] = false;
             return false;
+        }
+        $this->quickCache['categoryAdmin'][$categoryId] = (bool)$categoryRights['admin'];
         return (bool)$categoryRights['admin'];
     }
 
@@ -273,26 +312,38 @@ class UserAccess extends LogAwareObject {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
+        if (isset($this->quickCache['categoryModerator'][$categoryId])) {
+            return $this->quickCache['categoryModerator'][$categoryId];
+        } elseif (!isset($this->quickCache['categoryModerator'])) {
+            $this->quickCache['categoryModerator'] = [];
+        }
         if ($this->isSiteModerator()) {
+            $this->quickCache['categoryModerator'][$categoryId] = true;
             return true;
         }
 
-        if ($this->isBanned($sectionId)){
+        if ($this->isBanned($sectionId)) {
+            $this->quickCache['categoryModerator'][$categoryId] = false;
             return false;
         }
 
         if ($this->isSectionModerator($sectionId)) {
+            $this->quickCache['categoryModerator'][$categoryId] = true;
             return true;
         }
         if (!isset($this->user2Sections[$sectionId])) {
+            $this->quickCache['categoryModerator'][$categoryId] = false;
             return false;
         }
         $categoryRights = ForumUserGroup::getDb()->table('forum_groups2categories')->where("group_id = :id AND category_id = :cat")->setParams([
             ':id' => $this->user2Sections[$sectionId]['group_id'],
             ':cat' => $categoryId
         ])->first();
-        if (!$categoryRights)
+        if (!$categoryRights) {
+            $this->quickCache['categoryModerator'][$categoryId] = false;
             return false;
+        }
+        $this->quickCache['categoryModerator'][$categoryId] = (bool)$categoryRights['moderator'];
         return (bool)$categoryRights['moderator'];
     }
 
@@ -306,12 +357,19 @@ class UserAccess extends LogAwareObject {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
+        if (isset($this->quickCache['canCreateNewThread'][$categoryId])) {
+            return $this->quickCache['canCreateNewThread'][$categoryId];
+        } elseif (!isset($this->quickCache['canCreateNewThread'])) {
+            $this->quickCache['canCreateNewThread'] = [];
+        }
 
-        if ($this->isSiteAdmin() || $this->isSiteModerator()){
+        if ($this->isSiteAdmin() || $this->isSiteModerator()) {
+            $this->quickCache['canCreateNewThread'][$categoryId] = true;
             return true;
         }
 
-        if ($this->isMuted($sectionId)){
+        if ($this->isMuted($sectionId)) {
+            $this->quickCache['canCreateNewThread'][$categoryId] = false;
             return false;
         }
 
@@ -322,6 +380,7 @@ class UserAccess extends LogAwareObject {
                 $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
             }
             if (!isset($this->sections[$sectionId])) {
+                $this->quickCache['canCreateNewThread'][$categoryId] = false;
                 return false; // section doesn't exists
             }
             $groupId = $this->sections[$sectionId]->default_visitors_group_id;
@@ -331,9 +390,12 @@ class UserAccess extends LogAwareObject {
             ':cat' => $categoryId
         ])->first();
         if (!$categoryRights) {
-            return (bool)ForumUserGroup::findByPk($groupId)->newthread;
+            $this->quickCache['canCreateNewThread'][$categoryId] = (bool)ForumUserGroup::findByPk($groupId)->newthread;
+        } else {
+            $this->quickCache['canCreateNewThread'][$categoryId] = (bool)$categoryRights['newthread'];
         }
-        return (bool)$categoryRights['newthread'];
+
+        return $this->quickCache['canCreateNewThread'][$categoryId];
     }
 
     /**
@@ -345,11 +407,19 @@ class UserAccess extends LogAwareObject {
         if (WebApp::get()->user()->isGuest()) { // no extra checks needed if it's not logged in
             return false;
         }
-        if ($this->isSiteAdmin() || $this->isSiteModerator()){
+        if (isset($this->quickCache['canReplyToThread'][$categoryId])) {
+            return $this->quickCache['canReplyToThread'][$categoryId];
+        } elseif (!isset($this->quickCache['canReplyToThread'])) {
+            $this->quickCache['canReplyToThread'] = [];
+        }
+
+        if ($this->isSiteAdmin() || $this->isSiteModerator()) {
+            $this->quickCache['canReplyToThread'][$categoryId] = true;
             return true;
         }
 
-        if ($this->isMuted($sectionId)){
+        if ($this->isMuted($sectionId)) {
+            $this->quickCache['canReplyToThread'][$categoryId] = false;
             return false;
         }
 
@@ -360,6 +430,7 @@ class UserAccess extends LogAwareObject {
                 $this->sections[$sectionId] = ForumSection::findByPk($sectionId);
             }
             if (!isset($this->sections[$sectionId])) {
+                $this->quickCache['canReplyToThread'][$categoryId] = false;
                 return false; // section doesn't exists
             }
             $groupId = $this->sections[$sectionId]->default_visitors_group_id;
@@ -369,9 +440,11 @@ class UserAccess extends LogAwareObject {
             ':cat' => $categoryId
         ])->first();
         if (!$categoryRights) {
-            return (bool)ForumUserGroup::findByPk($groupId)->threadreply;
+            $this->quickCache['canReplyToThread'][$categoryId] = (bool)ForumUserGroup::findByPk($groupId)->threadreply;
+        } else {
+            $this->quickCache['canReplyToThread'][$categoryId] = (bool)$categoryRights['threadreply'];
         }
-        return (bool)$categoryRights['threadreply'];
+        return $this->quickCache['canReplyToThread'][$categoryId];
     }
 
     /**
@@ -380,11 +453,11 @@ class UserAccess extends LogAwareObject {
      * @return bool
      */
     public function canRead($sectionId, $categoryId = null) {
-        if ($this->isSiteAdmin() || $this->isSiteModerator()){
+        if ($this->isSiteAdmin() || $this->isSiteModerator()) {
             return true;
         }
 
-        if ($this->isBanned($sectionId)){
+        if ($this->isBanned($sectionId)) {
             return false; // can't read if it's banned
         }
 
@@ -420,7 +493,7 @@ class UserAccess extends LogAwareObject {
      * @param $sectionId
      * @return bool
      */
-    public function isMember($sectionId){
+    public function isMember($sectionId) {
         return isset($this->user2Sections[$sectionId]);
     }
 }
