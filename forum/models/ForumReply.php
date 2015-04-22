@@ -209,6 +209,9 @@ class ForumReply extends DbModel {
             return false;
         $categoryId = $categoryId ?: $this->thread->subcategory->category_id;
         $sectionId = $sectionId ?: $this->thread->subcategory->category->section_id;
+        if (WebApp::get()->user()->isGuest()){ //added a fix for guests;
+            return false;
+        }
 
         if ($this->user_id == WebApp::get()->user()->id && (!($this->deleted || UserAccess::get()->isMuted($sectionId) || $this->thread->closed))) {
             return true;

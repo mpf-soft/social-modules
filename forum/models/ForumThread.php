@@ -229,10 +229,14 @@ class ForumThread extends DbModel {
 
         $categoryId = $categoryId?:$this->subcategory->category_id;
         $sectionId = $sectionId?:$this->subcategory->category->section_id;
+        if (WebApp::get()->user()->isGuest()){ //added a fix for guests;
+            return $this->_canEdit = false;
+        }
 
         if (($this->closed && !($moderator =  UserAccess::get()->isCategoryModerator($categoryId, $sectionId))) || UserAccess::get()->isMuted($sectionId)){
             return $this->_canEdit = false;
         }
+
         if ($this->user_id == WebApp::get()->user()->id) {
             return $this->_canEdit = true;
         }
