@@ -33,6 +33,8 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property string $edit_time
  * @property int $edit_user_id
  * @property int $deleted
+ * @property string $deleted_time
+ * @property int $deleted_user_id
  * @property int $score
  * @property int $user_group_id
  * @property \app\models\User $author
@@ -41,6 +43,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property \mpf\modules\forum\models\ForumUserGroup $authorGroup
  * @property \mpf\modules\forum\models\ForumReplySecond[] $replies
  * @property \mpf\modules\forum\models\ForumUser2Section $sectionAuthor
+ * @property \app\models\User $deletedBy
  */
 class ForumReply extends DbModel {
 
@@ -86,6 +89,7 @@ class ForumReply extends DbModel {
             'thread' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumThread', 'thread_id'],
             'sectionAuthor' => DbRelation::belongsTo(ForumUser2Section::className(), 'user_id')->hasAttributeValue('section_id', 'currentSection'),
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
+            'deletedBy' => [DbRelations::BELONGS_TO, '\app\models\User', 'deleted_user_id'],
             'authorGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'user_group_id'],
             'replies' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplySecond', 'reply_id']
         ];
@@ -105,10 +109,14 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor', 'sectionAuthor.group', 'sectionAuthor.title',
-            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup',
+        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor', 'sectionAuthor.title',
+            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup', 'replies.sectionAuthor',
+                'replies.sectionAuthor.title',
             'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
-            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor', 'replies.replies.replies.authorGroup'];
+                'replies.replies.sectionAuthor', 'replies.replies.sectionAuthor.title',
+            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor',
+                'replies.replies.replies.authorGroup', 'replies.replies.replies.sectionAuthor',
+                'replies.replies.replies.sectionAuthor.title'];
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
         $condition->order = '`t`.`id` ASC';
@@ -138,7 +146,11 @@ class ForumReply extends DbModel {
 
     public function getContent() {
         if ($this->deleted) {
-            return Html::get()->tag("div", Translator::get()->translate("[DELETED]"), ['class' => "forum-reply-deleted-message"]);
+            if ($this->deleted_user_id != $this->user_id){
+                return Html::get()->tag("div", Translator::get()->translate("[DELETED BY MODERATOR]"), ['class' => "forum-reply-deleted-message"]);
+            } else {
+                return Html::get()->tag("div", Translator::get()->translate("[DELETED]"), ['class' => "forum-reply-deleted-message"]);
+            }
         }
         return nl2br(ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
             'linkRoot' => WebApp::get()->request()->getLinkRoot(),

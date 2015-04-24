@@ -8,7 +8,7 @@
     . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['category', 'index', ['category' => $subcategory->category->url_friendly_name, 'id' => $subcategory->category_id]]), $subcategory->category->name)
     . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
-    . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['subcategory', 'index', ['category' => $subcategory->category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->category_id]]), $subcategory->title)
+    . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['subcategory', 'index', ['category' => $subcategory->category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]), $subcategory->title)
     . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . $thread->title); ?>
 
@@ -20,6 +20,8 @@
         <?php return; ?>
     <?php } ?>
 
+
+
     <?php $this->displayComponent("pagelist", [
         'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('replies'),
         'totalElements' => $thread->replies,
@@ -29,6 +31,13 @@
     ]); ?>
 
     <table class="forum-thread <?= $currentPage == 1 ? "first-page" : ""; ?>">
+        <?php if ($thread->closed) { ?>
+        <tr class="forum-thread-closed">
+            <th colspan="2">
+                <i><?= \mpf\modules\forum\components\Translator::get()->translate("This thread is closed! Only moderators can add or edit replies!"); ?></i>
+            </th>
+        </tr>
+        <?php } ?>
         <tr>
             <th colspan="2">
                 <h2 class="forum-thread-title">
@@ -122,8 +131,9 @@
             </td>
         </tr>
         <?php foreach ($replies as $reply) { ?>
-            <tr class="forum-reply  <?= $reply->sectionAuthor->group->html_class; ?>">
+            <tr class="forum-reply  <?= $reply->authorGroup->html_class; ?>">
                 <td class="forum-user-details">
+                    <a style="visibility: hidden;" name="reply<?= $reply->id; ?>"></a>
                     <b class="forum-user-details-name">
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
                     </b>
@@ -132,7 +142,7 @@
                     </span>
                     <?= \mpf\web\helpers\Html::get()->image($reply->getAuthorIcon()); ?>
                     <span class="forum-user-details-group">
-                        <?= $reply->sectionAuthor->group->full_name; ?>
+                        <?= $reply->authorGroup->full_name; ?>
                     </span>
                 <span class="forum-user-details-date">
                     <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
@@ -140,8 +150,11 @@
                 </span>
                 </td>
                 <td class="forum-reply-content">
+                    <div class="forum-reply-management-links">
+                        <?= \mpf\web\helpers\Html::get()->link('#reply' . $reply->id,
+                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
+                        ); ?>
                     <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
-                        <div class="forum-reply-management-links">
                             <?= \mpf\web\helpers\Html::get()->link(
                                 $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id, 'level' => 1]]),
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
@@ -153,12 +166,12 @@
                                 false,
                                 \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
                             ); ?>
-                        </div>
                     <?php } ?>
+                    </div>
                     <div
                         class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time); ?></div>
                     <?= $reply->getContent(); ?>
-                    <?php if ($reply->edited) { ?>
+                    <?php if ($reply->edited && !$reply->deleted) { ?>
                         <div class="forum-reply-edit-details">
                             <?php if ($reply->edit_user_id == $reply->user_id) { ?>
                                 <?= \mpf\modules\forum\components\Translator::get()->translate("Edited"); ?>

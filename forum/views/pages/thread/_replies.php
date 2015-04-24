@@ -11,6 +11,7 @@
         <?php foreach ($reply->replies as $subReply) { ?>
             <tr>
                 <td class="forum-user-details">
+                    <a style="visibility: hidden;" name="reply<?= $level . '-' . $subReply->id; ?>"></a>
                     <b class="forum-user-details-name">
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subReply->user_id, 'name' => $subReply->author->name]]), $subReply->author->name); ?>
                     </b>
@@ -19,7 +20,7 @@
                                 </span>
                     <?= \mpf\web\helpers\Html::get()->image($subReply->getAuthorIcon()); ?>
                     <span class="forum-user-details-group">
-                                    <?= $subReply->sectionAuthor->group->full_name; ?>
+                                    <?= $subReply->authorGroup->full_name; ?>
                                 </span>
                                 <span class="forum-user-details-date">
                                     <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
@@ -27,8 +28,11 @@
                                 </span>
                 </td>
                 <td class="forum-reply-content">
-                    <?php if ($subReply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
-                        <div class="forum-reply-management-links">
+                    <div class="forum-reply-management-links">
+                        <?= \mpf\web\helpers\Html::get()->link('#reply' . $level . '-' . $subReply->id,
+                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
+                        ); ?>
+                        <?php if ($subReply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
                             <?= \mpf\web\helpers\Html::get()->link(
                                 $this->updateURLWithSection(['thread', 'editReply', ['id' => $subReply->id, 'level' => $level]]),
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
@@ -40,12 +44,12 @@
                                 false,
                                 \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
                             ); ?>
-                        </div>
-                    <?php } ?>
+                        <?php } ?>
+                    </div>
                     <div
                         class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?></div>
                     <?= $subReply->getContent(); ?>
-                    <?php if ($subReply->edited) { ?>
+                    <?php if ($subReply->edited && !$subReply->deleted) { ?>
                         <div class="forum-reply-edit-details">
                             <?php if ($subReply->edit_user_id == $subReply->user_id) { ?>
                                 <?= \mpf\modules\forum\components\Translator::get()->translate("Edited"); ?>
