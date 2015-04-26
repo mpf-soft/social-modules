@@ -23,7 +23,7 @@ class ForumReplyEighth extends ForumReply {
      * @return string
      */
     public static function getTableName() {
-        return "forum_replies_nth";
+        return "forum_replies_eighth";
     }
 
     /**
