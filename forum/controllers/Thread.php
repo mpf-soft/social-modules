@@ -21,7 +21,8 @@ use mpf\WebApp;
 class Thread extends Controller {
 
     public function actionReply(){
-        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth',
+                    'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
         if (isset($_POST['ForumReply'])){
             $model = $models[$_POST['level']];
             $_POST[$model] = $_POST['ForumReply'];

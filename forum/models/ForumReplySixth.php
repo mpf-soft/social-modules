@@ -18,8 +18,6 @@ use mpf\datasources\sql\DbRelations;
  */
 class ForumReplySixth extends ForumReply {
 
-    public $replies = [];
-
     /**
      * Get database table name.
      * @return string

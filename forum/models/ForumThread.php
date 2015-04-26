@@ -133,7 +133,7 @@ class ForumThread extends DbModel {
      * @param int $section
      * @return static[]
      */
-    public static function findRecent($section){
+    public static function findRecent($section, $limit = 20, $offset = 0){
         $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
         $condition->with = ['category'];
         $condition->compareColumn("category.section_id", $section);
@@ -142,7 +142,8 @@ class ForumThread extends DbModel {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->addInCondition('subcategory_id', $ids);
         $condition->order = "id DESC";
-        $condition->limit = 20;
+        $condition->limit = $limit;
+        $condition->offset =$offset;
         return self::findAll($condition);
     }
 

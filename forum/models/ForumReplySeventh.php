@@ -43,7 +43,7 @@ class ForumReplySeventh extends ForumReply {
         $old =  parent::getRelations();
         unset($old['replies']);
         $old['parent'] = [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumReplySixth', 'reply_id'];
-        $old['replies'] = [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplyNth', 'reply_id'];
+        $old['replies'] = [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplyEighth', 'reply_id'];
         return $old;
     }
 }

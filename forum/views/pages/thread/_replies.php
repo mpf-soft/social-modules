@@ -61,9 +61,9 @@
                             <?php } ?>
                         </div>
                     <?php } ?>
-                    <?php if (!$reply->deleted && 6 != $level && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+                    <?php if (!$reply->deleted && \mpf\modules\forum\components\Config::value('FORUM_MAX_REPLY_LEVELS') != $level && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
                         <div class="forum-thread-reply-actions">
-                            <?= \mpf\web\helpers\Html::get()->link('#reply-for-' . $level . '-' . $reply->id, \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button reply-to-existing-reply']); ?>
+                            <?= \mpf\web\helpers\Html::get()->link('#reply-for-' . $level . '-' . $subReply->id, \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button reply-to-existing-reply']); ?>
                         </div>
                     <?php } ?>
                     <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>

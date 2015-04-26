@@ -108,4 +108,11 @@ class Config extends Object {
      */
     public $FORUM_THREAD_SIGNATURE_SEPARATOR = '<br /><br />';
 
+    /**
+     * Max level of replies for forum. Forum framework supports a high number of replies but you may want to limit then for design
+     * purposes.
+     * @var int
+     */
+    public $FORUM_MAX_REPLY_LEVELS = 8;
+
 }

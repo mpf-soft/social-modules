@@ -40,8 +40,11 @@
         <tr class="subcategory-title-row">
             <th colspan="6">
                 <h2>
-                    <a href="#">Recent threads</a>
-                    <span>Shows the last <?= \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE'); ?> threads</span>
+                    <a class="subcategory-icon" href="#">
+                        <?= \mpf\web\helpers\Html::get()->mpfImage('oxygen/48x48/actions/view-history.png'); ?>
+                    </a>
+                    <a class="subcategory-title" href="#">Recent threads</a>
+                    <span>Shows the last 20 threads</span>
                 </h2>
                 <?php if (\mpf\modules\forum\components\UserAccess::get()->canCreateNewThread($subcategory->category_id, $this->sectionId)) { ?>
                     <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \mpf\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
