@@ -10,44 +10,52 @@
     <?php if ($reply->hasReplies()) { ?>
         <?php foreach ($reply->replies as $subReply) { ?>
             <tr>
-                <td class="forum-user-details">
+                <td class="forum-reply-user-details" colspan="2">
                     <a style="visibility: hidden;" name="reply<?= $level . '-' . $subReply->id; ?>"></a>
-                    <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subReply->user_id, 'name' => $subReply->author->name]]), $subReply->author->name); ?>
-                    </b>
-                                <span class="forum-user-details-title">
-                                    <?= $subReply->sectionAuthor->title->title; ?>
-                                </span>
                     <?= \mpf\web\helpers\Html::get()->image($subReply->getAuthorIcon()); ?>
-                    <span class="forum-user-details-group">
-                                    <?= $subReply->authorGroup->full_name; ?>
-                                </span>
-                                <span class="forum-user-details-date">
-                                    <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subReply->sectionAuthor->member_since, false, false)); ?>
-                                </span>
-                </td>
-                <td class="forum-reply-content">
-                    <div class="forum-reply-management-links">
-                        <?= \mpf\web\helpers\Html::get()->link('#reply' . $level . '-' . $subReply->id,
-                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
-                        ); ?>
-                        <?php if ($subReply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link(
-                                $this->updateURLWithSection(['thread', 'editReply', ['id' => $subReply->id, 'level' => $level]]),
-                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
-                            ); ?>
-                            <?= \mpf\web\helpers\Html::get()->postLink(
-                                $this->updateURLWithSection(['thread', 'deleteReply']),
-                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Delete reply"),
-                                ['id' => $subReply->id, 'level' => $level], [],
-                                false,
-                                \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
-                            ); ?>
-                        <?php } ?>
+                    <div class="forum-user-details-texts">
+                        <b class="forum-user-details-name">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subReply->user_id, 'name' => $subReply->author->name]]), $subReply->author->name); ?>
+                        </b>
+                        <span class="forum-user-details-title">
+                            <?= $subReply->sectionAuthor->title->title; ?>
+                        </span>
+
+                        <span class="forum-user-details-group">
+                            <?= $subReply->authorGroup->full_name; ?>
+                        </span>
+                        <span class="forum-user-details-date">
+                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subReply->sectionAuthor->member_since, false, false)); ?>
+                        </span>
                     </div>
-                    <div
-                        class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="forum-reply-empty-space">&nbsp;</td>
+                <td class="forum-reply-content">
+                    <div class="forum-reply-content-header">
+                        <div class="forum-reply-management-links">
+                            <?= \mpf\web\helpers\Html::get()->link('#reply' . $level . '-' . $subReply->id,
+                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
+                            ); ?>
+                            <?php if ($subReply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
+                                <?= \mpf\web\helpers\Html::get()->link(
+                                    $this->updateURLWithSection(['thread', 'editReply', ['id' => $subReply->id, 'level' => $level]]),
+                                    \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
+                                ); ?>
+                                <?= \mpf\web\helpers\Html::get()->postLink(
+                                    $this->updateURLWithSection(['thread', 'deleteReply']),
+                                    \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Delete reply"),
+                                    ['id' => $subReply->id, 'level' => $level], [],
+                                    false,
+                                    \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
+                                ); ?>
+                            <?php } ?>
+                        </div>
+                        <div
+                            class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?></div>
+                    </div>
                     <?= $subReply->getContent(); ?>
                     <?php if ($subReply->edited && !$subReply->deleted) { ?>
                         <div class="forum-reply-edit-details">
@@ -66,8 +74,10 @@
                             <?= \mpf\web\helpers\Html::get()->link('#reply-for-' . $level . '-' . $subReply->id, \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button reply-to-existing-reply']); ?>
                         </div>
                     <?php } ?>
-                    <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
-                    <?= $subReply->sectionAuthor->getSignature(); ?>
+                    <?php if ($subReply->sectionAuthor->getSignature()) { ?>
+                        <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
+                        <?= $subReply->sectionAuthor->getSignature(); ?>
+                    <?php } ?>
                     <?php $this->display("_replies", ['reply' => $subReply, 'level' => $level + 1]); ?>
                 </td>
             </tr>

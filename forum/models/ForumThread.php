@@ -33,6 +33,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property string $keywords
  * @property int $score
  * @property int $replies
+ * @property int $first_level_replies
  * @property int $views
  * @property string $create_time
  * @property string $edit_time
@@ -42,6 +43,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $closed
  * @property int $last_reply_id
  * @property int $last_reply_user_id
+ * @property int $last_reply_level
  * @property string $last_reply_date
  * @property \mpf\modules\forum\models\ForumSubcategory $subcategory
  * @property \app\models\User $owner

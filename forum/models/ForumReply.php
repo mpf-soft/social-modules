@@ -109,14 +109,13 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $condition->with = ['author', 'editor', 'authorGroup', 'replies', 'sectionAuthor', 'sectionAuthor.title',
-            'replies.replies', 'replies.author', 'replies.editor', 'replies.authorGroup', 'replies.sectionAuthor',
-                'replies.sectionAuthor.title',
-            'replies.replies.replies', 'replies.replies.author', 'replies.replies.editor', 'replies.replies.authorGroup',
-                'replies.replies.sectionAuthor', 'replies.replies.sectionAuthor.title',
-            'replies.replies.replies.replies', 'replies.replies.replies.author', 'replies.replies.replies.editor',
-                'replies.replies.replies.authorGroup', 'replies.replies.replies.sectionAuthor',
-                'replies.replies.replies.sectionAuthor.title'];
+        $with = [];
+        for ($i = 0; $i <= Config::value('FORUM_MAX_REPLY_LEVELS'); $i++){
+            foreach (['author', 'editor', 'authorGroup', 'sectionAuthor', 'sectionAuthor.title', 'replies'] as $child) {
+                $with[] = str_repeat('replies.', $i) . $child;
+            }
+        }
+        $condition->with = $with;
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
         $condition->order = '`t`.`id` ASC';
@@ -163,9 +162,10 @@ class ForumReply extends DbModel {
     /**
      * It will save thread info(update with last reply info) + subcategory info
      * @param int $sectionId
+     * @param int $level
      * @return bool
      */
-    public function saveReply($sectionId) {
+    public function saveReply($sectionId, $level = 1) {
         $this->user_id = WebApp::get()->user()->id;
         $this->time = date('Y-m-d H:i:s');
         $this->score = 0;
@@ -174,11 +174,19 @@ class ForumReply extends DbModel {
             return false;
         }
         $thread = ForumThread::findByPk($this->thread_id);
-        $thread->replies = ForumReply::countByAttributes(['thread_id' => $this->thread_id])
+        $thread->replies = ($firstLevelReplies = ForumReply::countByAttributes(['thread_id' => $this->thread_id]))
             + ForumReplySecond::countByAttributes(['thread_id' => $this->thread_id])
-            + ForumReplySecond::countByAttributes(['thread_id' => $this->thread_id]);
+            + ForumReplyThird::countByAttributes(['thread_id' => $this->thread_id])
+            + ForumReplyForth::countByAttributes(['thread_id' => $this->thread_id])
+            + ForumReplyFifth::countByAttributes(['thread_id' => $this->thread_id])
+            + ForumReplySixth::countByAttributes(['thread_id' => $this->thread_id])
+            + ForumReplySeventh::countByAttributes(['thread_id' => $this->thread_id])
+            + ForumReplyEighth::countByAttributes(['thread_id' => $this->thread_id])
+            + ForumReplyNth::countByAttributes(['thread_id' => $this->thread_id]);
+        $thread->first_level_replies =  $firstLevelReplies;
         $thread->last_reply_id = $this->id;
         $thread->last_reply_user_id = $this->user_id;
+        $thread->last_reply_level = $level;
         $thread->last_reply_date = $this->time;
         $thread->save(false);
         $thread->subcategory->last_active_thread_id = $thread->id;

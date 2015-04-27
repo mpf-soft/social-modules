@@ -7,6 +7,7 @@
 
 namespace mpf\modules\forum\models;
 
+use mpf\datasources\sql\DbRelation;
 use mpf\datasources\sql\DbRelations;
 
 /**
@@ -43,7 +44,8 @@ class ForumReplyEighth extends ForumReply {
         $old =  parent::getRelations();
         unset($old['replies']);
         $old['parent'] = [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumReplySeventh', 'reply_id'];
-        $old['replies'] = [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplyNth', 'reply_id'];
+        $old['replies'] = DbRelation::hasMany(ForumReplyNth::className())->columnsEqual('id', 'reply_id')->hasValue('level', 9);
+//        $old['replies'] = [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplyNth', 'reply_id'];
         return $old;
     }
 }

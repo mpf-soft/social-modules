@@ -14,46 +14,96 @@ use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Controller;
 use mpf\modules\forum\components\UserAccess;
 use mpf\modules\forum\models\ForumReply;
+use mpf\modules\forum\models\ForumReplyNth;
 use mpf\modules\forum\models\ForumSubcategory;
 use mpf\modules\forum\models\ForumThread;
 use mpf\WebApp;
 
 class Thread extends Controller {
 
-    public function actionReply(){
+    public function actionVote() {
         $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth',
-                    'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
-        if (isset($_POST['ForumReply'])){
+            'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
+        $model = $models[$_POST['level']];
+        $entry = $model::findByPk($_POST['id']);
+        /* @var $entry \mpf\modules\forum\models\ForumReply */
+
+        if (!UserAccess::get()->canRead($entry->section_id, $entry->thread->category_id)) {
+            die($entry->score . ':0');
+        }
+        $voted = WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl AND user_id=:user")
+            ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level'], ':user' => WebApp::get()->user()->id])
+            ->first();
+        $voteType = ($_POST['type'] == 'agree' ? '1' : '0');
+        $resultVoted = 0;
+        if ($voted && $voteType == $voted['vote']) { //remove vote;
+            WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl AND user_id=:user")
+                ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level'], ':user' => WebApp::get()->user()->id])->delete();
+        } else { //add or change vote
+            $resultVoted = 1;
+            WebApp::get()->sql()->table('forum_reply_votes')->insert([
+                'reply_id' => $_POST['id'],
+                'level' => $_POST['level'],
+                'user_id' => WebApp::get()->user()->id,
+                'time' => date('Y-m-d H:i:s'),
+                'vote' => $voteType
+            ], [
+                'vote' => $voteType,
+                'time' => date('Y-m-d H:i:s')
+            ]); //insert or update vote type and time;
+        }
+        //recount;
+        $entry->score = WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl and vote=1")
+                ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level']])->count() -
+            WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl and vote=0")
+                ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level']])->count();
+        $entry->save(false);
+        die($entry->score . ':' . ($resultVoted ? '1' : '0'));
+    }
+
+    public function actionReply() {
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth',
+            'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
+        if (isset($_POST['ForumReply'])) {
             $model = $models[$_POST['level']];
             $_POST[$model] = $_POST['ForumReply'];
             if ('ForumReply' != $model)
                 unset($_POST['ForumReply']);
         }
         $noneFound = true;
-        foreach ($models as $modelClass){
+        foreach ($models as $modelClass) {
             if (!isset($_POST[$modelClass]))
                 continue;
             $noneFound = false;
             $model = '\mpf\modules\forum\models\\' . $modelClass;
-            $model = new $model(); /* @var $model \mpf\modules\forum\models\ForumReply */
+            $model = new $model();
+            /* @var $model \mpf\modules\forum\models\ForumReply */
             $model->setAttributes($_POST[$modelClass]);
             $model->thread_id = $_POST['thread_id'];
-            if ($_POST['parent']){
+            if ($_POST['parent']) {
                 $model->reply_id = $_POST['parent'];
             }
+            if ($_POST['level'] >= 9) { // for nth levels also save the level itself
+                $model->level = $_POST['level'];
+            }
+            if ($_POST['level'] >= 10) { // from here nthreply receives that id;
+                $parent = ForumReplyNth::findByPk($_POST['parent']);
+                $model->reply_id = $parent->reply_id;
+                $model->nthreply_id = $_POST['parent'];
+            }
             $thread = ForumThread::findByPk($model->thread_id);
-            if (!$thread || $thread->closed || !UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $thread->subcategory->category->section_id)){
+            if (!$thread || $thread->closed || !UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
                 Messages::get()->error("Can't reply to this thread!");
                 $this->goBack();
                 return;
             }
-            if ($model->saveReply($thread->subcategory->category->section_id)){
+            if ($model->saveReply($thread->subcategory->category->section_id, $_POST['level'])) {
                 Messages::get()->success("Reply saved!");
                 $this->goToAction('index', ['id' => $model->thread_id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
             $this->assign("model", $model);
         }
-        if ($noneFound){
+        if ($noneFound) {
             $this->goToPage('forum', 'index');
         }
     }
@@ -99,7 +149,7 @@ class Thread extends Controller {
             }
             $thread->setAttributes($_POST['ForumThread']);
             if ($thread->save() && $thread->publishNew($subcategory)) {
-                $this->goToAction('index', ['id'=> $thread->id, 'subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name]);
+                $this->goToAction('index', ['id' => $thread->id, 'subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name]);
             }
         }
         $this->assign('subcategory', $subcategory);
@@ -108,19 +158,19 @@ class Thread extends Controller {
 
     public function actionEdit($id) {
         $thread = ForumThread::findByPk($id);
-        if (!$thread->canEdit()){
+        if (!$thread->canEdit()) {
             $this->goToPage("special", "accessDenied");
             return false;
         }
-        if (isset($_POST['ForumThread'])){
+        if (isset($_POST['ForumThread'])) {
             if (isset($_POST['sticky']) && UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
                 $thread->sticky = 1;
             }
             $thread->setAttributes($_POST['ForumThread']);
             $thread->edit_time = date('Y-m-d H:i:s');
             $thread->edit_user_id = WebApp::get()->user()->id;
-            if ($thread->save()){
-                $this->goToAction('index', ['id'=> $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
+            if ($thread->save()) {
+                $this->goToAction('index', ['id' => $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
         }
 
@@ -170,16 +220,16 @@ class Thread extends Controller {
 
     public function actionMove($id) {
         $thread = ForumThread::findByPk($id);
-        if (!$thread->canEdit()){
+        if (!$thread->canEdit()) {
             $this->goToPage("special", "accessDenied");
             return false;
         }
-        if (isset($_POST['ForumThread'])){
+        if (isset($_POST['ForumThread'])) {
             $old = $thread->subcategory_id;
             $thread->setAttributes($_POST['ForumThread']);
-            if ($thread->save()){
+            if ($thread->save()) {
                 $thread->afterMove($old);
-                $this->goToAction('index', ['id'=> $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
+                $this->goToAction('index', ['id' => $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
         }
 
@@ -187,24 +237,24 @@ class Thread extends Controller {
 
     }
 
-    public function actionClose($id){
+    public function actionClose($id) {
         $thread = ForumThread::findByPk($id);
-        if (!UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)){
+        if (!UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
             $this->goToPage('special', 'accessDenied');
             return false;
         }
-        $thread->closed = $thread->closed?0:1;
+        $thread->closed = $thread->closed ? 0 : 1;
         $thread->save();
         $this->goBack();
     }
 
-    public function actionSticky($id){
+    public function actionSticky($id) {
         $thread = ForumThread::findByPk($id);
-        if (!UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)){
+        if (!UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
             $this->goToPage('special', 'accessDenied');
             return false;
         }
-        $thread->sticky = $thread->sticky?0:1;
+        $thread->sticky = $thread->sticky ? 0 : 1;
         $thread->save();
         $this->goBack();
     }

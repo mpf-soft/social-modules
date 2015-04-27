@@ -24,19 +24,19 @@
 
     <?php $this->displayComponent("pagelist", [
         'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('replies'),
-        'totalElements' => $thread->replies,
+        'totalElements' => $thread->first_level_replies . ' ( ' . $thread->replies . ' )',
         'visibleElements' => count($replies),
-        'totalPages' => (int)(($thread->replies / \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->replies % \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
+        'totalPages' => (int)(($thread->first_level_replies / \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->first_level_replies % \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
 
     <table class="forum-thread <?= $currentPage == 1 ? "first-page" : ""; ?>">
         <?php if ($thread->closed) { ?>
-        <tr class="forum-thread-closed">
-            <th colspan="2">
-                <i><?= \mpf\modules\forum\components\Translator::get()->translate("This thread is closed! Only moderators can add or edit replies!"); ?></i>
-            </th>
-        </tr>
+            <tr class="forum-thread-closed">
+                <th colspan="2">
+                    <i><?= \mpf\modules\forum\components\Translator::get()->translate("This thread is closed! Only moderators can add or edit replies!"); ?></i>
+                </th>
+            </tr>
         <?php } ?>
         <tr>
             <th colspan="2">
@@ -150,26 +150,44 @@
                 </span>
                 </td>
                 <td class="forum-reply-content">
-                    <div class="forum-reply-management-links">
-                        <?= \mpf\web\helpers\Html::get()->link('#reply' . $reply->id,
-                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
-                        ); ?>
-                    <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link(
-                                $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id, 'level' => 1]]),
-                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
+                    <div class="forum-reply-content-header">
+                        <div class="forum-reply-management-links">
+                            <?= \mpf\web\helpers\Html::get()->ajaxLink(
+                                $this->updateURLWithSection(['thread', 'vote']),
+                                \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
+                                'afterReplyVote',
+                                ['id' => $reply->id, 'type' => 'agree', 'level' => 1]
                             ); ?>
                             <?= \mpf\web\helpers\Html::get()->postLink(
-                                $this->updateURLWithSection(['thread', 'deleteReply']),
-                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Delete reply"),
-                                ['id' => $reply->id, 'level' => 1], [],
-                                false,
-                                \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
+                                $this->updateURLWithSection(['thread', 'vote']),
+                                \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
+                                'afterReplyVote',
+                                ['id' => $reply->id, 'type' => 'disagree', 'level' => 1]
                             ); ?>
-                    <?php } ?>
+                            <?= \mpf\web\helpers\Html::get()->link('#reply' . $reply->id,
+                                \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
+                            ); ?>
+                            <?php if ($reply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
+                                <?= \mpf\web\helpers\Html::get()->link(
+                                    $this->updateURLWithSection(['thread', 'editReply', ['id' => $reply->id, 'level' => 1]]),
+                                    \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit reply")
+                                ); ?>
+                                <?= \mpf\web\helpers\Html::get()->postLink(
+                                    $this->updateURLWithSection(['thread', 'deleteReply']),
+                                    \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Delete reply"),
+                                    ['id' => $reply->id, 'level' => 1], [],
+                                    false,
+                                    \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
+                                ); ?>
+                            <?php } ?>
+                        </div>
+                        <div class="forum-reply-content-date">
+                            <?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time); ?>&nbsp;&nbsp;&nbsp;
+                            <span id="number-of-points-for-reply-1-<?= $reply->id; ?>">
+                            <?= $reply->score . \mpf\modules\forum\components\Translator::get()->translate(" points"); ?>&nbsp;&nbsp;&nbsp;
+                            </span>
+                        </div>
                     </div>
-                    <div
-                        class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time); ?></div>
                     <?= $reply->getContent(); ?>
                     <?php if ($reply->edited && !$reply->deleted) { ?>
                         <div class="forum-reply-edit-details">
@@ -188,8 +206,10 @@
                             <?= \mpf\web\helpers\Html::get()->link('#reply-for-1-' . $reply->id, \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button reply-to-existing-reply']); ?>
                         </div>
                     <?php } ?>
-                    <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
-                    <?= $reply->sectionAuthor->getSignature(); ?>
+                    <?php if ($reply->sectionAuthor->getSignature()) { ?>
+                        <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
+                        <?= $reply->sectionAuthor->getSignature(); ?>
+                    <?php } ?>
                     <?php $this->display("_replies", ['reply' => $reply, 'level' => 2]); ?>
                 </td>
             </tr>
@@ -222,9 +242,9 @@
 
     <?php $this->displayComponent("pagelist", [
         'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('replies'),
-        'totalElements' => $thread->replies,
+        'totalElements' => $thread->first_level_replies . ' ( ' . $thread->replies . ' )',
         'visibleElements' => count($replies),
-        'totalPages' => (int)(($thread->replies / \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->replies % \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
+        'totalPages' => (int)(($thread->first_level_replies / \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->first_level_replies % \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
 
@@ -233,7 +253,7 @@
 <script>
     $(document).ready(function () {
         $('.reply-to-existing-reply').each(function () {
-            var className= $(this).attr('href').substring(11);
+            var className = $(this).attr('href').substring(11);
             $(this).click(function () {
                 $('.forum-subreply-' + className).show();
                 var _self = $('.forum-subreply-' + className, this.parentNode.parentNode);
@@ -243,6 +263,18 @@
             });
         });
     });
+
+    /**
+     * Called after a user submits a vote for a reply
+     * @param reply
+     * @param postData
+     * @param element
+     */
+    function afterReplyVote(reply, postData, element){
+        reply = reply.split(':');
+        $("#number-of-points-for-reply-" + postData.level + "-" + postData.id).text(reply[0]);
+
+    }
 
     function hideReplyForm(element) {
         $(element.parentNode.parentNode.parentNode).hide();

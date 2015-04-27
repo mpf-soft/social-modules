@@ -14,6 +14,7 @@ use mpf\datasources\sql\DbRelations;
  * @package app\models
  * @property int $reply_id
  * @property int $level
+ * @property int $nthreply_id
  * @property \mpf\modules\forum\models\ForumReplyEighth $eighthParent
  * @property \mpf\modules\forum\models\ForumReplyNth $parent
  * @property \mpf\modules\forum\models\ForumReplyNth[] $replies
@@ -45,8 +46,8 @@ class ForumReplyNth extends ForumReply {
         $old =  parent::getRelations();
         unset($old['replies']);
         $old['eighthParent'] = [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumReplyEighth', 'reply_id'];
-        $old['parent'] = [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumReplyNth', 'reply_id'];
-        $old['replies'] = [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplyNth', 'reply_id'];
+        $old['parent'] = [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumReplyNth', 'nthreply_id'];
+        $old['replies'] = [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplyNth', 'nthreply_id'];
         return $old;
     }
 }

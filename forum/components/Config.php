@@ -113,6 +113,18 @@ class Config extends Object {
      * purposes.
      * @var int
      */
-    public $FORUM_MAX_REPLY_LEVELS = 8;
+    public $FORUM_MAX_REPLY_LEVELS = 16;
+
+    /**
+     * URL to vote up icon.
+     * @var string
+     */
+    public $FORUM_VOTE_AGREE_ICON = '{WEB_ROOT}forum/vote-icons/opinion-agree.png';
+
+    /**
+     * URL to vote down icon.
+     * @var string
+     */
+    public $FORUM_VOTE_DISAGREE_ICON = '{WEB_ROOT}forum/vote-icons/opinion-disagree.png';
 
 }
