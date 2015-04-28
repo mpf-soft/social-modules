@@ -86,20 +86,24 @@
     <?php if (!$reply->deleted && (!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
         <tr class="forum-reply-form forum-subreply forum-subreply-<?= $level - 1; ?>-<?= $reply->id; ?>">
             <td class="forum-user-details"><a name="reply-for-<?= ($level - 1) . '-' . $reply->id; ?>"></a>
-                <b class="forum-user-details-name">
-                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
-                </b>
+                <div class="forum-user-details-header">
+                    <b class="forum-user-details-name">
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
+                    </b>
                     <span class="forum-user-details-title">
                         <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
                     </span>
+                </div>
                 <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . (\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
-                <span class="forum-user-details-group">
-                    <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
-                </span>
-                <span class="forum-user-details-date">
-                    <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
-                </span>
+                <div class="forum-user-details-footer">
+                    <span class="forum-user-details-group">
+                        <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
+                    </span>
+                    <span class="forum-user-details-date">
+                        <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                        <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                    </span>
+                </div>
 
             </td>
             <td class="forum-reply-form-column">

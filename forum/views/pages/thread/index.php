@@ -242,12 +242,11 @@
                         <span class="forum-user-details-group">
                         <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
                         </span>
+                        <span class="forum-user-details-date">
+                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                        </span>
                     </div>
-                <span class="forum-user-details-date">
-                    <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
-                </span>
-
                 </td>
                 <td class="forum-reply-form-column">
                     <?php $this->displayComponent("replyform", ['model' => $replyModel]); ?>
