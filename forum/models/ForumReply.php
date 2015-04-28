@@ -111,9 +111,9 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $with = ['myVote'];
+        $with = [];
         for ($i = 0; $i <= Config::value('FORUM_MAX_REPLY_LEVELS'); $i++){
-            foreach (['author', 'editor', 'authorGroup', 'sectionAuthor', 'sectionAuthor.title', 'replies'] as $child) {
+            foreach (['author', 'editor', 'authorGroup', 'sectionAuthor', 'sectionAuthor.title', 'replies', 'myVote'] as $child) {
                 $with[] = str_repeat('replies.', $i) . $child;
             }
         }
