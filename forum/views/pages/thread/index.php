@@ -80,20 +80,24 @@
         </tr>
         <tr class="forum-reply forum-main-post <?= $thread->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
             <td class="forum-user-details">
-                <b class="forum-user-details-name">
-                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id, 'name' => $thread->owner->name]]), $thread->owner->name); ?>
-                </b>
+                <div class="forum-user-details-header">
+                    <b class="forum-user-details-name">
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id, 'name' => $thread->owner->name]]), $thread->owner->name); ?>
+                    </b>
                     <span class="forum-user-details-title">
                         <?= $thread->getSectionUser($subcategory->category->section_id)->title->title; ?>
                     </span>
+                </div>
                 <?= \mpf\web\helpers\Html::get()->image($thread->getAuthorIcon()); ?>
-                <span class="forum-user-details-group">
-                        <?= $thread->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
-                </span>
-                <span class="forum-user-details-date">
-                    <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
-                </span>
+                <div class="forum-user-details-footer">
+                    <span class="forum-user-details-group">
+                            <?= $thread->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
+                    </span>
+                    <span class="forum-user-details-date">
+                        <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                        <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                    </span>
+                </div>
             </td>
             <td class="forum-reply-content">
                 <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
@@ -134,20 +138,24 @@
             <tr class="forum-reply  <?= $reply->authorGroup->html_class; ?>">
                 <td class="forum-user-details">
                     <a style="visibility: hidden;" name="reply<?= $reply->id; ?>"></a>
-                    <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
-                    </b>
-                    <span class="forum-user-details-title">
-                        <?= $reply->sectionAuthor->title->title; ?>
-                    </span>
+                    <div class="forum-user-details-header">
+                        <b class="forum-user-details-name">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
+                        </b>
+                        <span class="forum-user-details-title">
+                            <?= $reply->sectionAuthor->title->title; ?>
+                        </span>
+                    </div>
                     <?= \mpf\web\helpers\Html::get()->image($reply->getAuthorIcon()); ?>
-                    <span class="forum-user-details-group">
-                        <?= $reply->authorGroup->full_name; ?>
-                    </span>
-                <span class="forum-user-details-date">
-                    <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                    <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->sectionAuthor->member_since, false, false)); ?>
-                </span>
+                    <div class="forum-user-details-footer">
+                        <span class="forum-user-details-group">
+                            <?= $reply->authorGroup->full_name; ?>
+                        </span>
+                        <span class="forum-user-details-date">
+                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->sectionAuthor->member_since, false, false)); ?>
+                        </span>
+                    </div>
                 </td>
                 <td class="forum-reply-content">
                     <div class="forum-reply-content-header">
