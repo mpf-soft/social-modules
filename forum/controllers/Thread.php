@@ -12,6 +12,7 @@ namespace mpf\modules\forum\controllers;
 use app\components\htmltools\Messages;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\components\Translator;
 use mpf\modules\forum\components\UserAccess;
 use mpf\modules\forum\models\ForumReply;
 use mpf\modules\forum\models\ForumReplyNth;
@@ -21,15 +22,49 @@ use mpf\WebApp;
 
 class Thread extends Controller {
 
+    public function actionVoteThread(){
+        $thread = ForumThread::findByPk($_POST['id']);
+        if (!UserAccess::get()->canRead($thread->section_id, $thread->category_id)){
+            die($thread->score . ' ' . Translator::get()->translate("points") . ':0');
+        }
+        $oldVote = WebApp::get()->sql()->table("forum_thread_votes")->where("thread_id=:id AND user_id=:user")
+                    ->setParams([':id' => $_POST['id'], ':user' => WebApp::get()->user()->id])
+                    ->first();
+        $voteType = ($_POST['type'] == 'agree' ? '1' : '0');
+        $resultVoted = 0;
+        if ($oldVote && $voteType == $oldVote['vote']) { //remove vote;
+            WebApp::get()->sql()->table('forum_thread_votes')->where("thread_id=:id AND user_id=:user")
+                ->setParams([':id' => $_POST['id'], ':user' => WebApp::get()->user()->id])->delete();
+        } else { //add or change vote
+            $resultVoted = 1;
+            WebApp::get()->sql()->table('forum_thread_votes')->insert([
+                'thread_id' => $_POST['id'],
+                'user_id' => WebApp::get()->user()->id,
+                'time' => date('Y-m-d H:i:s'),
+                'vote' => $voteType
+            ], [
+                'vote' => $voteType,
+                'time' => date('Y-m-d H:i:s')
+            ]); //insert or update vote type and time;
+        }
+        //recount;
+        $thread->score = WebApp::get()->sql()->table('forum_thread_votes')->where("thread_id=:id and vote=1")
+                ->setParams([':id' => $_POST['id']])->count() -
+            WebApp::get()->sql()->table('forum_thread_votes')->where("thread_id=:id AND vote=0")
+                ->setParams([':id' => $_POST['id']])->count();
+        $thread->save(false);
+        die($thread->score . ' ' . Translator::get()->translate("points") .  ':' . ($resultVoted ? '1' : '0'));
+    }
+
     public function actionVote() {
         $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth',
             'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
-        $model = $models[$_POST['level']];
+        $model = "\\mpf\\modules\\forum\\models\\" . $models[$_POST['level']];
         $entry = $model::findByPk($_POST['id']);
         /* @var $entry \mpf\modules\forum\models\ForumReply */
 
         if (!UserAccess::get()->canRead($entry->section_id, $entry->thread->category_id)) {
-            die($entry->score . ':0');
+            die($entry->score . ' ' . Translator::get()->translate("points") . ':0');
         }
         $voted = WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl AND user_id=:user")
             ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level'], ':user' => WebApp::get()->user()->id])
@@ -58,7 +93,7 @@ class Thread extends Controller {
             WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl and vote=0")
                 ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level']])->count();
         $entry->save(false);
-        die($entry->score . ':' . ($resultVoted ? '1' : '0'));
+        die($entry->score . ' ' . Translator::get()->translate("points") .  ':' . ($resultVoted ? '1' : '0'));
     }
 
     public function actionReply() {

@@ -100,8 +100,23 @@
                 </div>
             </td>
             <td class="forum-reply-content">
-                <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
-                    <div class="forum-reply-management-links">
+                <div class="forum-reply-management-links">
+                    <?php if (\mpf\WebApp::get()->user()->isConnected()) { ?>
+                        <?= \mpf\web\helpers\Html::get()->ajaxLink(
+                            $this->updateURLWithSection(['thread', 'voteThread']),
+                            \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
+                            'afterThreadVote',
+                            ['id' => $thread->id, 'type' => 'agree']
+                        ); ?>
+                        <?= \mpf\web\helpers\Html::get()->ajaxLink(
+                            $this->updateURLWithSection(['thread', 'voteThread']),
+                            \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
+                            'afterThreadVote',
+                            ['id' => $thread->id, 'type' => 'disagree']
+                        ); ?>
+                    <?php } ?>
+
+                    <?php if ($thread->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
                         <?= \mpf\web\helpers\Html::get()->link(
                             $this->updateURLWithSection(['thread', 'edit', ['id' => $thread->id]]),
                             \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/story-editor.png", "Edit post")
@@ -111,10 +126,10 @@
                             \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/actions/dialog-cancel.png", "Delete Thread"),
                             ['id' => $thread->id], [],
                             false,
-                            \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can't undo this action!")
+                            \mpf\modules\forum\components\Translator::get()->translate("Are you sure you want to delete this reply? You can`t undo this action!")
                         ); ?>
-                    </div>
-                <?php } ?>
+                    <?php } ?>
+                </div>
                 <div
                     class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?></div>
                 <?= $thread->getContent(); ?>
@@ -195,7 +210,7 @@
                         <div class="forum-reply-content-date">
                             <?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->time); ?>&nbsp;&nbsp;&nbsp;
                             <span id="number-of-points-for-reply-1-<?= $reply->id; ?>">
-                            <?= $reply->score . \mpf\modules\forum\components\Translator::get()->translate(" points"); ?>
+                            <?= $reply->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
                                 &nbsp;&nbsp;&nbsp;
                             </span>
                         </div>
@@ -229,6 +244,7 @@
         <?php if ((!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
             <tr class="forum-reply-form">
                 <td class="forum-user-details"><a name="reply-form"></a>
+
                     <div class="forum-user-details-header">
                         <b class="forum-user-details-name">
                             <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
@@ -287,8 +303,18 @@
      */
     function afterReplyVote(reply, postData, element) {
         reply = reply.split(':');
-        $("#number-of-points-for-reply-" + postData.level + "-" + postData.id).text(reply[0]);
+        $("#number-of-points-for-reply-" + postData.level + "-" + postData.id).html(reply[0] + "&nbsp;&nbsp;&nbsp;");
+    }
 
+    /**
+     * Called after a user submits a vote for thread
+     * @param reply
+     * @param postData
+     * @param element
+     */
+    function afterThreadVote(reply, postData, element) {
+        reply = reply.split(':');
+        $("#number-of-points-for-thread").html(reply[0] + "&nbsp;&nbsp;&nbsp;");
     }
 
     function hideReplyForm(element) {
