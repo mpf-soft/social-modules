@@ -131,7 +131,11 @@
                     <?php } ?>
                 </div>
                 <div
-                    class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?></div>
+                    class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?>&nbsp;&nbsp;&nbsp;
+                            <span id="number-of-points-for-thread">
+                            <?= $thread->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
+                                &nbsp;&nbsp;&nbsp;
+                            </span></div>
                 <?= $thread->getContent(); ?>
                 <?php if ($thread->edit_user_id) { ?>
                     <div class="forum-reply-edit-details">
