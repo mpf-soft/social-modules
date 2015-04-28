@@ -44,6 +44,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property \mpf\modules\forum\models\ForumReplySecond[] $replies
  * @property \mpf\modules\forum\models\ForumUser2Section $sectionAuthor
  * @property \app\models\User $deletedBy
+ * @property \mpf\modules\forum\models\ForumReplyVote $myVote
  */
 class ForumReply extends DbModel {
 
@@ -91,7 +92,8 @@ class ForumReply extends DbModel {
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
             'deletedBy' => [DbRelations::BELONGS_TO, '\app\models\User', 'deleted_user_id'],
             'authorGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'user_group_id'],
-            'replies' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplySecond', 'reply_id']
+            'replies' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplySecond', 'reply_id'],
+            'myVote' => DbRelation::hasOne(ForumReplyVote::className())->columnsEqual('id', 'reply_id')->hasValue('level', 1)->hasValue('user_id', WebApp::get()->user()->isConnected()?WebApp::get()->user()->id:0)
         ];
     }
 
@@ -109,7 +111,7 @@ class ForumReply extends DbModel {
 
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
-        $with = [];
+        $with = ['myVote'];
         for ($i = 0; $i <= Config::value('FORUM_MAX_REPLY_LEVELS'); $i++){
             foreach (['author', 'editor', 'authorGroup', 'sectionAuthor', 'sectionAuthor.title', 'replies'] as $child) {
                 $with[] = str_repeat('replies.', $i) . $child;
@@ -249,5 +251,20 @@ class ForumReply extends DbModel {
 
     public function hasReplies() {
         return (bool)$this->replies;
+    }
+
+    /**
+     * Check my vote status for selected reply
+     * @return bool|string
+     */
+    public function getMyVote(){
+        if (!$this->myVote || !$this->myVote->user_id){ //until empty loaded is fix I check for user_id also
+            return false;
+        }
+        if ($this->myVote->vote == 0){
+            return "negative";
+        } elseif ($this->myVote->vote == 1) {
+            return "positive";
+        }
     }
 }

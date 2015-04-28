@@ -106,13 +106,15 @@
                             $this->updateURLWithSection(['thread', 'voteThread']),
                             \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
                             'afterThreadVote',
-                            ['id' => $thread->id, 'type' => 'agree']
+                            ['id' => $thread->id, 'type' => 'agree'],
+                            ['class' => 'forum-vote-button-positive ' . ($thread->getMyVote() == 'positive'?'':'forum-vote-button-not-voted')]
                         ); ?>
                         <?= \mpf\web\helpers\Html::get()->ajaxLink(
                             $this->updateURLWithSection(['thread', 'voteThread']),
                             \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
                             'afterThreadVote',
-                            ['id' => $thread->id, 'type' => 'disagree']
+                            ['id' => $thread->id, 'type' => 'disagree'],
+                            ['class' => 'forum-vote-button-negative ' . ($thread->getMyVote() == 'negative'?'':'forum-vote-button-not-voted')]
                         ); ?>
                     <?php } ?>
 
@@ -185,13 +187,15 @@
                                     $this->updateURLWithSection(['thread', 'vote']),
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
                                     'afterReplyVote',
-                                    ['id' => $reply->id, 'type' => 'agree', 'level' => 1]
+                                    ['id' => $reply->id, 'type' => 'agree', 'level' => 1],
+                                    ['class' => 'forum-vote-button-positive ' . ($reply->getMyVote() == 'positive'?'':'forum-vote-button-not-voted')]
                                 ); ?>
                                 <?= \mpf\web\helpers\Html::get()->ajaxLink(
                                     $this->updateURLWithSection(['thread', 'vote']),
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
                                     'afterReplyVote',
-                                    ['id' => $reply->id, 'type' => 'disagree', 'level' => 1]
+                                    ['id' => $reply->id, 'type' => 'disagree', 'level' => 1],
+                                    ['class' => 'forum-vote-button-negative ' . ($reply->getMyVote() == 'negative'?'':'forum-vote-button-not-voted')]
                                 ); ?>
                             <?php } ?>
                             <?= \mpf\web\helpers\Html::get()->link('#reply' . $reply->id,
@@ -308,6 +312,11 @@
     function afterReplyVote(reply, postData, element) {
         reply = reply.split(':');
         $("#number-of-points-for-reply-" + postData.level + "-" + postData.id).html(reply[0] + "&nbsp;&nbsp;&nbsp;");
+        $('.forum-vote-button-positive', element.parentNode).addClass("forum-vote-button-not-voted");
+        $('.forum-vote-button-negative', element.parentNode).addClass("forum-vote-button-not-voted");
+        if (0 != reply[1]){
+            $(element).removeClass("forum-vote-button-not-voted");
+        }
     }
 
     /**
@@ -319,6 +328,12 @@
     function afterThreadVote(reply, postData, element) {
         reply = reply.split(':');
         $("#number-of-points-for-thread").html(reply[0] + "&nbsp;&nbsp;&nbsp;");
+        $('.forum-vote-button-positive', element.parentNode).addClass("forum-vote-button-not-voted");
+        $('.forum-vote-button-negative', element.parentNode).addClass("forum-vote-button-not-voted");
+        if (0 != reply[1]){
+            $(element).removeClass("forum-vote-button-not-voted");
+        }
+
     }
 
     function hideReplyForm(element) {

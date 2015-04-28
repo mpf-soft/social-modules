@@ -276,4 +276,28 @@ class ForumThread extends DbModel {
     public function getAuthorIcon(){
         return Config::value('USER_ICON_FOLDER_URL') . ($this->owner->icon?:'default.png');
     }
+
+    /**
+     * @var bool|string
+     */
+    protected $_voted;
+
+    /**
+     * Get information about active user vote status for this thread;
+     * @return bool|string
+     */
+    public function getMyVote(){
+        if (WebApp::get()->user()->isGuest())
+            return false;
+        if (!is_null($this->_voted)){
+            return $this->_voted;
+        }
+        $vote = $this->_db->table('forum_thread_votes')->where("thread_id = :id AND user_id = :user")
+                ->setParams([':id' => $this->id, ':user'=> WebApp::get()->user()->id])->first();
+        if (!$vote) {
+            $this->_voted = false;
+            return false;
+        }
+        return $this->_voted = ($vote['vote']?'positive':'negative');
+    }
 }
