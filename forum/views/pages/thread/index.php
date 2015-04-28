@@ -182,7 +182,7 @@
                 <td class="forum-reply-content">
                     <div class="forum-reply-content-header">
                         <div class="forum-reply-management-links">
-                            <?php if (\mpf\WebApp::get()->user()->isConnected()) { ?>
+                            <?php if (\mpf\WebApp::get()->user()->isConnected() && !$reply->deleted) { ?>
                                 <?= \mpf\web\helpers\Html::get()->ajaxLink(
                                     $this->updateURLWithSection(['thread', 'vote']),
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),

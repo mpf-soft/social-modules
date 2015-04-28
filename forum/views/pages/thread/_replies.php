@@ -39,6 +39,23 @@
                             <?= \mpf\web\helpers\Html::get()->link('#reply' . $level . '-' . $subReply->id,
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
                             ); ?>
+                            <?php if (\mpf\WebApp::get()->user()->isConnected() && !$reply->deleted) { ?>
+                                <?= \mpf\web\helpers\Html::get()->ajaxLink(
+                                    $this->updateURLWithSection(['thread', 'vote']),
+                                    \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
+                                    'afterReplyVote',
+                                    ['id' => $subReply->id, 'type' => 'agree', 'level' => $level],
+                                    ['class' => 'forum-vote-button-positive ' . ($subReply->getMyVote() == 'positive'?'':'forum-vote-button-not-voted')]
+                                ); ?>
+                                <?= \mpf\web\helpers\Html::get()->ajaxLink(
+                                    $this->updateURLWithSection(['thread', 'vote']),
+                                    \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
+                                    'afterReplyVote',
+                                    ['id' => $subReply->id, 'type' => 'disagree', 'level' => $level],
+                                    ['class' => 'forum-vote-button-negative ' . ($subReply->getMyVote() == 'negative'?'':'forum-vote-button-not-voted')]
+                                ); ?>
+                            <?php } ?>
+
                             <?php if ($subReply->canEdit($subcategory->category_id, $subcategory->category->section_id, $thread)) { ?>
                                 <?= \mpf\web\helpers\Html::get()->link(
                                     $this->updateURLWithSection(['thread', 'editReply', ['id' => $subReply->id, 'level' => $level]]),
@@ -54,7 +71,11 @@
                             <?php } ?>
                         </div>
                         <div
-                            class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?></div>
+                            class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?>&nbsp;&nbsp;&nbsp;
+                            <span id="number-of-points-for-thread">
+                            <?= $subReply->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
+                                &nbsp;&nbsp;&nbsp;
+                            </span></div>
                     </div>
                     <?= $subReply->getContent(); ?>
                     <?php if ($subReply->edited && !$subReply->deleted) { ?>
