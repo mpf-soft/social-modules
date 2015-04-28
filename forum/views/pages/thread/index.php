@@ -78,7 +78,7 @@
                 </h2>
             </th>
         </tr>
-        <tr class="forum-reply forum-main-post <?= $thread->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
+        <tr class="forum-reply forum-main-post forum-group-class-<?= $thread->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
             <td class="forum-user-details">
                 <div class="forum-user-details-header">
                     <b class="forum-user-details-name">
@@ -135,9 +135,10 @@
             </td>
         </tr>
         <?php foreach ($replies as $reply) { ?>
-            <tr class="forum-reply  <?= $reply->authorGroup->html_class; ?>">
+            <tr class="forum-reply  forum-group-class-<?= $reply->authorGroup->html_class; ?>">
                 <td class="forum-user-details">
                     <a style="visibility: hidden;" name="reply<?= $reply->id; ?>"></a>
+
                     <div class="forum-user-details-header">
                         <b class="forum-user-details-name">
                             <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
@@ -228,16 +229,20 @@
         <?php if ((!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
             <tr class="forum-reply-form">
                 <td class="forum-user-details"><a name="reply-form"></a>
-                    <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
-                    </b>
-                    <span class="forum-user-details-title">
-                        <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
-                    </span>
+                    <div class="forum-user-details-header">
+                        <b class="forum-user-details-name">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
+                        </b>
+                        <span class="forum-user-details-title">
+                            <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
+                        </span>
+                    </div>
                     <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . (\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
-                    <span class="forum-user-details-group">
-                    <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
-                </span>
+                    <div class="forum-user-details-footer">
+                        <span class="forum-user-details-group">
+                        <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
+                        </span>
+                    </div>
                 <span class="forum-user-details-date">
                     <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
                     <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
