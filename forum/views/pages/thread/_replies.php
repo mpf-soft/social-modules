@@ -72,7 +72,7 @@
                         </div>
                         <div
                             class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?>&nbsp;&nbsp;&nbsp;
-                            <span id="number-of-points-for-thread">
+                            <span id="number-of-points-for-reply-<?= $level; ?>-<?= $subReply->id;?>">
                             <?= $subReply->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
                                 &nbsp;&nbsp;&nbsp;
                             </span></div>
