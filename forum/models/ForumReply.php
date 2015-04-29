@@ -145,6 +145,27 @@ class ForumReply extends DbModel {
         ]);
     }
 
+    /**
+     * Records number of replies after first count
+     * @var
+     */
+    protected $_numberOfReplies;
+
+    /**
+     * Get total number of replies for this;
+     * @return int
+     */
+    public function getNumberOfReplies(){
+        if (!is_null($this->_numberOfReplies)){
+            return $this->_numberOfReplies;
+        }
+        return $this->_numberOfReplies = self::countByAttributes(['reply_id' => $this->id]);
+    }
+
+    public function getRepliesPaged(){
+
+    }
+
     public function getContent() {
         if ($this->deleted) {
             if ($this->deleted_user_id != $this->user_id){
