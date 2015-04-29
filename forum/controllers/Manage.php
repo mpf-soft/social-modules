@@ -32,6 +32,9 @@ class Manage extends Controller {
     public function beforeAction($actionName){
         parent::beforeAction($actionName);
         if (!UserAccess::get()->isSectionAdmin($this->sectionId)){
+            if (in_array($actionName, ['users', 'titles']) && UserAccess::get()->isSectionModerator($this->sectionId)){
+                return true;
+            }
             Messages::get()->error("You don't have the required rights to access this section!");
             $this->goToPage('special', 'accessDenied');
             die();

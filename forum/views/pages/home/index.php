@@ -23,6 +23,19 @@
 
     ];
     ?>
+<?php } elseif (\mpf\modules\forum\components\UserAccess::get()->isSectionModerator($this->sectionId)) {?>
+    <?php
+    $menu = [
+        [
+            'url' => $this->updateURLWithSection(['manage', 'users']),
+            'label' => 'Manage Users'
+        ],
+        [
+            'url' => $this->updateURLWithSection(['manage', 'titles']),
+            'label' => 'Manage Titles'
+        ]
+    ];
+    ?>
 <?php } ?>
 <?= \app\components\htmltools\Page::get()->title("Forum", $menu); ?>
 <div class="forum-page <?= $this->forumPageTheme; ?>">

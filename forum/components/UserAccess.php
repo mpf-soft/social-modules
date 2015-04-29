@@ -142,14 +142,19 @@ class UserAccess extends LogAwareObject {
             ];
         }
         Session::get()->set($this->sessionKey, [
-            'user2Sections' => $this->user2Sections
+            'user2Sections' => $this->user2Sections,
+            'userId' => WebApp::get()->user()->id
         ]);
     }
 
     public function init($config = []) {
         if (Session::get()->exists($this->sessionKey)) {
             $session = Session::get()->value($this->sessionKey);
-            $this->user2Sections = $session['user2Sections'];
+            if (isset($session['userId']) && $session['userId'] == WebApp::get()->user()->id) { // handle logout + login
+                $this->user2Sections = $session['user2Sections'];
+            } else {
+                $this->reloadRights();
+            }
         } else {
             $this->reloadRights();
         }
