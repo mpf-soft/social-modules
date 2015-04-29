@@ -19,6 +19,10 @@
                 'url' => $this->updateURLWithSection(['manage', 'titles']),
                 'label' => 'Manage Titles',
                 'htmlOptions' => ['class' => 'selected']
+            ],
+            [
+                'url' => $this->updateURLWithSection(['manage', 'newTitle']),
+                'label' => 'New Title'
             ]
         ] : [
         [

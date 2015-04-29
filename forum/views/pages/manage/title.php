@@ -13,22 +13,26 @@
             ],
             [
                 'url' => $this->updateURLWithSection(['manage', 'users']),
-                'label' => 'Manage Users',
-                'htmlOptions' => ['class' => 'selected']
+                'label' => 'Manage Users'
             ],
             [
                 'url' => $this->updateURLWithSection(['manage', 'titles']),
                 'label' => 'Manage Titles'
+            ],
+            [
+                'url' => $this->updateURLWithSection(['manage', 'newTitle']),
+                'label' => 'New Title',
+                'htmlOptions' => ['class' => 'selected']
             ]
         ] : [
         [
             'url' => $this->updateURLWithSection(['manage', 'users']),
-            'label' => 'Manage Users',
-            'htmlOptions' => ['class' => 'selected']
+            'label' => 'Manage Users'
         ],
         [
             'url' => $this->updateURLWithSection(['manage', 'titles']),
-            'label' => 'Manage Titles'
+            'label' => 'Manage Titles',
+            'htmlOptions' => ['class' => 'selected']
         ]
     ]); ?>
 <?= \mpf\widgets\form\Form::get([
