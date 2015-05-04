@@ -72,7 +72,26 @@
                         ); ?>
                         <span><?= $subcategory->description; ?></span>
                     </td>
-                    <td class="subcategory-options-column">&nbsp;</td>
+                    <td class="subcategory-options-column">
+                        <?= \mpf\web\helpers\Html::get()->postLink(
+                            $this->updateURLWithSection(['home', 'action']),
+                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/emotes/opinion-no.png", "Hide category"),
+                            [
+                                "action" => "hide_subcategory",
+                                "id" => $subcategory->id
+                            ]
+                        );
+                        ?>
+                        <?= \mpf\web\helpers\Html::get()->postLink(
+                            $this->updateURLWithSection(['home', 'action']),
+                            \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/emotes/opinion-okay.png", "Show category"),
+                            [
+                                "action" => "show_subcategory",
+                                "id" => $subcategory->id
+                            ]
+                        );
+                        ?>
+                    </td>
                     <td class="subcategory-activity-column">
                         <b><?= $subcategory->number_of_threads; ?> <?= \mpf\modules\forum\components\Translator::get()->translate("threads"); ?></b>
                         <b><?= $subcategory->number_of_replies; ?> <?= \mpf\modules\forum\components\Translator::get()->translate("replies"); ?></b>
