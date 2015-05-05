@@ -71,6 +71,11 @@
                                 <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'sticky', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Sticky'), ['class' => 'sticky-thread-button']); ?>
                             <?php } ?>
                         <?php } ?>
+                        <?php if ($thread->ImSubscribed()) { ?>
+                            <?= \mpf\web\helpers\Html::get()->link('?unsubscribe', \mpf\modules\forum\components\Translator::get()->translate('Unsubscribe'), ['class' => 'unsubscribe-button']); ?>
+                        <?php } else { ?>
+                            <?= \mpf\web\helpers\Html::get()->link('?subscribe', \mpf\modules\forum\components\Translator::get()->translate('Subscribe'), ['class' => 'subscribe-button']); ?>
+                        <?php } ?>
                         <?php if (\mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
                             <?= \mpf\web\helpers\Html::get()->link('#reply-form', \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button']); ?>
                         <?php } ?>

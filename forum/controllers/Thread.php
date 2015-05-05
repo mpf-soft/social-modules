@@ -152,6 +152,13 @@ class Thread extends Controller {
             $this->goToPage("special", "notFound");
             return;
         }
+        if (isset($_GET['subscribe'])){
+            $thread->subscribe();
+            $this->goBack();
+        } elseif (isset($_GET['unsubscribe'])){
+            $thread->unsubscribe();
+            $this->goBack();
+        }
         $thread->updateViews();
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
