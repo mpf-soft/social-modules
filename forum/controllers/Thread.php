@@ -127,6 +127,7 @@ class Thread extends Controller {
                 $model->nthreply_id = $_POST['parent'];
             }
             $thread = ForumThread::findByPk($model->thread_id);
+            $thread->subscribe();
             if (!$thread || $thread->closed || !UserAccess::get()->canReplyToThread($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
                 Messages::get()->error("Can't reply to this thread!");
                 $this->goBack();

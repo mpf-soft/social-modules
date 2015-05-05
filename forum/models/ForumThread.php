@@ -182,6 +182,7 @@ class ForumThread extends DbModel {
      * @return bool
      */
     public function publishNew(ForumSubcategory $subcategory = null){
+        $this->subscribe();
         $subcategory = $subcategory?:ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->last_active_thread_id = $this->id;
         $subcategory->last_activity_time = date('Y-m-d H:i:s');
@@ -309,5 +310,41 @@ class ForumThread extends DbModel {
             return false;
         }
         return $this->_voted = ($vote['vote']?'positive':'negative');
+    }
+
+    /**
+     * Remembers if user is subscribed to current thread or not
+     * @var bool
+     */
+    protected  $_subscribed;
+
+    public function ImSubscribed(){
+        if (is_null($this->_subscribed)){
+            $exists = $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
+                ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
+                ->first();
+            $this->_subscribed = (bool)$exists;
+        }
+        return $this->_subscribed;
+    }
+
+    /**
+     * Subscribe to current thread
+     */
+    public function subscribe(){
+        $this->_db->table('forum_users_subscriptions')->insert([
+            'user_id' => WebApp::get()->user()->id,
+            'thread_id' => $this->id
+        ], 'ignore');
+    }
+
+    /**
+     * Unsubscribe from current thread;
+     */
+    public function unsubscribe(){
+        $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
+            ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
+            ->delete();
+        $this->_subscribed = false;
     }
 }
