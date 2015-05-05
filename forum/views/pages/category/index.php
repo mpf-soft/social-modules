@@ -96,4 +96,47 @@
             <?php } ?>
         <?php } ?>
     </table>
+
+    <div class="forum-section-footer">
+        <?php if (\mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($category->id, $this->sectionId)) { ?>
+            <div class="forum-section-actions">
+                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['manage', 'editCategory', ['id' => $category->id]]),
+                    \mpf\modules\forum\components\Translator::get()->translate("Edit Category"));
+                ?>
+                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['manage', 'subcategories', ['category' => $category->id]]),
+                    \mpf\modules\forum\components\Translator::get()->translate("Manage Subcategorie"));
+                ?>
+            </div>
+        <?php } ?>
+
+        <div class="forum-section-jump-to-category">
+            <select id="jump-to-category">
+                <option><?= \mpf\modules\forum\components\Translator::get()->translate("--jump to category--"); ?></option>
+                <?php foreach ($categories as $category) { ?>
+                    <optgroup label="<?= $category->name; ?>">
+                        <?php foreach ($category->subcategories as $subcategory) { ?>
+                            <option value="<?= $subcategory->id; ?>"><?= $subcategory->title; ?></option>
+                        <?php } ?>
+                    </optgroup>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
 </div>
+
+<script>
+    var Categories2URLs = [];
+
+    <?php foreach ($categories as $category) { ?>
+    <?php foreach ($category->subcategories as $subcategory) { ?>
+    <?php $url = $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]); ?>
+    Categories2URLs[<?= $subcategory->id; ?>] = "<?= $this->getRequest()->createURL($url[0], $url[1], $url[2]); ?>";
+    <?php } ?>
+    <?php } ?>
+
+    $(document).ready(function(){
+        $('#jump-to-category').change(function(){
+            window.location = Categories2URLs[$(this).val()];
+        });
+    })
+</script>

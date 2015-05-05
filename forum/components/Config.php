@@ -116,6 +116,12 @@ class Config extends Object {
     public $FORUM_MAX_REPLY_LEVELS = 16;
 
     /**
+     * If set to true then on user control panel there is an option to change icon
+     * @var bool
+     */
+    public $FORUM_HANDLE_USER_ICON = true;
+
+    /**
      * URL to vote up icon.
      * @var string
      */

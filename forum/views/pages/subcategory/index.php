@@ -43,7 +43,7 @@
         'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('threads'),
         'totalElements' => $subcategory->number_of_threads,
         'visibleElements' => count($threads),
-        'totalPages' => (int)(($subcategory->number_of_threads / \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($subcategory->number_of_threads % \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE'))?1:0)),
+        'totalPages' => (int)(($subcategory->number_of_threads / \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($subcategory->number_of_threads % \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
     <table class="forum-category">
@@ -88,14 +88,14 @@
                     </td>
                     <td class="thread-started-by-column">
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
-                        <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false ,false); ?></span>
+                        <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false, false); ?></span>
                     </td>
                     <td class="thread-replies-column"><?= $thread->replies; ?></td>
                     <td class="thread-views-column"><?= $thread->views; ?></td>
                     <td class="thread-most-recent-column">
                         <?php if ($thread->last_reply_id) { ?>
                             <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id, 'name' => $thread->lastActiveUser->name]]), $thread->lastActiveUser->name); ?>
-                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false ,false); ?></span>
+                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false, false); ?></span>
                         <?php } else { ?>
                             <span class="thread-no-replies-message">
                                  <?= \mpf\modules\forum\components\Translator::get()->translate("no replies"); ?>
@@ -110,7 +110,45 @@
         'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('threads'),
         'totalElements' => $subcategory->number_of_threads,
         'visibleElements' => count($threads),
-        'totalPages' => (int)(($subcategory->number_of_threads / \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($subcategory->number_of_threads % \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE'))?1:0)),
+        'totalPages' => (int)(($subcategory->number_of_threads / \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($subcategory->number_of_threads % \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) ? 1 : 0)),
         'currentPage' => $currentPage
     ]); ?>
+    <div class="forum-section-footer">
+        <?php if (\mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) { ?>
+            <div class="forum-section-actions">
+                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['manage', 'editSubcategory', ['id' => $subcategory->id]]),
+                    \mpf\modules\forum\components\Translator::get()->translate("Edit subcategory"));
+                ?>
+            </div>
+        <?php } ?>
+        <div class="forum-section-jump-to-category">
+            <select id="jump-to-category">
+                <option><?= \mpf\modules\forum\components\Translator::get()->translate("--jump to category--"); ?></option>
+                <?php foreach ($categories as $category) { ?>
+                    <optgroup label="<?= $category->name; ?>">
+                        <?php foreach ($category->subcategories as $subcategory) { ?>
+                            <option value="<?= $subcategory->id; ?>"><?= $subcategory->title; ?></option>
+                        <?php } ?>
+                    </optgroup>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
 </div>
+
+<script>
+    var Categories2URLs = [];
+
+    <?php foreach ($categories as $category) { ?>
+    <?php foreach ($category->subcategories as $subcategory) { ?>
+    <?php $url = $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]); ?>
+    Categories2URLs[<?= $subcategory->id; ?>] = "<?= $this->getRequest()->createURL($url[0], $url[1], $url[2]); ?>";
+    <?php } ?>
+    <?php } ?>
+
+    $(document).ready(function () {
+        $('#jump-to-category').change(function () {
+            window.location = Categories2URLs[$(this).val()];
+        });
+    })
+</script>

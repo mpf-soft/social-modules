@@ -9,6 +9,7 @@ namespace mpf\modules\forum\models;
 
 use app\components\htmltools\Messages;
 use app\controllers\User;
+use mpf\helpers\ArrayHelper;
 use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -100,7 +101,19 @@ class ForumCategory extends DbModel {
         $condition->order = "`order` ASC";
         $condition->with = ['subcategories', 'subcategories.lastActiveThread', 'subcategories.lastActiveUser'];
         $condition->compareColumn("section_id", $sectionId);
-        return self::findAll($condition);
+        $categories =  self::findAll($condition);
+        if (WebApp::get()->user()->isConnected()) {
+            $subcategories = self::getDb()->table('forum_userhiddensubcategories')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get();
+            $subcategories = ArrayHelper::get()->transform($subcategories, "subcategory_id");
+            foreach ($categories as $category) {
+                foreach ($category->subcategories as $subcategory) {
+                    if (in_array($subcategory->id, $subcategories)){
+                        $subcategory->hidden = true;
+                    }
+                }
+            }
+        }
+        return $categories;
     }
 
     /**

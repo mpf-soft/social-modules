@@ -16,6 +16,7 @@ class Category extends Controller{
 
     public function actionIndex($id){
         $this->assign("category", ForumCategory::findByPk($id));
+        $this->assign('categories', ForumCategory::findAllBySection($this->sectionId, true));
     }
 
 }

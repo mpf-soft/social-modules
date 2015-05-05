@@ -40,6 +40,12 @@ use mpf\WebApp;
 class ForumSubcategory extends DbModel {
 
     /**
+     * Recors if subcategory is hidden for user or not
+     * @var bool
+     */
+    public $hidden = false;
+
+    /**
      * Get database table name.
      * @return string
      */

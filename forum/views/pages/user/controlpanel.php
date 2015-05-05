@@ -41,7 +41,7 @@
         'model' => $model,
         'theme' => 'default-wide',
         'formHtmlOptions' => ['enctype' => 'multipart/form-data'],
-        'fields' => [
+        'fields' => \mpf\modules\forum\components\Config::value('FORUM_HANDLE_USER_ICON')?[
             [
                 'name' => 'signature',
                 'type' => 'forumTextarea',
@@ -52,6 +52,13 @@
                 'name' => 'icon',
                 'type' => 'image',
                 'urlPrefix' => $model->getIconLocationURL()
+            ]
+        ]:[
+            [
+                'name' => 'signature',
+                'type' => 'forumTextarea',
+                'tags' => \app\models\PageTag::getTagHints(true),
+                'htmlOptions' => ['style' => 'min-height: 200px;']
             ]
         ]
     ])->display(); ?>

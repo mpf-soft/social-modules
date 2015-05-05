@@ -11,6 +11,7 @@ namespace mpf\modules\forum\controllers;
 
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\models\ForumCategory;
 use mpf\modules\forum\models\ForumSubcategory;
 use mpf\modules\forum\models\ForumThread;
 
@@ -21,6 +22,7 @@ class Subcategory extends Controller{
         $this->assign("subcategory", ForumSubcategory::findByPk($id));
         $this->assign('threads', ForumThread::findAllForSubcategory($id, $page, Config::value('FORUM_THREADS_PER_PAGE')));
         $this->assign('currentPage', $page);
+        $this->assign('categories', ForumCategory::findAllBySection($this->sectionId, true));
     }
 
 }
