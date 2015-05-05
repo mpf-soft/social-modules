@@ -10,13 +10,15 @@ namespace mpf\modules\forum\controllers;
 
 
 use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\models\ForumThread;
 use mpf\modules\forum\models\ForumUser2Section;
 use mpf\WebApp;
 
 class User extends Controller{
 
-    public function actionIndex($id){
-
+    public function actionIndex($id, $currentPage = 1){
+        $this->assign('user', ForumUser2Section::findByAttributes(['user_id' => $id, 'section_id' => $this->sectionId]));
+        $this->assign("threads", ForumThread::findAllByUser($id, $this->sectionId, $currentPage));
     }
 
     public function actionControlPanel(){

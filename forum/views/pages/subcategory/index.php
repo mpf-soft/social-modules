@@ -62,9 +62,12 @@
                     ); ?>
                     <span><?= $subcategory->description; ?></span>
                 </h2>
-                <?php if (\mpf\modules\forum\components\UserAccess::get()->canCreateNewThread($subcategory->category_id, $this->sectionId)) { ?>
-                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \mpf\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
-                <?php } ?>
+
+                <div class="forum-category-title-actions">
+                    <?php if (\mpf\modules\forum\components\UserAccess::get()->canCreateNewThread($subcategory->category_id, $this->sectionId)) { ?>
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \mpf\modules\forum\components\Translator::get()->translate('New Thread')); ?>
+                    <?php } ?>
+                </div>
             </th>
         </tr>
         <tr class="threads-description-row">

@@ -51,9 +51,12 @@
                         ); ?>
                         <span><?= $subcategory->description; ?></span>
                     </h2>
-                    <?php if (\mpf\modules\forum\components\UserAccess::get()->canCreateNewThread($category->id, $this->sectionId)) { ?>
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \mpf\modules\forum\components\Translator::get()->translate('New Thread'), ['class' => 'new-thread-button']); ?>
-                    <?php } ?>
+
+                    <div class="forum-category-title-actions">
+                        <?php if (\mpf\modules\forum\components\UserAccess::get()->canCreateNewThread($category->id, $this->sectionId)) { ?>
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'new', ['subcategory' => $subcategory->id]]), \mpf\modules\forum\components\Translator::get()->translate('New Thread')); ?>
+                        <?php } ?>
+                    </div>
                 </th>
             </tr>
             <tr class="threads-description-row">
@@ -71,20 +74,20 @@
             <?php } else { ?>
                 <?php foreach ($subcategory->getTopPostsForCategoryPage() as $thread) { ?>
                     <tr class="thread-row">
-                        <td class="thread-status-icon-column"><?= \mpf\web\helpers\Html::get()->image($this->getWebRoot() .'forum/statusicons/' . $thread->getStatus() . '.png', ucfirst($thread->getStatus())) ?></td>
+                        <td class="thread-status-icon-column"><?= \mpf\web\helpers\Html::get()->image($this->getWebRoot() . 'forum/statusicons/' . $thread->getStatus() . '.png', ucfirst($thread->getStatus())) ?></td>
                         <td class="thread-title-column">
                             <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?>
                         </td>
                         <td class="thread-started-by-column">
                             <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
-                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false ,false); ?></span>
+                            <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false, false); ?></span>
                         </td>
                         <td class="thread-replies-column"><?= $thread->replies; ?></td>
                         <td class="thread-views-column"><?= $thread->views; ?></td>
                         <td class="thread-most-recent-column">
                             <?php if ($thread->last_reply_id) { ?>
                                 <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id, 'name' => $thread->lastActiveUser->name]]), $thread->lastActiveUser->name); ?>
-                                <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false ,false); ?></span>
+                                <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false, false); ?></span>
                             <?php } else { ?>
                                 <span class="thread-no-replies-message">
                                     <?= \mpf\modules\forum\components\Translator::get()->translate("no replies"); ?>
@@ -134,8 +137,8 @@
     <?php } ?>
     <?php } ?>
 
-    $(document).ready(function(){
-        $('#jump-to-category').change(function(){
+    $(document).ready(function () {
+        $('#jump-to-category').change(function () {
             window.location = Categories2URLs[$(this).val()];
         });
     })

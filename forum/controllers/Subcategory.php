@@ -20,7 +20,7 @@ class Subcategory extends Controller{
     public function actionIndex($id, $page = 1){
         $page = ($page < 1) ? 1 : $page;
         $this->assign("subcategory", ForumSubcategory::findByPk($id));
-        $this->assign('threads', ForumThread::findAllForSubcategory($id, $page, Config::value('FORUM_THREADS_PER_PAGE')));
+        $this->assign('threads', ForumThread::findAllForSubcategory($id, $page));
         $this->assign('currentPage', $page);
         $this->assign('categories', ForumCategory::findAllBySection($this->sectionId, true));
     }

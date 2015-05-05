@@ -118,16 +118,26 @@ class ForumThread extends DbModel {
      * Find all threads for selected subcategory separated per page
      * @param $subcategory
      * @param int $page
-     * @param int $threadsPerPage
      * @return static[]
      */
-    public static function findAllForSubcategory($subcategory, $page = 1, $threadsPerPage = 20){
+    public static function findAllForSubcategory($subcategory, $page = 1){
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("subcategory_id", $subcategory);
         $condition->with = ['lastActiveUser', 'owner'];
-        $condition->limit = $threadsPerPage;
+        $condition->limit = Config::value('FORUM_THREADS_PER_PAGE');
         $condition->order = '`t`.`order` ASC, `t`.`id` DESC';
-        $condition->offset = ($page - 1) * $threadsPerPage;
+        $condition->offset = ($page - 1) * Config::value('FORUM_THREADS_PER_PAGE');
+        return self::findAll($condition);
+    }
+
+    public static function findAllByUser($userId, $sectionId, $page = 1){
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->compareColumn("user_id", $userId);
+        $condition->compareColumn("section_id", $sectionId);
+        $condition->with = ['lastActiveUser', 'owner'];
+        $condition->limit = Config::value('FORUM_THREADS_PER_PAGE');
+        $condition->order = '`t`.`id` DESC';
+        $condition->offset = ($page - 1) * Config::value('FORUM_THREADS_PER_PAGE');
         return self::findAll($condition);
     }
 
