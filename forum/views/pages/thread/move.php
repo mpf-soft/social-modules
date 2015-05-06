@@ -11,6 +11,7 @@
     . \mpf\modules\forum\components\Translator::get()->translate("Move post")); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
+    <?php $this->displayComponent('searchbar'); ?>
     <?php $this->displayComponent('topuserpanel'); ?>
     <?= \mpf\widgets\form\Form::get([
         'name' => 'move',

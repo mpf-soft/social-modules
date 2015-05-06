@@ -27,6 +27,7 @@
 <?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum") . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " " . $category->name, $menu); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
+    <?php $this->displayComponent('searchbar'); ?>
     <?php $this->displayComponent('topuserpanel'); ?>
 
     <?php if (!\mpf\modules\forum\components\UserAccess::get()->canRead($this->sectionId, $category->id)) { ?>

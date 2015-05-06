@@ -29,6 +29,7 @@
     \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home']), \mpf\modules\forum\components\Translator::get()->translate("Forum"))
     . " " . \mpf\modules\forum\components\Config::value("FORUM_PAGE_TITLE_SEPARATOR") . " Recent Threads", $menu); ?>
 <div class="forum-page <?= $this->forumPageTheme; ?>">
+    <?php $this->displayComponent('searchbar'); ?>
     <?php $this->displayComponent('topuserpanel'); ?>
 
     <?php if (!\mpf\modules\forum\components\UserAccess::get()->canRead($this->sectionId)) { ?>
@@ -65,7 +66,7 @@
                 <tr class="thread-row">
                     <td class="thread-status-icon-column"><?= \mpf\web\helpers\Html::get()->image($this->getWebRoot() . 'forum/statusicons/' . $thread->getStatus() . '.png', ucfirst($thread->getStatus())) ?></td>
                     <td class="thread-title-column">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $subcategory->url_friendly_title, 'category' => $subcategory->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?>
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?>
                     </td>
                     <td class="thread-started-by-column">
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>

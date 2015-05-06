@@ -46,6 +46,7 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $last_reply_level
  * @property string $last_reply_date
  * @property \mpf\modules\forum\models\ForumSubcategory $subcategory
+ * @property \mpf\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
  * @property \app\models\User $editor
  * @property \app\models\User $lastActiveUser
@@ -97,6 +98,7 @@ class ForumThread extends DbModel {
     public static function getRelations() {
         return [
             'subcategory' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSubcategory', 'subcategory_id'],
+            'category' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumCategory', 'category_id'],
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
             'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_reply_user_id']
@@ -115,12 +117,53 @@ class ForumThread extends DbModel {
     }
 
     /**
+     * Used on search page
+     * @param string $text
+     * @param int $section
+     * @param int[] $categories
+     * @param int[] $subcategories
+     * @param int[] $authors
+     * @return array|static[]
+     */
+    public static function findAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null) {
+        if (!trim($text)) {
+            return [];
+        }
+        $words = explode(" ", $text);
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->with = ['lastActiveUser', 'owner', 'subcategory', 'category'];
+        $condition->join = "LEFT JOIN `forum_thread_tags` ON forum_thread_tags.thread_id = `t`.id";
+        $wordsList = [];
+        foreach ($words as $k=>$word){
+            if (!trim($word))
+                continue;
+            $condition->setParam(":word_$k", $word);
+            $wordsList[] = ":word_$k";
+        }
+        $words = implode(", ", $wordsList);
+        $condition->addCondition("`t`.`title` LIKE :searchConcat OR (`forum_thread_tags`.`word` IN ($words))");
+        $condition->setParam(":searchConcat", "%$text%");
+        $condition->compareColumn("section_id", $section);
+        if ($categories) {
+            $condition->compareColumn("category_id", $categories);
+        }
+        if ($subcategories) {
+            $condition->compareColumn("subcategory_id", $subcategories);
+        }
+        if ($authors) {
+            $condition->compareColumn("user_id", $authors);
+        }
+
+        return self::findAll($condition);
+    }
+
+    /**
      * Find all threads for selected subcategory separated per page
      * @param $subcategory
      * @param int $page
      * @return static[]
      */
-    public static function findAllForSubcategory($subcategory, $page = 1){
+    public static function findAllForSubcategory($subcategory, $page = 1) {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("subcategory_id", $subcategory);
         $condition->with = ['lastActiveUser', 'owner'];
@@ -130,7 +173,7 @@ class ForumThread extends DbModel {
         return self::findAll($condition);
     }
 
-    public static function findAllByUser($userId, $sectionId, $page = 1){
+    public static function findAllByUser($userId, $sectionId, $page = 1) {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("user_id", $userId);
         $condition->compareColumn("section_id", $sectionId);
@@ -145,17 +188,18 @@ class ForumThread extends DbModel {
      * @param int $section
      * @return static[]
      */
-    public static function findRecent($section, $limit = 20, $offset = 0){
+    public static function findRecent($section, $limit = 20, $offset = 0) {
         $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
         $condition->with = ['category'];
         $condition->compareColumn("category.section_id", $section);
         $condition->fields = ['t.id'];
         $ids = ArrayHelper::get()->transform(ForumSubcategory::findAll($condition), 'id');
         $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->with = ['category', 'subcategory', 'lastActiveUser', 'owner'];
         $condition->addInCondition('subcategory_id', $ids);
         $condition->order = "id DESC";
         $condition->limit = $limit;
-        $condition->offset =$offset;
+        $condition->offset = $offset;
         return self::findAll($condition);
     }
 
@@ -181,9 +225,9 @@ class ForumThread extends DbModel {
      * @param ForumSubcategory $subcategory
      * @return bool
      */
-    public function publishNew(ForumSubcategory $subcategory = null){
+    public function publishNew(ForumSubcategory $subcategory = null) {
         $this->subscribe();
-        $subcategory = $subcategory?:ForumSubcategory::findByPk($this->subcategory_id);
+        $subcategory = $subcategory ?: ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->last_active_thread_id = $this->id;
         $subcategory->last_activity_time = date('Y-m-d H:i:s');
         $subcategory->last_active_user_id = $this->user_id;
@@ -192,10 +236,10 @@ class ForumThread extends DbModel {
         return $subcategory->save();
     }
 
-    public function getStatus(){
-        if ($this->sticky){
+    public function getStatus() {
+        if ($this->sticky) {
             return 'sticky';
-        } elseif ($this->closed){
+        } elseif ($this->closed) {
             return 'closed';
         }
         return 'new';
@@ -210,19 +254,19 @@ class ForumThread extends DbModel {
      * @param $sectionId
      * @return ForumUser2Section
      */
-    public function getSectionUser($sectionId){
-        if (!$this->sectionUser){
+    public function getSectionUser($sectionId) {
+        if (!$this->sectionUser) {
             $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id], ['with' => ['group', 'title']]);
         }
         return $this->sectionUser;
     }
 
-    public function getContent(){
+    public function getContent() {
         return nl2br(ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
             'linkRoot' => WebApp::get()->request()->getLinkRoot(),
             'webRoot' => WebApp::get()->request()->getWebRoot()
         ])) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
-        Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css').
+        Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
 
@@ -236,36 +280,36 @@ class ForumThread extends DbModel {
      * @param int $sectionId
      * @return bool
      */
-    public function canEdit($categoryId = null, $sectionId = null){
-        if (!is_null($this->_canEdit)){
+    public function canEdit($categoryId = null, $sectionId = null) {
+        if (!is_null($this->_canEdit)) {
             return $this->_canEdit;
         }
 
-        $categoryId = $categoryId?:$this->subcategory->category_id;
-        $sectionId = $sectionId?:$this->subcategory->category->section_id;
-        if (WebApp::get()->user()->isGuest()){ //added a fix for guests;
+        $categoryId = $categoryId ?: $this->subcategory->category_id;
+        $sectionId = $sectionId ?: $this->subcategory->category->section_id;
+        if (WebApp::get()->user()->isGuest()) { //added a fix for guests;
             return $this->_canEdit = false;
         }
 
-        if (($this->closed && !($moderator =  UserAccess::get()->isCategoryModerator($categoryId, $sectionId))) || UserAccess::get()->isMuted($sectionId)){
+        if (($this->closed && !($moderator = UserAccess::get()->isCategoryModerator($categoryId, $sectionId))) || UserAccess::get()->isMuted($sectionId)) {
             return $this->_canEdit = false;
         }
 
         if ($this->user_id == WebApp::get()->user()->id) {
             return $this->_canEdit = true;
         }
-        return $this->_canEdit = isset($moderator)?$moderator:UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
+        return $this->_canEdit = isset($moderator) ? $moderator : UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
     }
 
     public $sessionViewsTempKey = "forum-threads-visited";
 
-    public function updateViews(){
-        if (Session::get()->exists($this->sessionViewsTempKey)){
+    public function updateViews() {
+        if (Session::get()->exists($this->sessionViewsTempKey)) {
             $threads = Session::get()->value($this->sessionViewsTempKey);
         } else {
             $threads = [];
         }
-        if (!isset($threads[$this->id])){
+        if (!isset($threads[$this->id])) {
             $this->views++;
             $this->save();
             $threads[$this->id] = true;
@@ -273,7 +317,7 @@ class ForumThread extends DbModel {
         }
     }
 
-    public function afterMove($oldSub){
+    public function afterMove($oldSub) {
         if ($oldSub == $this->subcategory_id)
             return; // same sub;
         $subcategory = ForumSubcategory::findByPk($oldSub);
@@ -284,8 +328,8 @@ class ForumThread extends DbModel {
         $subcategory->save();
     }
 
-    public function getAuthorIcon(){
-        return Config::value('USER_ICON_FOLDER_URL') . ($this->owner->icon?:'default.png');
+    public function getAuthorIcon() {
+        return Config::value('USER_ICON_FOLDER_URL') . ($this->owner->icon ?: 'default.png');
     }
 
     /**
@@ -297,29 +341,29 @@ class ForumThread extends DbModel {
      * Get information about active user vote status for this thread;
      * @return bool|string
      */
-    public function getMyVote(){
+    public function getMyVote() {
         if (WebApp::get()->user()->isGuest())
             return false;
-        if (!is_null($this->_voted)){
+        if (!is_null($this->_voted)) {
             return $this->_voted;
         }
         $vote = $this->_db->table('forum_thread_votes')->where("thread_id = :id AND user_id = :user")
-                ->setParams([':id' => $this->id, ':user'=> WebApp::get()->user()->id])->first();
+            ->setParams([':id' => $this->id, ':user' => WebApp::get()->user()->id])->first();
         if (!$vote) {
             $this->_voted = false;
             return false;
         }
-        return $this->_voted = ($vote['vote']?'positive':'negative');
+        return $this->_voted = ($vote['vote'] ? 'positive' : 'negative');
     }
 
     /**
      * Remembers if user is subscribed to current thread or not
      * @var bool
      */
-    protected  $_subscribed;
+    protected $_subscribed;
 
-    public function ImSubscribed(){
-        if (is_null($this->_subscribed)){
+    public function ImSubscribed() {
+        if (is_null($this->_subscribed)) {
             $exists = $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
                 ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
                 ->first();
@@ -331,7 +375,7 @@ class ForumThread extends DbModel {
     /**
      * Subscribe to current thread
      */
-    public function subscribe(){
+    public function subscribe() {
         $this->_db->table('forum_users_subscriptions')->insert([
             'user_id' => WebApp::get()->user()->id,
             'thread_id' => $this->id
@@ -341,7 +385,7 @@ class ForumThread extends DbModel {
     /**
      * Unsubscribe from current thread;
      */
-    public function unsubscribe(){
+    public function unsubscribe() {
         $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
             ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
             ->delete();

@@ -33,6 +33,7 @@
     . $subcategory->title, $menu); ?>
 
 <div class="forum-page <?= $this->forumPageTheme; ?>">
+    <?php $this->displayComponent('searchbar'); ?>
     <?php $this->displayComponent('topuserpanel'); ?>
 
     <?php if (!\mpf\modules\forum\components\UserAccess::get()->canRead($this->sectionId)) { ?>

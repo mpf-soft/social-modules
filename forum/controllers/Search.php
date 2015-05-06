@@ -13,8 +13,14 @@ use mpf\modules\forum\components\Controller;
 use mpf\modules\forum\models\ForumThread;
 
 class Search extends Controller{
-    public function actionIndex(){
-
+    /**
+     * @param $search
+     * @param null|int[] $categorie
+     * @param null|int[] $subcategorie
+     * @param null|int[] $autor
+     */
+    public function actionIndex($search, $categorie = null, $subcategorie = null, $autor = null){
+        $this->assign("threads", ForumThread::findAllByKeyWords($search, $this->sectionId, $categorie, $subcategorie, $autor));
     }
 
     public function actionAdvanced(){
