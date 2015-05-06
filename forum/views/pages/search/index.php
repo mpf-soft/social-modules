@@ -1,6 +1,8 @@
 <?php /* @var $this \mpf\modules\forum\controllers\Home */ ?>
 <?php /* @var $categories \mpf\modules\forum\models\ForumCategory[] */ ?>
 <?php /* @var $threads \mpf\modules\forum\models\ForumThread[] */ ?>
+<?php /* @var $numberOfThreads int */ ?>
+<?php /* @var $currentPage int */ ?>
 <?php $menu = []; ?>
 <?php if (\mpf\modules\forum\components\UserAccess::get()->isSectionAdmin($this->sectionId)) { ?>
     <?php
@@ -40,6 +42,13 @@
         <?php $this->displayComponent('accessdenied', ['location' => 'section']); ?>
         <?php return; ?>
     <?php } ?>
+    <?php $this->displayComponent("pagelist", [
+        'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('threads'),
+        'totalElements' => $numberOfThreads,
+        'visibleElements' => count($threads),
+        'totalPages' => (int)(($numberOfThreads / \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($numberOfThreads % \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) ? 1 : 0)),
+        'currentPage' => $currentPage
+    ]); ?>
 
     <table class="forum-category">
         <tr class="subcategory-title-row">
@@ -92,4 +101,12 @@
             <?php } ?>
         <?php } ?>
     </table>
+    <?php $this->displayComponent("pagelist", [
+        'elementsName' => \mpf\modules\forum\components\Translator::get()->translate('threads'),
+        'totalElements' => $numberOfThreads,
+        'visibleElements' => count($threads),
+        'totalPages' => (int)(($numberOfThreads / \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) + (($numberOfThreads % \mpf\modules\forum\components\Config::value('FORUM_THREADS_PER_PAGE')) ? 1 : 0)),
+        'currentPage' => $currentPage
+    ]); ?>
+
 </div>

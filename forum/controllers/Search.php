@@ -18,9 +18,12 @@ class Search extends Controller{
      * @param null|int[] $categorie
      * @param null|int[] $subcategorie
      * @param null|int[] $autor
+     * @param int $currentPage
      */
-    public function actionIndex($search, $categorie = null, $subcategorie = null, $autor = null){
-        $this->assign("threads", ForumThread::findAllByKeyWords($search, $this->sectionId, $categorie, $subcategorie, $autor));
+    public function actionIndex($search, $categorie = null, $subcategorie = null, $autor = null, $currentPage = 1){
+        $this->assign("threads", ForumThread::findAllByKeyWords($search, $this->sectionId, $categorie, $subcategorie, $autor, $currentPage));
+        $this->assign("currentPage", $currentPage);
+        $this->assign("numberOfThreads", ForumThread::countAllByKeyWords($search, $this->sectionId, $categorie, $subcategorie, $autor, $currentPage));
     }
 
     public function actionAdvanced(){

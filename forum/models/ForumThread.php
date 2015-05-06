@@ -123,9 +123,10 @@ class ForumThread extends DbModel {
      * @param int[] $categories
      * @param int[] $subcategories
      * @param int[] $authors
+     * @param int $page
      * @return array|static[]
      */
-    public static function findAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null) {
+    public static function countAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null, $page = 1) {
         if (!trim($text)) {
             return [];
         }
@@ -153,7 +154,50 @@ class ForumThread extends DbModel {
         if ($authors) {
             $condition->compareColumn("user_id", $authors);
         }
+        return self::count($condition);
+    }
 
+    /**
+     * Used on search page
+     * @param string $text
+     * @param int $section
+     * @param int[] $categories
+     * @param int[] $subcategories
+     * @param int[] $authors
+     * @param int $page
+     * @return array|static[]
+     */
+    public static function findAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null, $page = 1) {
+        if (!trim($text)) {
+            return [];
+        }
+        $words = explode(" ", $text);
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->with = ['lastActiveUser', 'owner', 'subcategory', 'category'];
+        $condition->join = "LEFT JOIN `forum_thread_tags` ON forum_thread_tags.thread_id = `t`.id";
+        $wordsList = [];
+        foreach ($words as $k=>$word){
+            if (!trim($word))
+                continue;
+            $condition->setParam(":word_$k", $word);
+            $wordsList[] = ":word_$k";
+        }
+        $words = implode(", ", $wordsList);
+        $condition->addCondition("`t`.`title` LIKE :searchConcat OR (`forum_thread_tags`.`word` IN ($words))");
+        $condition->setParam(":searchConcat", "%$text%");
+        $condition->compareColumn("section_id", $section);
+        if ($categories) {
+            $condition->compareColumn("category_id", $categories);
+        }
+        if ($subcategories) {
+            $condition->compareColumn("subcategory_id", $subcategories);
+        }
+        if ($authors) {
+            $condition->compareColumn("user_id", $authors);
+        }
+        $condition->limit = Config::value('FORUM_THREADS_PER_PAGE');
+        $condition->order = '`t`.`id` DESC';
+        $condition->offset = ($page - 1) * Config::value('FORUM_THREADS_PER_PAGE');
         return self::findAll($condition);
     }
 
