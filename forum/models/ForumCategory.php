@@ -106,9 +106,11 @@ class ForumCategory extends DbModel {
             $subcategories = self::getDb()->table('forum_userhiddensubcategories')->where("user_id = :user")->setParam(":user", WebApp::get()->user()->id)->get();
             $subcategories = ArrayHelper::get()->transform($subcategories, "subcategory_id");
             foreach ($categories as $category) {
-                foreach ($category->subcategories as $subcategory) {
-                    if (in_array($subcategory->id, $subcategories)){
-                        $subcategory->hidden = true;
+                if ($category->subcategories) {
+                    foreach ($category->subcategories as $subcategory) {
+                        if (in_array($subcategory->id, $subcategories)) {
+                            $subcategory->hidden = true;
+                        }
                     }
                 }
             }
