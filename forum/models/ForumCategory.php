@@ -190,6 +190,7 @@ class ForumCategory extends DbModel {
     }
 
     public function updateGroupRights() {
+        $allGroups = ForumUserGroup::findAllBySection($this->section_id);
         foreach ($this->groupRights as $groupId => $details) {
             $this->getDb()->table('forum_groups2categories')->insert([
                 'group_id' => $groupId,
@@ -206,6 +207,26 @@ class ForumCategory extends DbModel {
                 'threadreply' => (int)in_array('threadreply', $details),
                 'canread' => (int)in_array('canread', $details)
             ]);
+        }
+
+        foreach ($allGroups as $grp){
+            if (!isset($this->groupRights[$grp->id])){
+                $this->getDb()->table('forum_groups2categories')->insert([
+                    'group_id' => $grp->id,
+                    'category_id' => $this->id,
+                    'admin' => 0,
+                    'moderator' => 0,
+                    'newthread' => 0,
+                    'threadreply' => 0,
+                    'canread' => 0
+                ], [
+                    'admin' => 0,
+                    'moderator' => 0,
+                    'newthread' => 0,
+                    'threadreply' => 0,
+                    'canread' => 0
+                ]);
+            }
         }
     }
 }
