@@ -58,8 +58,8 @@
                 <th class="subcategory-activity-column">&nbsp</th>
                 <th class="subcategory-latest-post-column"><?= \mpf\modules\forum\components\Translator::get()->translate('Latest Post'); ?></th>
             </tr>
-            <?php foreach ($category->subcategories as $subcategory) { ?>
-                <tr class="subcategory-row <?= $subcategory->hidden?'hidden-subcategory':''; ?>">
+            <?php if ($category->subcategories) foreach ($category->subcategories as $subcategory) { ?>
+                <tr class="subcategory-row <?= $subcategory->hidden ? 'hidden-subcategory' : ''; ?>">
                     <td class="subcategory-title-column">
                         <?= \mpf\web\helpers\Html::get()->link(
                             $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]),
@@ -122,17 +122,20 @@
     </table>
     <div class="forum-section-footer">
         <div class="forum-section-actions">
-            <a href="#" onclick="return showHideHiddenSubcategories(this);"><?= \mpf\modules\forum\components\Translator::get()->translate("Show Hidden Subcategories"); ?></a>
+            <a href="#"
+               onclick="return showHideHiddenSubcategories(this);"><?= \mpf\modules\forum\components\Translator::get()->translate("Show Hidden Subcategories"); ?></a>
         </div>
         <div class="forum-section-jump-to-category">
             <select id="jump-to-category">
                 <option><?= \mpf\modules\forum\components\Translator::get()->translate("--jump to category--"); ?></option>
                 <?php foreach ($categories as $category) { ?>
-                    <optgroup label="<?= $category->name; ?>">
-                        <?php foreach ($category->subcategories as $subcategory) { ?>
-                            <option value="<?= $subcategory->id; ?>"><?= $subcategory->title; ?></option>
-                        <?php } ?>
-                    </optgroup>
+                    <?php if ($category->subcategories) { ?>
+                        <optgroup label="<?= $category->name; ?>">
+                            <?php foreach ($category->subcategories as $subcategory) { ?>
+                                <option value="<?= $subcategory->id; ?>"><?= $subcategory->title; ?></option>
+                            <?php } ?>
+                        </optgroup>
+                    <?php } ?>
                 <?php } ?>
             </select>
         </div>
@@ -143,13 +146,15 @@
     var Categories2URLs = [];
 
     <?php foreach ($categories as $category) { ?>
-        <?php foreach ($category->subcategories as $subcategory) { ?>
-            <?php $url = $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]); ?>
-            Categories2URLs[<?= $subcategory->id; ?>] = "<?= $this->getRequest()->createURL($url[0], $url[1], $url[2]); ?>";
-        <?php } ?>
+    <?php if ($category->subcategories) { ?>
+    <?php foreach ($category->subcategories as $subcategory) { ?>
+    <?php $url = $this->updateURLWithSection(['subcategory', 'index', ['category' => $category->url_friendly_name, 'subcategory' => $subcategory->url_friendly_title, 'id' => $subcategory->id]]); ?>
+    Categories2URLs[<?= $subcategory->id; ?>] = "<?= $this->getRequest()->createURL($url[0], $url[1], $url[2]); ?>";
+    <?php } ?>
+    <?php } ?>
     <?php } ?>
 
-    function showHideHiddenSubcategories(button){
+    function showHideHiddenSubcategories(button) {
         if ($('.forum-section').hasClass('forum-hide-hidden')) {
             $('.forum-section').removeClass('forum-hide-hidden');
             $(button).text('<?= \mpf\modules\forum\components\Translator::get()->translate("Hide Hidden Subcategories"); ?>');
@@ -161,8 +166,8 @@
         return false;
     }
 
-    $(document).ready(function(){
-        $('#jump-to-category').change(function(){
+    $(document).ready(function () {
+        $('#jump-to-category').change(function () {
             window.location = Categories2URLs[$(this).val()];
         });
     })
