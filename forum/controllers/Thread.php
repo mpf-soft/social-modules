@@ -113,7 +113,7 @@ class Thread extends Controller {
             $noneFound = false;
             $model = '\mpf\modules\forum\models\\' . $modelClass;
             $model = new $model();
-            /* @var $model \mpf\modules\forum\models\ForumReply */
+            /* @var $model \mpf\modules\forum\models\ForumReplyNth */
             $model->setAttributes($_POST[$modelClass]);
             $model->thread_id = $_POST['thread_id'];
             if ($_POST['parent']) {
