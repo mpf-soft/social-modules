@@ -46,12 +46,16 @@ use mpf\widgets\form\fields\ForumTextarea;
  * @property int $last_reply_id
  * @property int $last_reply_user_id
  * @property int $last_reply_level
+ * @property int $deleted
+ * @property string $deleted_time
+ * @property int $deleted_user_id
  * @property string $last_reply_date
  * @property \mpf\modules\forum\models\ForumSubcategory $subcategory
  * @property \mpf\modules\forum\models\ForumCategory $category
  * @property \app\models\User $owner
  * @property \app\models\User $editor
  * @property \app\models\User $lastActiveUser
+ * @property \app\models\User $deletedBy
  */
 class ForumThread extends DbModel {
 
@@ -103,7 +107,8 @@ class ForumThread extends DbModel {
             'category' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumCategory', 'category_id'],
             'owner' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'editor' => [DbRelations::BELONGS_TO, '\app\models\User', 'edit_user_id'],
-            'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_reply_user_id']
+            'lastActiveUser' => [DbRelations::BELONGS_TO, '\app\models\User', 'last_reply_user_id'],
+            'deletedBy' => [DbRelations::BELONGS_TO, '\app\models\User', 'deleted_user_id']
         ];
     }
 
@@ -137,7 +142,7 @@ class ForumThread extends DbModel {
         $condition->with = ['lastActiveUser', 'owner', 'subcategory', 'category'];
         $condition->join = "LEFT JOIN `forum_thread_tags` ON forum_thread_tags.thread_id = `t`.id";
         $wordsList = [];
-        foreach ($words as $k=>$word){
+        foreach ($words as $k => $word) {
             if (!trim($word))
                 continue;
             $condition->setParam(":word_$k", $word);
@@ -178,7 +183,7 @@ class ForumThread extends DbModel {
         $condition->with = ['lastActiveUser', 'owner', 'subcategory', 'category'];
         $condition->join = "LEFT JOIN `forum_thread_tags` ON forum_thread_tags.thread_id = `t`.id";
         $wordsList = [];
-        foreach ($words as $k=>$word){
+        foreach ($words as $k => $word) {
             if (!trim($word))
                 continue;
             $condition->setParam(":word_$k", $word);
@@ -212,6 +217,7 @@ class ForumThread extends DbModel {
     public static function findAllForSubcategory($subcategory, $page = 1) {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("subcategory_id", $subcategory);
+        $condition->compareColumn("deleted", 0);
         $condition->with = ['lastActiveUser', 'owner'];
         $condition->limit = Config::value('FORUM_THREADS_PER_PAGE');
         $condition->order = '`t`.`order` ASC, `t`.`id` DESC';
@@ -219,10 +225,17 @@ class ForumThread extends DbModel {
         return self::findAll($condition);
     }
 
+    /**
+     * @param $userId
+     * @param $sectionId
+     * @param int $page
+     * @return static[]
+     */
     public static function findAllByUser($userId, $sectionId, $page = 1) {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("user_id", $userId);
         $condition->compareColumn("section_id", $sectionId);
+        $condition->compareColumn("deleted", 0);
         $condition->with = ['lastActiveUser', 'owner'];
         $condition->limit = Config::value('FORUM_THREADS_PER_PAGE');
         $condition->order = '`t`.`id` DESC';
@@ -231,13 +244,16 @@ class ForumThread extends DbModel {
     }
 
     /**
-     * @param int $section
+     * @param $section
+     * @param int $limit
+     * @param int $offset
      * @return static[]
      */
     public static function findRecent($section, $limit = 20, $offset = 0) {
         $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
         $condition->with = ['category'];
         $condition->compareColumn("category.section_id", $section);
+        $condition->compareColumn("deleted", 0);
         $condition->fields = ['t.id'];
         $ids = ArrayHelper::get()->transform(ForumSubcategory::findAll($condition), 'id');
         $condition = new ModelCondition(['model' => __CLASS__]);
@@ -278,7 +294,7 @@ class ForumThread extends DbModel {
         $subcategory->last_activity_time = date('Y-m-d H:i:s');
         $subcategory->last_active_user_id = $this->user_id;
         $subcategory->last_activity = 'create';
-        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
+        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id, 'deleted' => 0]);
         return $subcategory->save();
     }
 
@@ -337,7 +353,7 @@ class ForumThread extends DbModel {
             return $this->_canEdit = false;
         }
 
-        if (($this->closed && !($moderator = UserAccess::get()->isCategoryModerator($categoryId, $sectionId))) || UserAccess::get()->isMuted($sectionId)) {
+        if ((($this->closed || $this->deleted) && !($moderator = UserAccess::get()->isCategoryModerator($categoryId, $sectionId))) || UserAccess::get()->isMuted($sectionId)) {
             return $this->_canEdit = false;
         }
 
@@ -363,7 +379,7 @@ class ForumThread extends DbModel {
         }
     }
 
-    public function afterMove($oldSub) {
+    public function afterMove($oldSub, $threadURL) {
         if ($oldSub == $this->subcategory_id)
             return; // same sub;
         $subcategory = ForumSubcategory::findByPk($oldSub);
@@ -372,6 +388,13 @@ class ForumThread extends DbModel {
         $subcategory = ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
         $subcategory->save();
+        if (WebApp::get()->user()->id != $this->user_id) {
+            ModelHelper::notifyUser('thread.moved', $threadURL, [
+                "admin" => WebApp::get()->user()->name,
+                "title" => $this->title,
+                "newCategory" => $subcategory->category->name . Config::value('FORUM_PAGE_TITLE_SEPARATOR') . $subcategory->title
+            ], $this->user_id);
+        }
     }
 
     public function getAuthorIcon() {
@@ -440,20 +463,21 @@ class ForumThread extends DbModel {
         ModelHelper::unsubscribe("thread.replies.{$this->id}");
     }
 
-    public function newNotification($sectionId, $action = 'newReply'){
+    public function newNotification($sectionId, $action = 'newReply') {
         $params = ['id' => $this->id, 'subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name];
         if ($sectionId && 'get' == Config::value('FORUM_SECTION_ID_SOURCE')) {
             $params[Config::value('FORUM_SECTION_ID_KEY')] = $sectionId;
         }
-        $url= ['thread', 'index', $params, WebApp::get()->request()->getModule()];
+        $url = ['thread', 'index', $params, WebApp::get()->request()->getModule()];
         $actions = [
             'newReply' => Translator::get()->translate('posted a new reply'),
-            'editReply'=> Translator::get()->translate('edited a reply'),
-            'editThread'=> Translator::get()->translate("edited the thread")
+            'editReply' => Translator::get()->translate('edited a reply'),
+            'editThread' => Translator::get()->translate("edited the thread")
         ];
         ModelHelper::notifySubscribers("thread.replies.{$this->id}", $url, [
             'threadTitle' => $this->title,
-            'action' => $actions[$action]
+            'action' => $actions[$action],
+            'userName' => WebApp::get()->user()->name
         ]);
 
     }

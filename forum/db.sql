@@ -293,6 +293,11 @@ CREATE TABLE `forum_threads` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+ALTER TABLE `forum_threads`
+ADD `deleted` tinyint unsigned NOT NULL,
+ADD `deleted_time` timestamp NULL AFTER `deleted`,
+ADD `deleted_user_id` int unsigned NOT NULL AFTER `deleted_time`;
+
 
 DROP TABLE IF EXISTS `forum_thread_tags`;
 CREATE TABLE `forum_thread_tags` (

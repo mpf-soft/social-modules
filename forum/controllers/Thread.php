@@ -247,6 +247,21 @@ class Thread extends Controller {
         $this->assign("model", $reply);
     }
 
+    public function deleteThread(){
+        $thread = ForumThread::findByPk($_POST['id']);
+        if (!$thread->canEdit()){
+            $this->goToPage('special', 'accessDenied');
+            return false;
+        }
+        $thread->deleted = 1;
+        $thread->deleted_time = date('Y-m-d H:i:s');
+        $thread->deleted_user_id = WebApp::get()->user()->id;
+        $thread->save();
+        Messages::get()->success("Thread deleted!");
+        $this->goBack();
+
+    }
+
     public function actionDeleteReply() {
         $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
         $modelClass = $models[$_POST['level']];
@@ -260,6 +275,8 @@ class Thread extends Controller {
             return false;
         }
         $reply->deleted = 1;
+        $reply->deleted_time = date('Y-m-d H:i:s');
+        $reply->deleted_user_id = WebApp::get()->user()->id;
         $reply->save();
         Messages::get()->success("Reply deleted!");
         $this->goBack();
@@ -275,7 +292,7 @@ class Thread extends Controller {
             $old = $thread->subcategory_id;
             $thread->setAttributes($_POST['ForumThread']);
             if ($thread->save()) {
-                $thread->afterMove($old);
+                $thread->afterMove($old, $this->updateURLWithSection(['thread', 'index', ['id' => $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name], $this->request->getModule()]));
                 $this->goToAction('index', ['id' => $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
         }
