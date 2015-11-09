@@ -133,4 +133,16 @@ class Config extends Object {
      */
     public $FORUM_VOTE_DISAGREE_ICON = '{WEB_ROOT}forum/vote-icons/opinion-disagree.png';
 
+    /**
+     * Prefix to be added to subscription names;
+     * @var string
+     */
+    public $FORUM_NOTIFICATIONS_SUBSCRIPTIONS_PREFIX = 'MPF.SocialModules.Forum.';
+
+    /**
+     * Prefix to be added to type names;
+     * @var string
+     */
+    public $FORUM_NOTIFICATIONS_TYPES_PREFIX  = 'MPF.SocialModules.Forum.';
+
 }

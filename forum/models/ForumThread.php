@@ -10,6 +10,8 @@ namespace mpf\modules\forum\models;
 use app\models\PageTag;
 use mpf\helpers\ArrayHelper;
 use mpf\modules\forum\components\Config;
+use mpf\modules\forum\components\ModelHelper;
+use mpf\modules\forum\components\Translator;
 use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
@@ -424,6 +426,7 @@ class ForumThread extends DbModel {
             'user_id' => WebApp::get()->user()->id,
             'thread_id' => $this->id
         ], 'ignore');
+        ModelHelper::subscribe("thread.replies.{$this->id}");
     }
 
     /**
@@ -434,5 +437,24 @@ class ForumThread extends DbModel {
             ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
             ->delete();
         $this->_subscribed = false;
+        ModelHelper::unsubscribe("thread.replies.{$this->id}");
+    }
+
+    public function newNotification($sectionId, $action = 'newReply'){
+        $params = ['id' => $this->id, 'subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name];
+        if ($sectionId && 'get' == Config::value('FORUM_SECTION_ID_SOURCE')) {
+            $params[Config::value('FORUM_SECTION_ID_KEY')] = $sectionId;
+        }
+        $url= ['thread', 'index', $params, WebApp::get()->request()->getModule()];
+        $actions = [
+            'newReply' => Translator::get()->translate('posted a new reply'),
+            'editReply'=> Translator::get()->translate('edited a reply'),
+            'editThread'=> Translator::get()->translate("edited the thread")
+        ];
+        ModelHelper::notifySubscribers("thread.replies.{$this->id}", $url, [
+            'threadTitle' => $this->title,
+            'action' => $actions[$action]
+        ]);
+
     }
 }

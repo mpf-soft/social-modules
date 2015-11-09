@@ -12,6 +12,7 @@ namespace mpf\modules\forum\controllers;
 use app\components\htmltools\Messages;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Controller;
+use mpf\modules\forum\components\ModelHelper;
 use mpf\modules\forum\components\Translator;
 use mpf\modules\forum\components\UserAccess;
 use mpf\modules\forum\models\ForumReply;
@@ -135,6 +136,7 @@ class Thread extends Controller {
             }
             if ($model->saveReply($thread->subcategory->category->section_id, $_POST['level'])) {
                 Messages::get()->success("Reply saved!");
+                $thread->newNotification($this->sectionId, 'new');
                 $this->goToAction('index', ['id' => $model->thread_id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
             $this->assign("model", $model);
@@ -213,6 +215,7 @@ class Thread extends Controller {
             $thread->edit_time = date('Y-m-d H:i:s');
             $thread->edit_user_id = WebApp::get()->user()->id;
             if ($thread->save()) {
+                $thread->newNotification($this->sectionId, 'editThread');
                 $this->goToAction('index', ['id' => $thread->id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
         }
@@ -224,7 +227,7 @@ class Thread extends Controller {
         $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
         $modelClass = $models[$level];
         $reply = "\\mpf\\modules\\forum\\models\\" . $modelClass;
-        $reply = $reply::findByPk($id);
+        $reply = $reply::findByPk($id); /* @var $reply \mpf\modules\forum\models\ForumReply */
         if (!$reply) {
             $this->goBack();
         }
@@ -234,6 +237,7 @@ class Thread extends Controller {
         }
         if (isset($_POST[$modelClass])) {
             if ($reply->updateReply($_POST[$modelClass]['content'])) {
+                $reply->thread->newNotification($this->sectionId, 'editReply');
                 Messages::get()->success("Reply updated!");
                 $this->goToAction('index', ['id' => $reply->thread_id,
                     'subcategory' => $reply->thread->subcategory->url_friendly_title,

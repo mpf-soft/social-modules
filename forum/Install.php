@@ -11,6 +11,7 @@ namespace mpf\modules\forum;
 
 class Install {
     public static function install(){
-
+        // create db;
+        // create notification types;
     }
 }
