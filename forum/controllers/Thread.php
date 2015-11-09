@@ -149,6 +149,17 @@ class Thread extends Controller {
 
     public function actionIndex($id, $page = 1) {
         $thread = ForumThread::findByPk($id, ['with' => ['subcategory', 'subcategory.category', 'owner']]);
+        if (!$thread){
+            $this->goToPage("special", "notFound");
+            return false;
+        }
+        if ($thread->deleted && (!$thread->canEdit())){
+            Messages::get()->error("Thread deleted!");
+            $this->goBack();
+            return false;
+        } elseif ($thread->deleted){
+            Messages::get()->info("This Thread is DELETED!");
+        }
         ForumReply::$currentSection = 0;
         if ($thread->subcategory->category->section_id != $this->sectionId) {
             $this->goToPage("special", "notFound");
