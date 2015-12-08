@@ -289,6 +289,7 @@ class ForumThread extends DbModel {
      * @return bool
      */
     public function publishNew(ForumSubcategory $subcategory = null) {
+        ModelHelper::createSubscription("thread.replies.{$this->id}", "thread");
         $this->subscribe();
         $subcategory = $subcategory ?: ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->last_active_thread_id = $this->id;
