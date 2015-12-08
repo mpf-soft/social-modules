@@ -145,4 +145,16 @@ class Config extends Object {
      */
     public $FORUM_NOTIFICATIONS_TYPES_PREFIX  = 'MPF.SocialModules.Forum.';
 
+    /**
+     * If you need to parse the text before displaying then set a parser here that will be used instead of the default one
+     * @var callback
+     */
+    public $FORUM_TEXT_PARSER_CALLBACK;
+
+    /**
+     * Name of the class used as input. Default is Markdown
+     * @var string
+     */
+    public $FORUM_REPLY_INPUT_TYPE = 'Markdown';
+
 }

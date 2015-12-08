@@ -21,6 +21,7 @@ use mpf\web\helpers\Html;
 use mpf\web\Session;
 use mpf\WebApp;
 use mpf\widgets\form\fields\ForumTextarea;
+use mpf\widgets\form\fields\Markdown;
 
 /**
  * Class ForumThread
@@ -324,10 +325,13 @@ class ForumThread extends DbModel {
     }
 
     public function getContent() {
-        return nl2br(ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
-            'linkRoot' => WebApp::get()->request()->getLinkRoot(),
-            'webRoot' => WebApp::get()->request()->getWebRoot()
-        ])) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
+        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))){
+            $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->content);
+        } else {
+            $text = Markdown::processText(htmlentities($this->content));
+        }
+        return  $text .
+        Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }

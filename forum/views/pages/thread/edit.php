@@ -21,8 +21,7 @@
             'title',
             [
                 'name' => 'content',
-                'type' => 'forumTextarea',
-                'tags' => \app\models\PageTag::getTagHints(true),
+                'type' => \mpf\modules\forum\components\Config::value("FORUM_REPLY_INPUT_TYPE"),
                 'htmlOptions' => ['style' => 'min-height: 250px;']
             ],
             [

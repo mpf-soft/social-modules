@@ -19,6 +19,7 @@ use mpf\datasources\sql\ModelCondition;
 use mpf\web\helpers\Html;
 use mpf\WebApp;
 use mpf\widgets\form\fields\ForumTextarea;
+use mpf\widgets\form\fields\Markdown;
 
 /**
  * Class ForumReply
@@ -93,7 +94,7 @@ class ForumReply extends DbModel {
             'deletedBy' => [DbRelations::BELONGS_TO, '\app\models\User', 'deleted_user_id'],
             'authorGroup' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumUserGroup', 'user_group_id'],
             'replies' => [DbRelations::HAS_MANY, '\mpf\modules\forum\models\ForumReplySecond', 'reply_id'],
-            'myVote' => DbRelation::hasOne(ForumReplyVote::className())->columnsEqual('id', 'reply_id')->hasValue('level', 1)->hasValue('user_id', WebApp::get()->user()->isConnected()?WebApp::get()->user()->id:0)
+            'myVote' => DbRelation::hasOne(ForumReplyVote::className())->columnsEqual('id', 'reply_id')->hasValue('level', 1)->hasValue('user_id', WebApp::get()->user()->isConnected() ? WebApp::get()->user()->id : 0)
         ];
     }
 
@@ -112,7 +113,7 @@ class ForumReply extends DbModel {
     public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $with = [];
-        for ($i = 0; $i <= Config::value('FORUM_MAX_REPLY_LEVELS'); $i++){
+        for ($i = 0; $i <= Config::value('FORUM_MAX_REPLY_LEVELS'); $i++) {
             foreach (['author', 'editor', 'authorGroup', 'sectionAuthor', 'sectionAuthor.title', 'replies', 'myVote'] as $child) {
                 $with[] = str_repeat('replies.', $i) . $child;
             }
@@ -155,29 +156,32 @@ class ForumReply extends DbModel {
      * Get total number of replies for this;
      * @return int
      */
-    public function getNumberOfReplies(){
-        if (!is_null($this->_numberOfReplies)){
+    public function getNumberOfReplies() {
+        if (!is_null($this->_numberOfReplies)) {
             return $this->_numberOfReplies;
         }
         return $this->_numberOfReplies = self::countByAttributes(['reply_id' => $this->id]);
     }
 
-    public function getRepliesPaged(){
+    public function getRepliesPaged() {
 
     }
 
     public function getContent() {
         if ($this->deleted) {
-            if ($this->deleted_user_id != $this->user_id){
+            if ($this->deleted_user_id != $this->user_id) {
                 return Html::get()->tag("div", Translator::get()->translate("[DELETED BY MODERATOR]"), ['class' => "forum-reply-deleted-message"]);
             } else {
                 return Html::get()->tag("div", Translator::get()->translate("[DELETED]"), ['class' => "forum-reply-deleted-message"]);
             }
         }
-        return nl2br(ForumTextarea::parseText($this->content, PageTag::getTagRules(), [
-            'linkRoot' => WebApp::get()->request()->getLinkRoot(),
-            'webRoot' => WebApp::get()->request()->getWebRoot()
-        ])) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
+        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))){
+            $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->content);
+        } else {
+            $text = Markdown::processText(htmlentities($this->content));
+        }
+        return  $text .
+        Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
@@ -206,7 +210,7 @@ class ForumReply extends DbModel {
             + ForumReplySeventh::countByAttributes(['thread_id' => $this->thread_id])
             + ForumReplyEighth::countByAttributes(['thread_id' => $this->thread_id])
             + ForumReplyNth::countByAttributes(['thread_id' => $this->thread_id]);
-        $thread->first_level_replies =  $firstLevelReplies;
+        $thread->first_level_replies = $firstLevelReplies;
         $thread->last_reply_id = $this->id;
         $thread->last_reply_user_id = $this->user_id;
         $thread->last_reply_level = $level;
@@ -250,7 +254,7 @@ class ForumReply extends DbModel {
     public function canEdit($categoryId = null, $sectionId = null, ForumThread $thread = null) {
         if ($this->deleted)
             return false;
-        $thread = $thread?:$this->thread;
+        $thread = $thread ?: $this->thread;
         $categoryId = $categoryId ?: $thread->subcategory->category_id;
         $sectionId = !is_null($sectionId) ? $sectionId : $thread->subcategory->category->section_id;
         if (WebApp::get()->user()->isGuest()) { //added a fix for guests;
@@ -278,11 +282,11 @@ class ForumReply extends DbModel {
      * Check my vote status for selected reply
      * @return bool|string
      */
-    public function getMyVote(){
-        if (!$this->myVote || !$this->myVote->user_id){ //until empty loaded is fix I check for user_id also
+    public function getMyVote() {
+        if (!$this->myVote || !$this->myVote->user_id) { //until empty loaded is fix I check for user_id also
             return false;
         }
-        if ($this->myVote->vote == 0){
+        if ($this->myVote->vote == 0) {
             return "negative";
         } elseif ($this->myVote->vote == 1) {
             return "positive";
