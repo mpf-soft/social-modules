@@ -290,13 +290,11 @@ CREATE TABLE `forum_threads` (
   `last_reply_user_id` int(10) unsigned DEFAULT NULL,
   `last_reply_level` int(10) unsigned DEFAULT NULL,
   `last_reply_date` timestamp NULL DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_time` timestamp NULL DEFAULT NULL,
+  `deleted_user_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-ALTER TABLE `forum_threads`
-ADD `deleted` tinyint unsigned NOT NULL,
-ADD `deleted_time` timestamp NULL AFTER `deleted`,
-ADD `deleted_user_id` int unsigned NOT NULL AFTER `deleted_time`;
 
 
 DROP TABLE IF EXISTS `forum_thread_tags`;
