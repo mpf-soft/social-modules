@@ -258,7 +258,7 @@ class Thread extends Controller {
         $this->assign("model", $reply);
     }
 
-    public function deleteThread(){
+    public function actionDeleteThread(){
         $thread = ForumThread::findByPk($_POST['id']);
         if (!$thread->canEdit()){
             $this->goToPage('special', 'accessDenied');
