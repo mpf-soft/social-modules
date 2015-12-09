@@ -16,6 +16,10 @@ use mpf\WebApp;
 
 class User extends Controller{
 
+    public function actionLogin(){
+        WebApp::get()->request()->goToURL(WebApp::get()->request()->createURL("home", "index", [], ""));
+    }
+
     public function actionIndex($id, $currentPage = 1){
         $this->assign('user', ForumUser2Section::findByAttributes(['user_id' => $id, 'section_id' => $this->sectionId]));
         $this->assign("threads", ForumThread::findAllByUser($id, $this->sectionId, $currentPage));
