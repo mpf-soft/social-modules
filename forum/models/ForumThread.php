@@ -296,8 +296,7 @@ class ForumThread extends DbModel {
         $subcategory->last_activity_time = date('Y-m-d H:i:s');
         $subcategory->last_active_user_id = $this->user_id;
         $subcategory->last_activity = 'create';
-        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id, 'deleted' => 0]);
-        return $subcategory->save();
+        return $subcategory->recalculateNumbers()->save();
     }
 
     public function getStatus() {
@@ -326,12 +325,12 @@ class ForumThread extends DbModel {
     }
 
     public function getContent() {
-        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))){
+        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))) {
             $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->content);
         } else {
             $text = Markdown::processText(htmlentities($this->content));
         }
-        return  $text .
+        return $text .
         Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
@@ -387,12 +386,8 @@ class ForumThread extends DbModel {
     public function afterMove($oldSub, $threadURL) {
         if ($oldSub == $this->subcategory_id)
             return; // same sub;
-        $subcategory = ForumSubcategory::findByPk($oldSub);
-        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
-        $subcategory->save();
-        $subcategory = ForumSubcategory::findByPk($this->subcategory_id);
-        $subcategory->number_of_threads = ForumThread::countByAttributes(['subcategory_id' => $subcategory->id]);
-        $subcategory->save();
+        ForumSubcategory::findByPk($oldSub)->recalculateNumbers()->save();
+        ForumSubcategory::findByPk($this->subcategory_id)->recalculateNumbers()->save();
         if (WebApp::get()->user()->id != $this->user_id) {
             ModelHelper::notifyUser('thread.moved', $threadURL, [
                 "admin" => WebApp::get()->user()->name,

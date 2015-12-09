@@ -268,6 +268,11 @@ class Thread extends Controller {
         $thread->deleted_time = date('Y-m-d H:i:s');
         $thread->deleted_user_id = WebApp::get()->user()->id;
         $thread->save();
+        if ($thread->subcategory->last_active_thread_id == $thread->id){
+            $thread->subcategory->checkLastActivity();
+
+        }
+        $thread->subcategory->recalculateNumbers()->save();
         Messages::get()->success("Thread deleted!");
         $this->goBack();
 

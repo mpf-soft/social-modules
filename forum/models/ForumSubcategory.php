@@ -173,4 +173,43 @@ class ForumSubcategory extends DbModel {
         }
     }
 
+    /**
+     * @return $this
+     */
+    public function recalculateNumbers(){
+        $this->number_of_threads = ForumThread::countByAttributes(['subcategory_id'=>$this->id, 'deleted' => 0]);
+        $replies = $this->_db->table(ForumThread::getTableName())
+            ->compare(['subcategory_id'=>$this->id, 'deleted' => 0])
+            ->fields("SUM(replies) as number")->get();
+        $this->number_of_replies = $replies[0]['number'];
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function checkLastActivity(){
+        $thread = ForumThread::findByAttributes(['subcategory_id'=>$this->id, 'deleted' => 0], ['order' => 'MAX(last_reply_date, create_time, edit_time) DESC']);
+        if (!$thread){
+            $this->last_active_thread_id = 0;
+            $this->last_active_user_id = 0;
+            $this->last_activity_time = null;
+            return $this;
+        }
+        $this->last_active_thread_id = $thread->id;
+        if ($thread->last_reply_date >= max($thread->create_time, $thread->edit_time)){
+            $this->last_activity = 'reply';
+            $this->last_active_user_id = $thread->last_reply_user_id;
+        } elseif ($thread->edit_time >= max($thread->create_time, $thread->last_reply_date)){
+            $this->last_activity = 'edit';
+            $this->last_active_user_id = $thread->edit_user_id;
+        } else {
+            $this->last_activity = 'create';
+            $this->last_active_user_id = $thread->user_id;
+        }
+        $this->last_activity_time = max($thread->create_time, $thread->edit_time, $thread->last_reply_date);
+
+        return $this;
+    }
+
 }
