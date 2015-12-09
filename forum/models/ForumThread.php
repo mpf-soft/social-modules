@@ -392,7 +392,7 @@ class ForumThread extends DbModel {
             ModelHelper::notifyUser('thread.moved', $threadURL, [
                 "admin" => WebApp::get()->user()->name,
                 "title" => $this->title,
-                "newCategory" => $subcategory->category->name . Config::value('FORUM_PAGE_TITLE_SEPARATOR') . $subcategory->title
+                "newCategory" => $this->subcategory->category->name . Config::value('FORUM_PAGE_TITLE_SEPARATOR') . $this->subcategory->title
             ], $this->user_id);
         }
     }
