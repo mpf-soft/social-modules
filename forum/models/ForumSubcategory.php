@@ -189,7 +189,10 @@ class ForumSubcategory extends DbModel {
      * @return $this
      */
     public function checkLastActivity(){
-        $thread = ForumThread::findByAttributes(['subcategory_id'=>$this->id, 'deleted' => 0], ['order' => 'MAX(last_reply_date, create_time, edit_time) DESC']);
+        $thread = ForumThread::findByAttributes(['subcategory_id'=>$this->id, 'deleted' => 0], [
+            'order' => 'IF(last_reply_date > create_time & last_reply_date > edit_time, last_reply_date,
+            (IF(edit_time > create_time & edit_time > last_reply_date, edit_time, create_time))) DESC'
+        ]);
         if (!$thread){
             $this->last_active_thread_id = 0;
             $this->last_active_user_id = 0;
@@ -208,7 +211,6 @@ class ForumSubcategory extends DbModel {
             $this->last_active_user_id = $thread->user_id;
         }
         $this->last_activity_time = max($thread->create_time, $thread->edit_time, $thread->last_reply_date);
-
         return $this;
     }
 

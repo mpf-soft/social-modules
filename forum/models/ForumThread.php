@@ -386,8 +386,12 @@ class ForumThread extends DbModel {
     public function afterMove($oldSub, $threadURL) {
         if ($oldSub == $this->subcategory_id)
             return; // same sub;
-        ForumSubcategory::findByPk($oldSub)->recalculateNumbers()->save();
-        ForumSubcategory::findByPk($this->subcategory_id)->recalculateNumbers()->save();
+        $sub = ForumSubcategory::findByPk($oldSub);
+        if ($sub->last_active_thread_id = $this->id){
+            $sub->checkLastActivity();
+        }
+        $sub->recalculateNumbers()->save();
+        ForumSubcategory::findByPk($this->subcategory_id)->checkLastActivity()->recalculateNumbers()->save();
         if (WebApp::get()->user()->id != $this->user_id) {
             ModelHelper::notifyUser('thread.moved', $threadURL, [
                 "admin" => WebApp::get()->user()->name,

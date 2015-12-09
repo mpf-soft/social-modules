@@ -18,6 +18,7 @@ use mpf\helpers\FileHelper;
 use mpf\web\helpers\Html;
 use mpf\WebApp;
 use mpf\widgets\form\fields\ForumTextarea;
+use mpf\widgets\form\fields\Markdown;
 
 /**
  * Class ForumUser2Section
@@ -164,11 +165,19 @@ class ForumUser2Section extends DbModel {
         return $user->save();
     }
 
+    /**
+     * @return string
+     */
     public function getSignature() {
-        return ForumTextarea::parseText($this->signature, PageTag::getTagRules(), [
-            'linkRoot' => WebApp::get()->request()->getLinkRoot(),
-            'webRoot' => WebApp::get()->request()->getWebRoot()
-        ]) . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
+        if (!$this->signature){
+            return "";
+        }
+        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))){
+            $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->signature);
+        } else {
+            $text = Markdown::processText(htmlentities($this->signature));
+        }
+        return $text . Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
 
