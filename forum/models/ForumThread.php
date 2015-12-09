@@ -254,7 +254,6 @@ class ForumThread extends DbModel {
         $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
         $condition->with = ['category'];
         $condition->compareColumn("category.section_id", $section);
-        $condition->compareColumn("deleted", 0);
         $condition->fields = ['t.id'];
         $ids = ArrayHelper::get()->transform(ForumSubcategory::findAll($condition), 'id');
         $condition = new ModelCondition(['model' => __CLASS__]);
