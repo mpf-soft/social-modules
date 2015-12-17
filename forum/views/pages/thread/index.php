@@ -299,12 +299,14 @@
     $(document).ready(function () {
         $('.reply-to-existing-reply').each(function () {
             var className = $(this).attr('href').substring(11);
-            $(this).click(function () {
+            $(this).click(function (e) {
                 $('.forum-subreply-' + className).show();
                 var _self = $('.forum-subreply-' + className, this.parentNode.parentNode);
                 setTimeout(function () {
                     $('textarea', _self).focus();
                 }, 200);
+                e.preventDefault();
+                return false;
             });
         });
     });
