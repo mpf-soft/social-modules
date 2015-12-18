@@ -136,7 +136,7 @@ class Thread extends Controller {
             }
             if ($model->saveReply($thread->subcategory->category->section_id, $_POST['level'])) {
                 Messages::get()->success("Reply saved!");
-                $thread->newNotification($this->sectionId, 'new');
+                $thread->newNotification($this->sectionId, 'newReply');
                 $this->goToAction('index', ['id' => $model->thread_id, 'subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->subcategory->category->url_friendly_name]);
             }
             $this->assign("model", $model);
