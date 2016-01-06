@@ -24,7 +24,7 @@
     [
         'url' => $this->updateURLWithSection(['manage', 'newSubcategory']),
         'label' => 'New Subcategory',
-        'htmlOptions' => ['class' => 'selected']
+        'htmlOptions' => $model->isNewRecord()?['class' => 'selected']:[]
     ]
 ]); ?>
 <?= \mpf\widgets\form\Form::get([
@@ -39,12 +39,12 @@
         [
             'name' => 'category_id',
             'type' => 'select',
-            'options' => \mpf\helpers\ArrayHelper::get()->transform(\mpf\modules\forum\models\ForumCategory::findAllBySection($this->sectionId), ['id' => 'name']),
-            [
-                'name' => 'icon',
-                'type' => 'image',
-                'urlPrefix' => $this->getUploadUrl() . 'subcategories/'
-            ]
+            'options' => \mpf\helpers\ArrayHelper::get()->transform(\mpf\modules\forum\models\ForumCategory::findAllBySection($this->sectionId), ['id' => 'name'])
+        ],
+        [
+            'name' => 'icon',
+            'type' => 'image',
+            'urlPrefix' => $this->getUploadUrl() . 'subcategories/'
         ]
     ]
 ])->display(); ?>
