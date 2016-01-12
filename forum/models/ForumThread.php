@@ -394,7 +394,9 @@ class ForumThread extends DbModel {
         if (WebApp::get()->user()->id != $this->user_id) {
             ModelHelper::notifyUser('thread.moved', $threadURL, [
                 "admin" => WebApp::get()->user()->name,
+                'adminId' => WebApp::get()->user()->id,
                 "title" => $this->title,
+                "threadId" => $this->id,
                 "newCategory" => $this->subcategory->category->name . Config::value('FORUM_PAGE_TITLE_SEPARATOR') . $this->subcategory->title
             ], $this->user_id);
         }
@@ -480,7 +482,9 @@ class ForumThread extends DbModel {
         ModelHelper::notifySubscribers("thread.replies.{$this->id}", $url, [
             'threadTitle' => $this->title,
             'action' => $actions[$action],
-            'userName' => WebApp::get()->user()->name
+            'threadId' => $this->id,
+            'userName' => WebApp::get()->user()->name,
+            'userId' => WebApp::get()->user()->id
         ]);
 
     }
