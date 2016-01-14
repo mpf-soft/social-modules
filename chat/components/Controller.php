@@ -11,4 +11,6 @@ namespace mpf\modules\chat\components;
 
 class Controller extends \app\components\Controller{
 
+    public $showLayout = false;
+
 }
