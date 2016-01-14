@@ -13,4 +13,10 @@ use mpf\modules\chat\components\Controller;
 
 class Home extends Controller{
 
+    public $showLayout = false;
+
+    public function actionIndex(){
+
+    }
+
 }
