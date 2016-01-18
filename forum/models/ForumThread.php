@@ -7,7 +7,6 @@
 
 namespace mpf\modules\forum\models;
 
-use app\models\PageTag;
 use mpf\helpers\ArrayHelper;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\ModelHelper;
@@ -20,7 +19,6 @@ use mpf\datasources\sql\ModelCondition;
 use mpf\web\helpers\Html;
 use mpf\web\Session;
 use mpf\WebApp;
-use mpf\widgets\form\fields\ForumTextarea;
 use mpf\widgets\form\fields\Markdown;
 
 /**

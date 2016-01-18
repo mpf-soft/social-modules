@@ -44,8 +44,7 @@
         'fields' => \mpf\modules\forum\components\Config::value('FORUM_HANDLE_USER_ICON')?[
             [
                 'name' => 'signature',
-                'type' => 'forumTextarea',
-                'tags' => \app\models\PageTag::getTagHints(true),
+                'type' => 'markdown',
                 'htmlOptions' => ['style' => 'min-height: 200px;']
             ],
             [
@@ -56,8 +55,7 @@
         ]:[
             [
                 'name' => 'signature',
-                'type' => 'forumTextarea',
-                'tags' => \app\models\PageTag::getTagHints(true),
+                'type' => 'markdown',
                 'htmlOptions' => ['style' => 'min-height: 200px;']
             ]
         ]
