@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: mirel
- * Date: 06.05.2015
- * Time: 09:15
+ * Date: 19.01.2016
+ * Time: 14:23
  */
 
 namespace mpf\modules\blog\controllers;
@@ -11,18 +11,21 @@ namespace mpf\modules\blog\controllers;
 
 use mpf\modules\blog\components\Controller;
 
-class Home extends Controller{
+class Articles extends Controller{
 
     public function actionIndex(){
 
     }
 
-    public function actionCategory($id){
+    public function actionAdd(){
 
     }
 
-    public function actionRead(){
+    public function actionEdit($id){
 
     }
 
+    public function actionDelete(){
+
+    }
 }
