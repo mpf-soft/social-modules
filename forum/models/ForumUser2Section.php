@@ -193,6 +193,9 @@ class ForumUser2Section extends DbModel {
         if (!isset($_FILES['icon']) || !$_FILES['icon']['tmp_name']){
             return null;
         }
+        if (!FileHelper::get()->isImage($_FILES['icon']['tmp_name'])){
+            return false;
+        }
         if ($this->iconUploadHandle){
             $function = $this->iconUploadHandle;
             return $function('icon');
