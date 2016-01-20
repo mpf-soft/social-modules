@@ -257,7 +257,7 @@ class ForumThread extends DbModel {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->with = ['category', 'subcategory', 'lastActiveUser', 'owner'];
         $condition->addInCondition('subcategory_id', $ids);
-        $condition->order = "id DESC";
+        $condition->order = "t.id DESC";
         $condition->limit = $limit;
         $condition->offset = $offset;
         return self::findAll($condition);
