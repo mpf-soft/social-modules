@@ -37,7 +37,7 @@
     ];
     ?>
 <?php } ?>
-<?= \app\components\htmltools\Page::get()->title("Forum", $menu); ?>
+<?= \app\components\htmltools\Page::get()->title($this->forumTitle, $menu); ?>
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('searchbar'); ?>
     <?php $this->displayComponent('topuserpanel'); ?>

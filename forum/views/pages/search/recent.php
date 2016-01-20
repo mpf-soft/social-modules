@@ -26,7 +26,7 @@
     ?>
 <?php } ?>
 <?= \app\components\htmltools\Page::get()->title(
-    \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home']), \mpf\modules\forum\components\Translator::get()->translate("Forum"))
+    \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home']), \mpf\modules\forum\components\Translator::get()->translate($this->forumTitle))
     . " " . \mpf\modules\forum\components\Config::value("FORUM_PAGE_TITLE_SEPARATOR") . " Recent Threads", $menu); ?>
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('searchbar'); ?>

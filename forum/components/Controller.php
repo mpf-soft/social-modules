@@ -42,6 +42,11 @@ class Controller extends \app\components\Controller {
      */
     public $sectionId = 0;
 
+    /**
+     * @var string
+     */
+    public $forumTitle = "__SECTION__Forum";
+
     public function getUploadFolder(){
         return Config::value('FORUM_UPLOAD_LOCATION');
     }
@@ -109,6 +114,7 @@ class Controller extends \app\components\Controller {
             if (!$section) {
                 $this->goToPage('special', 'notFound');
             }
+            $this->forumTitle = str_replace('__SECTION__', ('Main' == $section->name) ? '': $section->name . ' ', $this->forumTitle);
         }
         return parent::beforeAction($actionName);
     }

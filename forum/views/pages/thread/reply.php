@@ -1,6 +1,6 @@
 <?php /* @var $this \mpf\modules\forum\components\Controller */ ?>
 <?php /* @var $model \mpf\modules\forum\models\ForumReply */ ?>
-<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), "Forum")
+<?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), $this->forumTitle)
     . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['category', 'index', ['category' => $model->thread->subcategory->category->url_friendly_name, 'id' => $model->thread->subcategory->category_id]]), $model->thread->subcategory->category->name)
     . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
