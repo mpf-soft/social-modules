@@ -10,9 +10,9 @@
         <span class="form-user-panel-about-title"><?= \mpf\modules\forum\components\UserAccess::get()->getUserTitle($this->sectionId, true); ?></span>
     </div>
     <div class="forum-user-panel-links">
-        <?= \mpf\web\helpers\Html::get()->link(['home'], 'Categories'); ?>
-        <?= \mpf\web\helpers\Html::get()->link(['user', 'controlPanel'], 'Control Panel'); ?>
-        <?= \mpf\web\helpers\Html::get()->link(['search', 'recent'], 'Recent Threads'); ?>
-        <?= \mpf\web\helpers\Html::get()->link(['members'], 'Members'); ?>
+        <?= \mpf\web\helpers\Html::get()->link(['home'], \mpf\modules\forum\components\Translator::get()->translate('Categories')); ?>
+        <?= \mpf\web\helpers\Html::get()->link(['user', 'controlPanel'], \mpf\modules\forum\components\Translator::get()->translate('Control Panel')); ?>
+        <?= \mpf\web\helpers\Html::get()->link(['search', 'recent'], \mpf\modules\forum\components\Translator::get()->translate('Recent Threads')); ?>
+        <?= \mpf\web\helpers\Html::get()->link(['members'], \mpf\modules\forum\components\Translator::get()->translate('Members')); ?>
     </div>
 </div>
