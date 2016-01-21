@@ -45,7 +45,7 @@ class Controller extends \app\components\Controller {
     /**
      * @var string
      */
-    public $forumTitle = "__SECTION__Forum";
+    public $forumTitle = "Forum";
 
     public function getUploadFolder(){
         return Config::value('FORUM_UPLOAD_LOCATION');
