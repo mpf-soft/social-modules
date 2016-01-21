@@ -26,7 +26,7 @@
 <?php } ?>
 <?= \app\components\htmltools\Page::get()->title(
     \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home']), \mpf\modules\forum\components\Translator::get()->translate($this->forumTitle))
-    . " " . \mpf\modules\forum\components\Config::value("FORUM_PAGE_TITLE_SEPARATOR") . " Advanced Search", $menu); ?>
+    . " " . \mpf\modules\forum\components\Config::value("FORUM_PAGE_TITLE_SEPARATOR") . " " . \mpf\modules\forum\components\Translator::get()->translate("Advanced Search"), $menu); ?>
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
 
