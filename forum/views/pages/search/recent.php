@@ -44,7 +44,7 @@
                     <a class="subcategory-icon" href="#">
                         <?= \mpf\web\helpers\Html::get()->mpfImage('oxygen/48x48/actions/view-history.png'); ?>
                     </a>
-                    <a class="subcategory-title" href="#"><?= \mpf\modules\forum\components\Translator::get()->translate('Recent threads'); ?></a>
+                    <a class="subcategory-title" href="#"><?= \mpf\modules\forum\components\Translator::get()->translate('Recent Threads'); ?></a>
                     <span><?= \mpf\modules\forum\components\Translator::get()->translate('Shows the last 20 threads'); ?></span>
                 </h2>
             </th>
