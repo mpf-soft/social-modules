@@ -132,7 +132,6 @@ class ForumSection extends DbModel {
             $section->id = 0;
             $section->save();
         }
-
         App::get()->debug("Section $name:  #{$section->id} created!");
         $group = new ForumUserGroup();
         $group->section_id = $section->id;

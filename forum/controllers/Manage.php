@@ -59,6 +59,7 @@ class Manage extends Controller {
             }
         }
         $model = ForumUserGroup::model();
+        $model->section_id = $this->sectionId;
         if (isset($_GET['ForumUserGroup'])){
             $model->setAttributes($_GET['ForumUserGroup']);
         }
@@ -91,6 +92,7 @@ class Manage extends Controller {
             $this->goBack();
             die();
         }
+        $model->section_id = $this->sectionId;
         if (isset($_POST['ForumUserGroup'])){
             $model->setAttributes($_POST['ForumUserGroup']);
             if ($model->save()){
@@ -107,6 +109,7 @@ class Manage extends Controller {
             Messages::get()->error("No groups created yet! First add a group before creating categories!");
         }
         $model = ForumCategory::model();
+        $model->section_id = $this->sectionId;
         if (isset($_GET['ForumCategory'])){
             $model->setAttributes($_GET['ForumCategory']);
         }
@@ -236,6 +239,7 @@ class Manage extends Controller {
             }
         }
         $model = ForumUser2Section::model();
+        $model->section_id = $this->sectionId;;
         if (isset($_GET['ForumUser2Section'])){
             $model->setAttributes($_GET['ForumUser2Section']);
         }
@@ -254,6 +258,7 @@ class Manage extends Controller {
 
     public function actionTitles(){
         $model = ForumTitle::model();
+        $model->section_id = $this->sectionId;
         if (isset($_GET['ForumTitle'])){
             $model->setAttributes($_GET['ForumTitle']);
         }
