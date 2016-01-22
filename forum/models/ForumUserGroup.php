@@ -14,6 +14,7 @@ use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\WebApp;
 
 /**
  * Class ForumUserGroup
@@ -131,7 +132,7 @@ class ForumUserGroup extends DbModel {
     }
 
     public function beforeSave(){
-        if (is_a(App::get(), '\mpf\WebApp')) {
+        if (is_a(App::get(), '\mpf\WebApp') && WebApp::get()->request()->getModule()) {
             if (!UserAccess::get()->isSectionAdmin($this->section_id)) {
                 Messages::get()->error("You don't have access to edit this user group!");
                 return false;

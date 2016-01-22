@@ -126,7 +126,9 @@ class ForumSection extends DbModel {
         $section  = new self;
         $section->name = $name;
         $section->owner_user_id = $userId;
-        $section->save();
+        if (!$section->save()) {
+            return false;
+        }
         if ("Main" == $name){
             App::get()->debug("Main section detected. Setting ID to 0!");
             $section->id = 0;
