@@ -169,7 +169,11 @@ class ForumUser2Section extends DbModel {
      * @return bool
      */
     public static function removeMember($userId, $sectionId){
-        return self::deleteAllByAttributes(['user_id' > $userId, 'section_id' => $sectionId]);
+        $member = self::findByAttributes(['user_id' > $userId, 'section_id' => $sectionId]);
+        if ($member){
+            return $member->delete();
+        }
+        return true;
     }
 
     /**
