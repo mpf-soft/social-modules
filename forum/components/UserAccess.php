@@ -128,7 +128,7 @@ class UserAccess extends LogAwareObject {
                 'muted' => $user->muted,
                 'banned' => $user->banned,
                 'title_id' => $user->title_id,
-                'title_string' => $user->title->title,
+                'title_string' => $user->title?$user->title->title:'',
                 'group_id' => $user->group_id,
                 'group_string' => $user->group->full_name,
                 'member_since' => $user->member_since,
