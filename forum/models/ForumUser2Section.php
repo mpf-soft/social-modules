@@ -164,6 +164,15 @@ class ForumUser2Section extends DbModel {
     }
 
     /**
+     * @param $userId
+     * @param $sectionId
+     * @return bool
+     */
+    public static function removeMember($userId, $sectionId){
+        return self::deleteAllByAttributes(['user_id' > $userId, 'section_id' => $sectionId]);
+    }
+
+    /**
      * @return string
      */
     public function getSignature() {
