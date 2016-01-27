@@ -249,14 +249,76 @@ class ForumThread extends DbModel {
      * @return static[]
      */
     public static function findRecent($section, $limit = 20, $offset = 0) {
-        $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
-        $condition->with = ['category'];
-        $condition->compareColumn("category.section_id", $section);
-        $condition->fields = ['t.id'];
-        $ids = ArrayHelper::get()->transform(ForumSubcategory::findAll($condition), 'id');
+        return self::_findRecent([ForumUser2Section::findByAttributes(['user_id' => WebApp::get()->user()->id, 'section_id' => $section])], $limit, $offset);
+    }
+
+    /**
+     * @param int $offset
+     * @param int $limit
+     * @return static[]
+     */
+    public static function findRecentForActiveUser($offset = 0, $limit = 20) {
+        if (WebApp::get()->user()->isGuest()) {
+            return [];
+        }
+        $sections = ForumUser2Section::findAllByAttributes(['user_id' => WebApp::get()->user()->id, 'banned' => 0]);
+        if (!$sections) {
+            return [];
+        }
+        return self::_findRecent($sections, $limit, $offset);
+    }
+
+    /**
+     * @param ForumUser2Section[] $sections
+     * @param $limit
+     * @param $offset
+     * @return static[]
+     */
+    protected static function _findRecent($sections, $limit, $offset) {
+        $sectionsIds = ArrayHelper::get()->transform($sections, 'section_id');
+        $userId = WebApp::get()->user()->isConnected() ? WebApp::get()->user()->id : 0;
+        $reload = !WebApp::get()->cache()->exists('User:' . $userId . ':visibleSubcategories');
+        $ids = [];
+        if (!$reload) {
+            $info = WebApp::get()->cache()->value('User:' . $userId . ':visibleSubcategories');
+            if ($info['time'] < (time() - 7200)) { //force refresh once every two hours
+                $reload = true;
+            } else {
+                $ids = $info['categories'];
+            }
+        }
+        if ($reload) {
+            $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
+            $condition->with = ['category'];
+            $groups = ArrayHelper::get()->transform($sections, 'group_id');
+            $groups = implode(', ', $groups);
+            $condition->join = "LEFT JOIN forum_groups2categories ON (forum_groups2categories.category_id = category.id AND forum_groups2categories.group_id IN ($groups))";
+            $condition->addCondition("forum_groups2categories.canread IS NULL OR forum_groups2categories.canread = 1");
+            $condition->addInCondition('category.section_id', $sectionsIds);
+            $categories = ForumSubcategory::findAll($condition);
+            $ids = [];
+            foreach ($categories as $cat) {
+                if (!isset($ids[$cat->category->section_id])) {
+                    $ids[$cat->category->section_id] = [];
+                }
+                $ids[$cat->category->section_id][] = $cat->id;
+            }
+            WebApp::get()->cache()->set('User:' . $userId . ':visibleSubcategories', [
+                'time' => time(),
+                'categories' => $ids
+            ]);
+        }
+        $finalIDs = [];
+        foreach ($sections as $s) {
+            if (isset($ids[$s->section_id])) {
+                foreach ($ids[$s->section_id] as $id)
+                    $finalIDs[] = $id;
+            }
+        }
+
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->with = ['category', 'subcategory', 'lastActiveUser', 'owner'];
-        $condition->addInCondition('subcategory_id', $ids);
+        $condition->addInCondition('subcategory_id', $finalIDs);
         $condition->order = "t.id DESC";
         $condition->limit = $limit;
         $condition->offset = $offset;
@@ -384,7 +446,7 @@ class ForumThread extends DbModel {
         if ($oldSub == $this->subcategory_id)
             return; // same sub;
         $sub = ForumSubcategory::findByPk($oldSub);
-        if ($sub->last_active_thread_id = $this->id){
+        if ($sub->last_active_thread_id = $this->id) {
             $sub->checkLastActivity();
         }
         $sub->recalculateNumbers()->save();
