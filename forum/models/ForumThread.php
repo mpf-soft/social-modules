@@ -287,6 +287,7 @@ class ForumThread extends DbModel {
                 $ids = $info['categories'];
             }
         }
+        $reload = true;
         if ($reload) {
             $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
             $condition->with = ['category'];
@@ -294,7 +295,6 @@ class ForumThread extends DbModel {
             $groups = implode(', ', $groups);
             $condition->join = "LEFT JOIN forum_groups2categories ON (forum_groups2categories.category_id = category.id AND forum_groups2categories.group_id IN ($groups))";
             $condition->addCondition("forum_groups2categories.canread IS NULL OR forum_groups2categories.canread = 1");
-            $condition->compareColumn('deleted', 0);
             $condition->addInCondition('category.section_id', $sectionsIds);
             $categories = ForumSubcategory::findAll($condition);
             $ids = [];
@@ -323,6 +323,7 @@ class ForumThread extends DbModel {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->with = ['category', 'subcategory', 'lastActiveUser', 'owner'];
         $condition->addInCondition('subcategory_id', $finalIDs);
+        $condition->compareColumn('deleted', 0);
         $condition->order = "GREATEST(IFNULL(t.edit_time, t.create_time), IFNULL(t.last_reply_date, t.create_time)) DESC";
         $condition->limit = $limit;
         $condition->offset = $offset;
