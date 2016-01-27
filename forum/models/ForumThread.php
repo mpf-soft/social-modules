@@ -554,7 +554,7 @@ class ForumThread extends DbModel {
      */
     public function getLink(){
         $s = $this->section_id;
-        $r =  ['thread', 'index', ['subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name, 'id' => $this->id]];
+        $r =  ['thread', 'index', ['subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name, 'id' => $this->id], 'forum'];
         if (!$s)
             return $r;
         if ('get' != Config::value('FORUM_SECTION_ID_SOURCE'))
