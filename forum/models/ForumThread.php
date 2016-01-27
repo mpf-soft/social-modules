@@ -281,7 +281,7 @@ class ForumThread extends DbModel {
         $ids = [];
         if (!$reload) {
             $info = WebApp::get()->cache()->value('User:' . $userId . ':visibleSubcategories');
-            if ($info['time'] < (time() - 7200)) { //force refresh once every two hours
+            if ($info['time'] < (time() - 1800)) { //force refresh once every 30m
                 $reload = true;
             } else {
                 $ids = $info['categories'];
@@ -315,6 +315,9 @@ class ForumThread extends DbModel {
                 foreach ($ids[$s->section_id] as $id)
                     $finalIDs[] = $id;
             }
+        }
+        if (!$finalIDs){
+            return [];
         }
 
         $condition = new ModelCondition(['model' => __CLASS__]);
