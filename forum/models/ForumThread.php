@@ -548,4 +548,26 @@ class ForumThread extends DbModel {
         ]);
 
     }
+
+    /**
+     * @return array
+     */
+    public function getLink(){
+        $s = $this->section_id;
+        $r =  ['thread', 'index', ['subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name, 'id' => $this->id]];
+        if (!$s)
+            return $r;
+        if ('get' != Config::value('FORUM_SECTION_ID_SOURCE'))
+            return $r;
+        if (isset($r[2]) && is_array($r[2])) {
+            $r[2][Config::value('FORUM_SECTION_ID_KEY')] = $s;
+        } elseif (isset($r[2])) {
+            $r[3] = $r[2];
+            $r[2] = [Config::value('FORUM_SECTION_ID_KEY') => $s];
+        } else {
+            $r[2] = [Config::value('FORUM_SECTION_ID_KEY') => $s];
+        }
+
+        return $r;
+    }
 }
