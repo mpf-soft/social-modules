@@ -287,7 +287,6 @@ class ForumThread extends DbModel {
                 $ids = $info['categories'];
             }
         }
-        $reload = true;
         if ($reload) {
             $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
             $condition->with = ['category'];
