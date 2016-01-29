@@ -291,11 +291,15 @@ class ForumThread extends DbModel {
             $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
             $condition->with = ['category'];
             $groups = ArrayHelper::get()->transform($sections, 'group_id');
-            $groups = implode(', ', $groups);
-            $condition->join = "LEFT JOIN forum_groups2categories ON (forum_groups2categories.category_id = category.id AND forum_groups2categories.group_id IN ($groups))";
-            $condition->addCondition("forum_groups2categories.canread IS NULL OR forum_groups2categories.canread = 1");
-            $condition->addInCondition('category.section_id', $sectionsIds);
-            $categories = ForumSubcategory::findAll($condition);
+            if ($groups) {
+                $groups = implode(', ', $groups);
+                $condition->join = "LEFT JOIN forum_groups2categories ON (forum_groups2categories.category_id = category.id AND forum_groups2categories.group_id IN ($groups))";
+                $condition->addCondition("forum_groups2categories.canread IS NULL OR forum_groups2categories.canread = 1");
+                $condition->addInCondition('category.section_id', $sectionsIds);
+                $categories = ForumSubcategory::findAll($condition);
+            } else {
+                $categories = [];
+            }
             $ids = [];
             foreach ($categories as $cat) {
                 if (!isset($ids[$cat->category->section_id])) {
