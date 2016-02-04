@@ -249,7 +249,7 @@ class ForumThread extends DbModel {
      * @return static[]
      */
     public static function findRecent($section, $limit = 20, $offset = 0) {
-        return self::_findRecent([ForumUser2Section::findByAttributes(['user_id' => WebApp::get()->user()->id, 'section_id' => $section])], $limit, $offset);
+        return self::_findRecent([ForumUser2Section::findByAttributes(['user_id' => WebApp::get()->user()->id, 'section_id' => $section])], $limit, $offset, $section);
     }
 
     /**
@@ -269,13 +269,22 @@ class ForumThread extends DbModel {
     }
 
     /**
-     * @param ForumUser2Section[] $sections
+     * @param ForumUser2Section[]$sections
      * @param $limit
      * @param $offset
-     * @return static[]
+     * @param null $sectionId
+     * @return array|static[]
      */
-    protected static function _findRecent($sections, $limit, $offset) {
-        $sectionsIds = ArrayHelper::get()->transform($sections, 'section_id');
+    protected static function _findRecent($sections, $limit, $offset, $sectionId = null) {
+        $guest = false;
+        if (1 === count($sections) && is_null($sections[0])){
+            if (is_null($sectionId))
+                return [];
+            $sectionsIds = [$sectionId];
+            $guest = true;
+        } else {
+            $sectionsIds = ArrayHelper::get()->transform($sections, 'section_id');
+        }
         $userId = WebApp::get()->user()->isConnected() ? WebApp::get()->user()->id : 0;
         $reload = !WebApp::get()->cache()->exists('User:' . $userId . ':visibleSubcategories');
         $ids = [];
@@ -290,7 +299,11 @@ class ForumThread extends DbModel {
         if ($reload) {
             $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
             $condition->with = ['category'];
-            $groups = ArrayHelper::get()->transform($sections, 'group_id');
+            if ($guest) {
+                $groups = [ForumSection::findByPk($sectionId)->default_visitors_group_id];
+            } else {
+                $groups = ArrayHelper::get()->transform($sections, 'group_id');
+            }
             if ($groups) {
                 $groups = implode(', ', $groups);
                 $condition->join = "LEFT JOIN forum_groups2categories ON (forum_groups2categories.category_id = category.id AND forum_groups2categories.group_id IN ($groups))";
@@ -313,10 +326,14 @@ class ForumThread extends DbModel {
             ]);
         }
         $finalIDs = [];
-        foreach ($sections as $s) {
-            if (isset($ids[$s->section_id])) {
-                foreach ($ids[$s->section_id] as $id)
-                    $finalIDs[] = $id;
+        if ($guest) {
+            $finalIDs = $ids[$sectionId];
+        } else {
+            foreach ($sections as $s) {
+                if (isset($ids[$s->section_id])) {
+                    foreach ($ids[$s->section_id] as $id)
+                        $finalIDs[] = $id;
+                }
             }
         }
         if (!$finalIDs){
