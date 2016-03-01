@@ -133,8 +133,10 @@ class ModelHelper extends Object {
     protected static function getDefaultEmailForType($type) {
         switch ($type) {
             case "thread.moved":
+                return "Thread Moved";
                 break;
             case "thread":
+                return "Thread Update";
                 break;
             default:
                 return "not-set";
