@@ -63,10 +63,10 @@ class UserAccess extends LogAwareObject {
     public function getUserGroup($sectionId, $idOnly = false) {
         if (WebApp::get()->user()->isConnected()) {
             if (isset($this->user2Sections[$sectionId]))
-                if ($idOnly){
+                if ($idOnly) {
                     return $this->user2Sections[$sectionId]['group_id'];
                 } else {
-                    if (!isset($this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']])){
+                    if (!isset($this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']])) {
                         $this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']] = ForumUserGroup::findByPk($this->user2Sections[$sectionId]['group_id']);
                     }
                     return $this->forumUserGroups[$this->user2Sections[$sectionId]['group_id']];
@@ -77,10 +77,10 @@ class UserAccess extends LogAwareObject {
 
         if (!isset($this->sections[$sectionId]))
             return false;
-        if ($idOnly){
+        if ($idOnly) {
             return $this->sections[$sectionId]->default_visitors_group_id;
         }
-        if (!isset($this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id])){
+        if (!isset($this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id])) {
             $this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id] = ForumUserGroup::findByPk($this->sections[$sectionId]->default_visitors_group_id);
         }
         return $this->forumUserGroups[$this->sections[$sectionId]->default_visitors_group_id];
@@ -109,7 +109,7 @@ class UserAccess extends LogAwareObject {
         } elseif ($idOnly) {
             return $this->user2Sections[$sectionId]['title_id'];
         }
-        if (!isset($this->forumTitles[$this->user2Sections[$sectionId]['title_id']])){
+        if (!isset($this->forumTitles[$this->user2Sections[$sectionId]['title_id']])) {
             $this->forumTitles[$this->user2Sections[$sectionId]['title_id']] = ForumTitle::findByPk($this->user2Sections[$sectionId]['title_id']);
         }
         return $this->forumTitles[$this->user2Sections[$sectionId]['title_id']];
@@ -128,7 +128,7 @@ class UserAccess extends LogAwareObject {
                 'muted' => $user->muted,
                 'banned' => $user->banned,
                 'title_id' => $user->title_id,
-                'title_string' => $user->title?$user->title->title:'',
+                'title_string' => $user->title ? $user->title->title : '',
                 'group_id' => $user->group_id,
                 'group_string' => $user->group->full_name,
                 'member_since' => $user->member_since,
@@ -150,7 +150,7 @@ class UserAccess extends LogAwareObject {
     public function init($config = []) {
         if (Session::get()->exists($this->sessionKey)) {
             $session = Session::get()->value($this->sessionKey);
-            if (isset($session['userId']) && $session['userId'] == WebApp::get()->user()->id) { // handle logout + login
+            if (isset($session['userId']) && ($session['userId'] == (WebApp::get()->user()->isConnected() ? WebApp::get()->user()->id : 0))) { // handle logout + login
                 $this->user2Sections = $session['user2Sections'];
             } else {
                 $this->reloadRights();
