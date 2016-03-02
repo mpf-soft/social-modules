@@ -255,21 +255,19 @@ class ForumThread extends DbModel {
     /**
      * @param int $offset
      * @param int $limit
-     * @return static[]
+     * @return ForumThread[]
      */
     public static function findRecentForActiveUser($offset = 0, $limit = 20) {
-        if (WebApp::get()->user()->isGuest()) {
-            return [];
+        if (WebApp::get()->user()->isConnected() && ($sections = ForumUser2Section::findAllByAttributes(['user_id' => WebApp::get()->user()->id, 'banned' => 0]))) {
+            return self::_findRecent($sections, $limit, $offset);
+        } elseif (WebApp::get()->user()->isGuest()) {
+            return self::_findRecent([null], $limit, $offset, 0);
         }
-        $sections = ForumUser2Section::findAllByAttributes(['user_id' => WebApp::get()->user()->id, 'banned' => 0]);
-        if (!$sections) {
-            return [];
-        }
-        return self::_findRecent($sections, $limit, $offset);
+        return [];
     }
 
     /**
-     * @param ForumUser2Section[]$sections
+     * @param ForumUser2Section[] $sections
      * @param $limit
      * @param $offset
      * @param null $sectionId
@@ -277,12 +275,12 @@ class ForumThread extends DbModel {
      */
     protected static function _findRecent($sections, $limit, $offset, $sectionId = null) {
         $guest = false;
-        if (1 === count($sections) && is_null($sections[0])){
+        if (1 === count($sections) && is_null($sections[0])) {
             if (is_null($sectionId))
                 return [];
             $sectionsIds = [$sectionId];
             $guest = true;
-        } else {
+        } elseif (count($sections)) {
             $sectionsIds = ArrayHelper::get()->transform($sections, 'section_id');
         }
         $userId = WebApp::get()->user()->isConnected() ? WebApp::get()->user()->id : 0;
@@ -290,13 +288,14 @@ class ForumThread extends DbModel {
         $ids = [];
         if (!$reload) {
             $info = WebApp::get()->cache()->value('User:' . $userId . ':visibleSubcategories');
-            if ($info['time'] < (time() - 1800)) { //force refresh once every 30m
+            if ($info['time'] < (time() - 1)) { //force refresh once every 30m
                 $reload = true;
             } else {
                 $ids = $info['categories'];
             }
         }
         if ($reload) {
+            var_dump('reload');
             $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
             $condition->with = ['category'];
             if ($guest) {
@@ -336,7 +335,7 @@ class ForumThread extends DbModel {
                 }
             }
         }
-        if (!$finalIDs){
+        if (!$finalIDs) {
             return [];
         }
 
@@ -577,9 +576,9 @@ class ForumThread extends DbModel {
     /**
      * @return array
      */
-    public function getLink($module = null){
+    public function getLink($module = null) {
         $s = $this->section_id;
-        $r =  ['thread', 'index', ['subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name, 'id' => $this->id], $module];
+        $r = ['thread', 'index', ['subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name, 'id' => $this->id], $module];
         if (!$s)
             return $r;
         if ('get' != Config::value('FORUM_SECTION_ID_SOURCE'))
