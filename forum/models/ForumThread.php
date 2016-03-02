@@ -295,7 +295,6 @@ class ForumThread extends DbModel {
             }
         }
         if ($reload) {
-            var_dump('reload');
             $condition = new ModelCondition(['model' => ForumSubcategory::className()]);
             $condition->with = ['category'];
             if ($guest) {
