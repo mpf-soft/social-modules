@@ -219,7 +219,7 @@ class ForumThread extends DbModel {
         $condition->compareColumn("deleted", 0);
         $condition->with = ['lastActiveUser', 'owner'];
         $condition->limit = Config::value('FORUM_THREADS_PER_PAGE');
-        $condition->order = '`t`.`order` ASC, `t`.`id` DESC';
+        $condition->order = '`t`.`sticky`, `t`.`order` ASC, `t`.`id` DESC';
         $condition->offset = ($page - 1) * Config::value('FORUM_THREADS_PER_PAGE');
         return self::findAll($condition);
     }
