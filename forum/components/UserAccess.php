@@ -264,6 +264,12 @@ class UserAccess extends LogAwareObject {
         return (bool)$this->user2Sections[$sectionId]['groupRights']['moderator'];
     }
 
+    public function canViewUserProfile($profileId){
+        if (WebApp::get()->user()->isGuest()){
+            return false;
+        }
+    }
+
     /**
      * @param int $categoryId
      * @param int $sectionId

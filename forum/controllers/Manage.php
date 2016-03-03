@@ -21,6 +21,7 @@ use mpf\modules\forum\models\ForumTitle;
 use mpf\modules\forum\models\ForumUser2Section;
 use mpf\modules\forum\models\ForumUserGroup;
 use mpf\helpers\ArrayHelper;
+use mpf\WebApp;
 
 class Manage extends Controller {
     /**
@@ -31,6 +32,9 @@ class Manage extends Controller {
      */
     public function beforeAction($actionName){
         parent::beforeAction($actionName);
+        if (WebApp::get()->user()->isGuest()) {
+            $this->goToPage('user', 'login', [], '');
+        }
         if (!UserAccess::get()->isSectionAdmin($this->sectionId)){
             if (in_array($actionName, ['users', 'titles']) && UserAccess::get()->isSectionModerator($this->sectionId)){
                 return true;

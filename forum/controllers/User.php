@@ -26,6 +26,9 @@ class User extends Controller{
     }
 
     public function actionControlPanel(){
+        if (WebApp::get()->user()->isGuest()){
+            $this->goToPage('user', 'login', [], '');
+        }
         $user  = ForumUser2Section::findByAttributes(['user_id' => WebApp::get()->user()->id, 'section_id' => $this->sectionId]);
         $user->icon = $user->user->icon;
         if (isset($_POST['ForumUser2Section'])){

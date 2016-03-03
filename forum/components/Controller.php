@@ -146,9 +146,13 @@ class Controller extends \app\components\Controller {
      * @param string $controller
      * @param null|string $action
      * @param array $params
+     * @param string $module
      * @return bool|void
      */
-    public function goToPage($controller, $action = null, $params = []) {
+    public function goToPage($controller, $action = null, $params = [], $module = null) {
+        if (!is_null($module)){
+            return parent::goToPage($controller, $action, $params, $module);
+        }
         if ($this->sectionId && 'get' == Config::value('FORUM_SECTION_ID_SOURCE'))
             $params[Config::value('FORUM_SECTION_ID_KEY')] = $this->sectionId;
         return parent::goToPage($controller, $action, $params);

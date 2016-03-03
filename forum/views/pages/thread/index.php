@@ -59,26 +59,28 @@
                     </span>
 
                     <div class="forum-thread-title-actions">
-                        <?php if (\mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'move', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Move'), ['class' => 'move-thread-button']); ?>
-                            <?php if ($thread->closed) { ?>
-                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'close', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Open'), ['class' => 'open-thread-button']); ?>
-                            <?php } else { ?>
-                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'close', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Close'), ['class' => 'close-thread-button']); ?>
+                        <?php if (\mpf\WebApp::get()->user()->isConnected()) { ?>
+                            <?php if (\mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) { ?>
+                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'move', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Move'), ['class' => 'move-thread-button']); ?>
+                                <?php if ($thread->closed) { ?>
+                                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'close', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Open'), ['class' => 'open-thread-button']); ?>
+                                <?php } else { ?>
+                                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'close', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Close'), ['class' => 'close-thread-button']); ?>
+                                <?php } ?>
+                                <?php if ($thread->sticky) { ?>
+                                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'sticky', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Not Sticky'), ['class' => 'not-sticky-thread-button']); ?>
+                                <?php } else { ?>
+                                    <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'sticky', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Sticky'), ['class' => 'sticky-thread-button']); ?>
+                                <?php } ?>
                             <?php } ?>
-                            <?php if ($thread->sticky) { ?>
-                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'sticky', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Not Sticky'), ['class' => 'not-sticky-thread-button']); ?>
+                            <?php if ($thread->ImSubscribed()) { ?>
+                                <?= \mpf\web\helpers\Html::get()->link('?unsubscribe', \mpf\modules\forum\components\Translator::get()->translate('Unsubscribe'), ['class' => 'unsubscribe-button']); ?>
                             <?php } else { ?>
-                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'sticky', ['id' => $thread->id]]), \mpf\modules\forum\components\Translator::get()->translate('Sticky'), ['class' => 'sticky-thread-button']); ?>
+                                <?= \mpf\web\helpers\Html::get()->link('?subscribe', \mpf\modules\forum\components\Translator::get()->translate('Subscribe'), ['class' => 'subscribe-button']); ?>
                             <?php } ?>
-                        <?php } ?>
-                        <?php if ($thread->ImSubscribed()) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link('?unsubscribe', \mpf\modules\forum\components\Translator::get()->translate('Unsubscribe'), ['class' => 'unsubscribe-button']); ?>
-                        <?php } else { ?>
-                            <?= \mpf\web\helpers\Html::get()->link('?subscribe', \mpf\modules\forum\components\Translator::get()->translate('Subscribe'), ['class' => 'subscribe-button']); ?>
-                        <?php } ?>
-                        <?php if (\mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link('#reply-form', \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button']); ?>
+                            <?php if (\mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+                                <?= \mpf\web\helpers\Html::get()->link('#reply-form', \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button']); ?>
+                            <?php } ?>
                         <?php } ?>
                     </div>
                 </h2>
@@ -113,14 +115,14 @@
                             \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
                             'afterThreadVote',
                             ['id' => $thread->id, 'type' => 'agree'],
-                            ['class' => 'forum-vote-button-positive ' . ($thread->getMyVote() == 'positive'?'':'forum-vote-button-not-voted')]
+                            ['class' => 'forum-vote-button-positive ' . ($thread->getMyVote() == 'positive' ? '' : 'forum-vote-button-not-voted')]
                         ); ?>
                         <?= \mpf\web\helpers\Html::get()->ajaxLink(
                             $this->updateURLWithSection(['thread', 'voteThread']),
                             \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
                             'afterThreadVote',
                             ['id' => $thread->id, 'type' => 'disagree'],
-                            ['class' => 'forum-vote-button-negative ' . ($thread->getMyVote() == 'negative'?'':'forum-vote-button-not-voted')]
+                            ['class' => 'forum-vote-button-negative ' . ($thread->getMyVote() == 'negative' ? '' : 'forum-vote-button-not-voted')]
                         ); ?>
                     <?php } ?>
 
@@ -139,7 +141,8 @@
                     <?php } ?>
                 </div>
                 <div
-                    class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?>&nbsp;&nbsp;&nbsp;
+                    class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?>
+                    &nbsp;&nbsp;&nbsp;
                             <span id="number-of-points-for-thread">
                             <?= $thread->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
                                 &nbsp;&nbsp;&nbsp;
@@ -194,14 +197,14 @@
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
                                     'afterReplyVote',
                                     ['id' => $reply->id, 'type' => 'agree', 'level' => 1],
-                                    ['class' => 'forum-vote-button-positive ' . ($reply->getMyVote() == 'positive'?'':'forum-vote-button-not-voted')]
+                                    ['class' => 'forum-vote-button-positive ' . ($reply->getMyVote() == 'positive' ? '' : 'forum-vote-button-not-voted')]
                                 ); ?>
                                 <?= \mpf\web\helpers\Html::get()->ajaxLink(
                                     $this->updateURLWithSection(['thread', 'vote']),
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
                                     'afterReplyVote',
                                     ['id' => $reply->id, 'type' => 'disagree', 'level' => 1],
-                                    ['class' => 'forum-vote-button-negative ' . ($reply->getMyVote() == 'negative'?'':'forum-vote-button-not-voted')]
+                                    ['class' => 'forum-vote-button-negative ' . ($reply->getMyVote() == 'negative' ? '' : 'forum-vote-button-not-voted')]
                                 ); ?>
                             <?php } ?>
                             <?= \mpf\web\helpers\Html::get()->link('#reply' . $reply->id,
@@ -322,7 +325,7 @@
         $("#number-of-points-for-reply-" + postData.level + "-" + postData.id).html(reply[0] + "&nbsp;&nbsp;&nbsp;");
         $('.forum-vote-button-positive', element.parentNode).addClass("forum-vote-button-not-voted");
         $('.forum-vote-button-negative', element.parentNode).addClass("forum-vote-button-not-voted");
-        if (0 != reply[1]){
+        if (0 != reply[1]) {
             $(element).removeClass("forum-vote-button-not-voted");
         }
     }
@@ -338,7 +341,7 @@
         $("#number-of-points-for-thread").html(reply[0] + "&nbsp;&nbsp;&nbsp;");
         $('.forum-vote-button-positive', element.parentNode).addClass("forum-vote-button-not-voted");
         $('.forum-vote-button-negative', element.parentNode).addClass("forum-vote-button-not-voted");
-        if (0 != reply[1]){
+        if (0 != reply[1]) {
             $(element).removeClass("forum-vote-button-not-voted");
         }
 

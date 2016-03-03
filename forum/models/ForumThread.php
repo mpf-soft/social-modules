@@ -520,6 +520,8 @@ class ForumThread extends DbModel {
     protected $_subscribed;
 
     public function ImSubscribed() {
+        if (WebApp::get()->user()->isGuest())
+            return false;
         if (is_null($this->_subscribed)) {
             $exists = $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
                 ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
@@ -533,6 +535,8 @@ class ForumThread extends DbModel {
      * Subscribe to current thread
      */
     public function subscribe() {
+        if (WebApp::get()->user()->isGuest())
+            return false;
         $this->_db->table('forum_users_subscriptions')->insert([
             'user_id' => WebApp::get()->user()->id,
             'thread_id' => $this->id
@@ -544,6 +548,8 @@ class ForumThread extends DbModel {
      * Unsubscribe from current thread;
      */
     public function unsubscribe() {
+        if (WebApp::get()->user()->isGuest())
+            return false;
         $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
             ->setParams([':user' => WebApp::get()->user()->id, ':thread' => $this->id])
             ->delete();

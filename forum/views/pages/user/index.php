@@ -29,8 +29,8 @@
 <div class="forum-page <?= $this->forumPageTheme; ?>">
     <?php $this->displayComponent('topuserpanel'); ?>
 
-    <?php if (!\mpf\modules\forum\components\UserAccess::get()->canRead($this->sectionId, $category->id)) { ?>
-        <?php $this->displayComponent('accessdenied', ['location' => 'category']); ?>
+    <?php if (!\mpf\modules\forum\components\UserAccess::get()->canViewUserProfile($user->user_id)) { ?>
+        <?php $this->displayComponent('accessdenied', ['location' => 'userprofile']); ?>
         <?php return; ?>
     <?php } ?>
 
