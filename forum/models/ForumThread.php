@@ -485,8 +485,11 @@ class ForumThread extends DbModel {
         }
     }
 
+    /**
+     * @return string
+     */
     public function getAuthorIcon() {
-        return Config::value('USER_ICON_FOLDER_URL') . ($this->owner->icon ?: 'default.png');
+        return ModelHelper::getUserIconURL($this->owner->icon ?: 'default.png');
     }
 
     /**
