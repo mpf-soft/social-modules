@@ -128,7 +128,7 @@ class Manage extends Controller {
             $model->setAttributes($_POST['ForumCategory']);
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("categories", 'icon', $model->id))){
-                    if ($model->icon &&  $model->icon != "default.png"){
+                    if ($model->icon &&  $model->icon != "default.png" && $model->icon != $icon){
                         @unlink($this->getUploadFolder() . $model->icon);
                     }
                     $model->icon = $icon;
@@ -151,7 +151,7 @@ class Manage extends Controller {
             $model->setAttributes($_POST['ForumCategory']);
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("categories", 'icon', $model->id))){
-                    if ($model->icon &&  $model->icon != "default.png"){
+                    if ($model->icon &&  $model->icon != "default.png" && $model->icon != $icon){
                         @unlink($this->getUploadFolder() . 'categories' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
@@ -195,7 +195,7 @@ class Manage extends Controller {
             $model->setAttributes($_POST['ForumSubcategory']);
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("subcategories", 'icon', $model->id))){
-                    if ($model->icon &&  $model->icon != "default.png"){
+                    if ($model->icon &&  $model->icon != "default.png" && $model->icon != $icon){
                         @unlink($this->getUploadFolder() . $model->icon);
                     }
                     $model->icon = $icon;
@@ -217,7 +217,7 @@ class Manage extends Controller {
             $model->setAttributes($_POST['ForumSubcategory']);
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("subcategories", 'icon', $model->id))){
-                    if ($model->icon &&  $model->icon != "default.png"){
+                    if ($model->icon &&  $model->icon != "default.png" && $model->icon != $icon){
                         @unlink($this->getUploadFolder() . 'subcategories' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
@@ -276,7 +276,7 @@ class Manage extends Controller {
             $model->setAttributes($_POST['ForumTitle']);
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("titles", 'icon', $model->id))){
-                    if ($model->icon &&  $model->icon != "default.png"){
+                    if ($model->icon &&  $model->icon != "default.png" && $model->icon != $icon){
                         @unlink($this->getUploadFolder() . 'titles' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
@@ -302,7 +302,7 @@ class Manage extends Controller {
             $model->setAttributes($_POST['ForumTitle']);
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("titles", 'icon', $model->id))){
-                    if ($model->icon &&  $model->icon != "default.png"){
+                    if ($model->icon &&  $model->icon != "default.png" && $model->icon != $icon){
                         @unlink($this->getUploadFolder() . 'titles' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
