@@ -152,12 +152,12 @@ class Manage extends Controller {
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("categories", 'icon', $model->id))){
                     if ($model->icon &&  $model->icon != "default.png"){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'categories' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
                     if (!$model->save()){
                         Messages::get()->error("Error saving new icon!");
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'categories' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                 }
                 $model->updateGroupRights();
@@ -200,7 +200,7 @@ class Manage extends Controller {
                     }
                     $model->icon = $icon;
                     if (!$model->save()){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'subcategories' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                 }
                 Messages::get()->success("Subcategory saved!");
@@ -218,7 +218,7 @@ class Manage extends Controller {
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("subcategories", 'icon', $model->id))){
                     if ($model->icon &&  $model->icon != "default.png"){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'subcategories' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
                     if (!$model->save()){
@@ -277,11 +277,11 @@ class Manage extends Controller {
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("titles", 'icon', $model->id))){
                     if ($model->icon &&  $model->icon != "default.png"){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'titles' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
                     if (!$model->save()){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'titles' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                 }
                 Messages::get()->success("Title saved!");
@@ -303,11 +303,11 @@ class Manage extends Controller {
             if ($model->save()){
                 if (false != ($icon = $this->uploadImage("titles", 'icon', $model->id))){
                     if ($model->icon &&  $model->icon != "default.png"){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'titles' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                     $model->icon = $icon;
                     if (!$model->save()){
-                        @unlink($this->getUploadFolder() . $model->icon);
+                        @unlink($this->getUploadFolder() . 'titles' . DIRECTORY_SEPARATOR . $model->icon);
                     }
                 }
                 Messages::get()->success("Title saved!");
