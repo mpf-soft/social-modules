@@ -165,9 +165,9 @@ class ForumSubcategory extends DbModel {
     public function getActionForList(){
         switch ($this->last_activity){
             case "create":
-                return Translator::get()->translate("Created By");
+                return Translator::get()->translate("Created by");
             case "edit":
-                return Translator::get()->translate("Edited By");
+                return Translator::get()->translate("Edited by");
             case "reply":
                 return Translator::get()->translate("Reply from");
         }
