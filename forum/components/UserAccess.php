@@ -147,7 +147,7 @@ class UserAccess extends LogAwareObject {
         ]);
     }
 
-    public function init($config = []) {
+    public function init($config) {
         if (Session::get()->exists($this->sessionKey)) {
             $session = Session::get()->value($this->sessionKey);
             if (isset($session['userId']) && ($session['userId'] == (WebApp::get()->user()->isConnected() ? WebApp::get()->user()->id : 0))) { // handle logout + login
