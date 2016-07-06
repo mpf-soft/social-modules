@@ -10,5 +10,5 @@ namespace mpf\modules\blog\components;
 
 
 class Controller extends \app\components\Controller{
-
+    public $subTitle, $blogTitle = 'Blog';
 }

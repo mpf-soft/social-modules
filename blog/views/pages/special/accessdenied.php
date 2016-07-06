@@ -1,7 +1,3 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: mirel
- * Date: 06.05.2015
- * Time: 09:14
- */
+<?php require_once dirname(dirname(__DIR__)) . '/layout/header.php'; ?>
+<?= \app\components\htmltools\Page::get()->title('Blog'); ?>
+<?php require_once dirname(dirname(__DIR__)) . '/layout/footer.php'; ?>
