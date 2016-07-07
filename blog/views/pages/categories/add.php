@@ -1,3 +1,10 @@
 <?php require_once dirname(dirname(__DIR__)) . '/layout/header.php'; ?>
-<?= \app\components\htmltools\Page::get()->title('Blog'); ?>
+
+<?= \mpf\widgets\form\Form::get([
+        'name' => 'save',
+        'model' => $model,
+        'theme' => 'default-wide',
+        'fields' => \mpf\modules\blog\models\BlogCategory::getFormFields()
+])->display(); ?>
+
 <?php require_once dirname(dirname(__DIR__)) . '/layout/footer.php'; ?>
