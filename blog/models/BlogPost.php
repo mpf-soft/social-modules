@@ -11,6 +11,9 @@ use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\helpers\FileHelper;
+use mpf\modules\blog\components\BlogConfig;
+use mpf\WebApp;
 
 /**
  * Class BlogPost
@@ -35,6 +38,25 @@ use mpf\datasources\sql\ModelCondition;
  */
 class BlogPost extends DbModel
 {
+
+    const STATUS_NEW = 0;
+    const STATUS_PUBLISHED = 1;
+    const STATUS_DELETED = 2;
+
+    public $keywords, $title = [], $content = [], $img_icon, $img_cover;
+
+
+    /**
+     * @return string[]
+     */
+    public static function getStatuses()
+    {
+        return [
+            self::STATUS_NEW => 'New',
+            self::STATUS_PUBLISHED => 'Published',
+            self::STATUS_DELETED => 'Deleted'
+        ];
+    }
 
     /**
      * Get database table name.
@@ -62,7 +84,7 @@ class BlogPost extends DbModel
             'edited_by' => 'Edited By',
             'edit_time' => 'Edit Time',
             'edit_number' => 'Edit Number',
-            'url' => 'URL',
+            'url' => 'URL Friendly Title',
             'image_icon' => 'Image Icon',
             'image_cover' => 'Image Cover',
             'allow_comments' => 'Allow Comments'
@@ -94,6 +116,48 @@ class BlogPost extends DbModel
         ];
     }
 
+
+    /**
+     * @return string[]
+     */
+    public static function getFormFields()
+    {
+        $f = [
+            'url',
+            [
+                'name' => 'allow_comments',
+                'type' => 'checkbox'
+            ],
+            [
+                'name' => 'category_id',
+                'type' => 'select',
+                'options' => \mpf\helpers\ArrayHelper::get()->transform(\mpf\modules\blog\models\BlogCategory::findAll(), ['id' => 'name'])
+            ],
+            [
+                'name' => 'image_icon',
+                'type' => 'image',
+                'urlPrefix' => BlogConfig::get()->articleImageURL
+            ],
+            [
+                'name' => 'image_cover',
+                'type' => 'image',
+                'urlPrefix' => BlogConfig::get()->articleImageURL
+            ],
+            [
+                'name' => 'keywords',
+                'type' => 'seoKeywords'
+            ]
+        ];
+        foreach (BlogConfig::get()->languages as $lang) {
+            $f[] = 'title[' . $lang . ']';
+            $f[] = [
+                'name' => 'content[' . $lang . ']',
+                'type' => 'markdown'
+            ];
+        }
+        return $f;
+    }
+
     /**
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @return \mpf\datasources\sql\DataProvider
@@ -102,7 +166,7 @@ class BlogPost extends DbModel
     {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "author_id", "category_id", "time_written", "time_published", "status", "edited_by", "edit_time", "edit_number", "url", "image_icon", "image_cover", "allow_comments"] as $column) {
+        foreach (["id", "author_id", "category_id", "time_written", "time_published", "status", "edited_by", "edit_time", "edit_number", "url", "allow_comments"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
@@ -110,5 +174,86 @@ class BlogPost extends DbModel
         return new DataProvider([
             'modelCondition' => $condition
         ]);
+    }
+
+    public function afterSave()
+    {
+        $this->updateImages();
+        self::getDb()->table('blog_posts_keywords')->where('post_id = :post', [':post' => $this->id])->delete();
+        $keywords = explode(', ', $this->keywords);
+        foreach ($keywords as $word)
+            self::getDb()->table('blog_posts_keywords')->insert(['post_id' => $this->id, 'keyword' => $word]);
+        self::getDb()->table('blog_posts_translations')->where('post_id = :post', [':post' => $this->id])->delete();
+        foreach (BlogConfig::get()->languages as $language) {
+            self::getDb()->table('blog_posts_translations')->insert([
+                'post_id' => $this->id,
+                'language' => $language,
+                'title' => $this->title[$language],
+                'content' => $this->content[$language]
+            ]);
+        }
+    }
+
+    /**
+     * @return $this
+     */
+    public function updateImages()
+    {
+        foreach (["img_icon", "img_cover"] as $key) {
+            if (!isset($_FILES[$key]) || !$_FILES[$key]['tmp_name'])
+                continue;
+            if (!FileHelper::get()->isImage($_FILES[$key]['tmp_name']))
+                continue;
+            $name = $this->id . '_' . $key . substr($_FILES[$key]['name'], -50);
+            if (FileHelper::get()->upload($key, APP_ROOT . 'htdocs/' . BlogConfig::get()->articleImageLocation . $name)) {
+                $col = str_replace('img', 'image', $key);
+                $old = $this->$col;
+                if ('default.png' != $old && $old != $name) {
+                    @unlink(APP_ROOT . 'htdocs/' . BlogConfig::get()->articleImageLocation . $old);
+                }
+                $this->$col = $name;
+            }
+        }
+        $this->save();
+        return $this;
+    }
+
+    public static $totalResults;
+
+    public static function getForSearch($text, $page)
+    {
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->compareColumn("status", self::STATUS_PUBLISHED);
+        self::$totalResults = self::count($condition);
+        $condition->with = ['author', 'category'];
+        $condition->limit = BlogConfig::get()->postsPerPage;
+        $condition->order = '`t`.`sticky` DESC, `t`.`order` ASC, `t`.`id` DESC';
+        $condition->offset = ($page - 1) * BlogConfig::get()->postsPerPage;
+        return self::findAll($condition);
+    }
+
+    public static function getLatestPublished($page)
+    {
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->compareColumn("status", self::STATUS_PUBLISHED);
+        self::$totalResults = self::count($condition);
+        $condition->with = ['author', 'category'];
+        $condition->limit = BlogConfig::get()->postsPerPage;
+        $condition->order = '`t`.`sticky` DESC, `t`.`order` ASC, `t`.`id` DESC';
+        $condition->offset = ($page - 1) * BlogConfig::get()->postsPerPage;
+        return self::findAll($condition);
+    }
+
+    public static function getForCategory($category, $page)
+    {
+        $condition = new ModelCondition(['model' => __CLASS__]);
+        $condition->compareColumn('category_id', $category);
+        $condition->compareColumn("status", self::STATUS_PUBLISHED);
+        self::$totalResults = self::count($condition);
+        $condition->with = ['author', 'category'];
+        $condition->limit = BlogConfig::get()->postsPerPage;
+        $condition->order = '`t`.`sticky` DESC, `t`.`order` ASC, `t`.`id` DESC';
+        $condition->offset = ($page - 1) * BlogConfig::get()->postsPerPage;
+        return self::findAll($condition);
     }
 }

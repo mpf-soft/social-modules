@@ -37,6 +37,9 @@ class BlogConfig extends Singleton
      */
     public $showSideCategories = true;
 
+    /**
+     * @var string[]
+     */
     public $languages = ['en'];
 
     /**
@@ -50,6 +53,20 @@ class BlogConfig extends Singleton
      * @var array
      */
     public $customSidePanels = [];
+
+    /**
+     * @var string
+     */
+    public $articleImageURL = 'uploads/blog/';
+
+    /**
+     * @var string
+     */
+    public $articleImageLocation = 'uploads/blog/';
+
+    public $postsPerPage = 5;
+
+    public $introductionSeparator = "==END-INTRODUCTION==";
 
     /**
      * @return string

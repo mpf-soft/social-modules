@@ -53,6 +53,8 @@ class Categories extends Controller
 
     public function actionDelete()
     {
-
+        $model = BlogCategory::findByPk($_POST['BlogCategory']);
+        $model->delete();
+        $this->goToAction('index');
     }
 }
