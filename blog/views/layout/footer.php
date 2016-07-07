@@ -2,6 +2,7 @@
     <?php require_once \mpf\modules\blog\components\BlogConfig::get()->customFooter; ?>
     <?php return; ?>
 <?php } ?>
+    &nbsp;
 </div>
 <div id="side-blog-section">
 

@@ -14,6 +14,7 @@ use mpf\datasources\sql\ModelCondition;
 use mpf\helpers\FileHelper;
 use mpf\modules\blog\components\BlogConfig;
 use mpf\WebApp;
+use mpf\widgets\form\fields\Markdown;
 
 /**
  * Class BlogPost
@@ -224,24 +225,26 @@ class BlogPost extends DbModel
     {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("status", self::STATUS_PUBLISHED);
-        self::$totalResults = self::count($condition);
         $condition->with = ['author', 'category'];
         $condition->limit = BlogConfig::get()->postsPerPage;
-        $condition->order = '`t`.`sticky` DESC, `t`.`order` ASC, `t`.`id` DESC';
+        $condition->order = '`t`.`id` DESC';
         $condition->offset = ($page - 1) * BlogConfig::get()->postsPerPage;
-        return self::findAll($condition);
+        $r = self::findAll($condition);
+        self::$totalResults = self::count($condition);
+        return $r;
     }
 
     public static function getLatestPublished($page)
     {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("status", self::STATUS_PUBLISHED);
-        self::$totalResults = self::count($condition);
         $condition->with = ['author', 'category'];
         $condition->limit = BlogConfig::get()->postsPerPage;
-        $condition->order = '`t`.`sticky` DESC, `t`.`order` ASC, `t`.`id` DESC';
+        $condition->order = '`t`.`id` DESC';
         $condition->offset = ($page - 1) * BlogConfig::get()->postsPerPage;
-        return self::findAll($condition);
+        $r = self::findAll($condition);
+        self::$totalResults = self::count($condition);
+        return $r;
     }
 
     public static function getForCategory($category, $page)
@@ -249,11 +252,53 @@ class BlogPost extends DbModel
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn('category_id', $category);
         $condition->compareColumn("status", self::STATUS_PUBLISHED);
-        self::$totalResults = self::count($condition);
         $condition->with = ['author', 'category'];
         $condition->limit = BlogConfig::get()->postsPerPage;
-        $condition->order = '`t`.`sticky` DESC, `t`.`order` ASC, `t`.`id` DESC';
+        $condition->order = '`t`.`id` DESC';
         $condition->offset = ($page - 1) * BlogConfig::get()->postsPerPage;
-        return self::findAll($condition);
+        $r = self::findAll($condition);
+        self::$totalResults = self::count($condition);
+        return $r;
+    }
+
+    protected $translation;
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        if (!$this->translation) {
+            $this->translation = self::getDb()->table('blog_posts_translations')->where("post_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
+        }
+
+        return $this->translation['title'];
+    }
+
+    /**
+     * @param bool $full
+     * @return string
+     */
+    public function getContent($full = true)
+    {
+        if (!$this->translation) {
+            $this->translation = self::getDb()->table('blog_posts_translations')->where("post_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
+        }
+        $content = $this->translation['content'];
+        if (!$full) {
+            $content = explode(BlogConfig::get()->introductionSeparator, $content, 2);
+            $content = $content[0];
+        } else {
+            $content = str_replace(BlogConfig::get()->introductionSeparator, "", $content);
+        }
+        return Markdown::processText($content);
+    }
+
+    public function getIcon(){
+
+    }
+
+    public function getCover(){
+        
     }
 }
