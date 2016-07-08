@@ -206,11 +206,11 @@ class BlogPost extends DbModel
             if (!FileHelper::get()->isImage($_FILES[$key]['tmp_name']))
                 continue;
             $name = $this->id . '_' . $key . substr($_FILES[$key]['name'], -50);
-            if (FileHelper::get()->upload($key, APP_ROOT . 'htdocs/' . BlogConfig::get()->articleImageLocation . $name)) {
+            if (FileHelper::get()->upload($key, dirname(APP_ROOT) . '/htdocs/' . BlogConfig::get()->articleImageLocation . $name)) {
                 $col = str_replace('img', 'image', $key);
                 $old = $this->$col;
                 if ('default.png' != $old && $old != $name) {
-                    @unlink(APP_ROOT . 'htdocs/' . BlogConfig::get()->articleImageLocation . $old);
+                    @unlink(dirname(APP_ROOT) . '/htdocs/' . BlogConfig::get()->articleImageLocation . $old);
                 }
                 $this->$col = $name;
             }
