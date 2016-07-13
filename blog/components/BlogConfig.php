@@ -64,6 +64,12 @@ class BlogConfig extends Singleton
      */
     public $articleImageLocation = 'uploads/blog/';
 
+    /**
+     * URL location for user avatars;
+     * @var string
+     */
+    public $userAvatarURL = 'uploads/user-avatars/';
+
     public $postsPerPage = 5;
 
     public $introductionSeparator = "==END-INTRODUCTION==";

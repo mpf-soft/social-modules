@@ -9,7 +9,9 @@
 namespace mpf\modules\blog\controllers;
 
 
+use app\components\htmltools\Messages;
 use mpf\modules\blog\components\Controller;
+use mpf\modules\blog\models\BlogComment;
 use mpf\modules\blog\models\BlogPost;
 
 class Home extends Controller
@@ -32,7 +34,17 @@ class Home extends Controller
 
     public function actionRead($id)
     {
-        $this->assign('article', BlogPost::findByPk($id));
+        $this->assign('article', $art = BlogPost::findByPk($id));
+        if ($art->allow_comments) {
+            $model = new BlogComment;
+            $model->post_id = $id;
+            if (isset($_POST['BlogComment']) && $model->setAttributes($_POST['BlogComment'])->save()) {
+                Messages::get()->success("Comment saved!");
+                $this->goBack();
+            }
+            $this->assign('model', $model);
+            $this->assign('comments', BlogComment::findAllByAttributes(['post_id' => $id, 'status' => BlogComment::STATUS_OK]));
+        }
     }
 
 }

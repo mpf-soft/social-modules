@@ -13,4 +13,50 @@
     </div>
 </div>
 
+
+<div class="blog-article-comments">
+    <?php if ($article->allow_comments) { ?>
+        <div class="comment-form">
+            <?php if (\mpf\WebApp::get()->user()->isGuest()) { ?>
+                <?= \mpf\widgets\form\Form::get([
+                    'name' => 'save',
+                    'model' => $model,
+                    'theme' => 'default-wide',
+                    'fields' => [
+                        'username',
+                        'email',
+                        [
+                            'name' => 'text',
+                            'type' => 'textarea'
+                        ]
+                    ]
+                ])->display(); ?>
+            <?php } else { ?>
+                <?= \mpf\widgets\form\Form::get([
+                    'name' => 'save',
+                    'model' => $model,
+                    'theme' => 'default-wide',
+                    'fields' => [
+                        [
+                            'name' => 'text',
+                            'type' => 'textarea'
+                        ]
+                    ]
+                ])->display(); ?>
+            <?php } ?>
+        </div>
+
+        <div class="blog-comments-list">
+            <?php foreach ($comments as $comment) { ?>
+                <div class="comment">
+                    <b><?= $comment->username; ?></b>
+                    <?= htmlentities($comment->text); ?>
+                </div>
+            <?php } ?>
+        </div>
+    <?php } else { ?>
+        <i><?= \app\components\htmltools\Translator::get()->t("Comments are hidden for this article!"); ?></i>
+    <?php } ?>
+</div>
+
 <?php require_once dirname(dirname(__DIR__)) . '/layout/footer.php'; ?>

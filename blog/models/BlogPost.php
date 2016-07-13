@@ -294,11 +294,18 @@ class BlogPost extends DbModel
         return Markdown::processText($content);
     }
 
-    public function getIcon(){
+    public function getIcon()
+    {
 
     }
 
-    public function getCover(){
-        
+    public function getCover()
+    {
+
+    }
+
+    public function getAuthorIcon()
+    {
+        return WebApp::get()->request()->getWebRoot() . BlogConfig::get()->userAvatarURL . ($this->author->icon ?: 'default.png');
     }
 }
