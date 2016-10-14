@@ -270,7 +270,7 @@
                             <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
                         </span>
                     </div>
-                    <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('USER_ICON_FOLDER_URL') . (\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
+                    <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\ModelHelper::getUserIconURL(\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
                     <div class="forum-user-details-footer">
                         <span class="forum-user-details-group">
                         <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
