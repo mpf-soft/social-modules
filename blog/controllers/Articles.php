@@ -32,6 +32,7 @@ class Articles extends Controller
         $article->time_written = date('Y-m-d H:i:s');
         $article->status = BlogPost::STATUS_NEW;
         if (isset($_POST['BlogPost']) && $article->setAttributes($_POST['BlogPost'])->save()) {
+            $article->afterAdminEdit();
             $this->goToPage('home', 'read', ['id' => $article->id, 'title' => $article->url]);
         }
         $this->assign('model', $article);
@@ -46,6 +47,7 @@ class Articles extends Controller
         $article->edit_number += 1;
         $article->beforeEdit();
         if (isset($_POST['BlogPost']) && $article->setAttributes($_POST['BlogPost'])->save()) {
+            $article->afterAdminEdit();
             $this->goToPage('home', 'read', ['id' => $article->id, 'title' => $article->url]);
         }
         $this->assign('model', $article);

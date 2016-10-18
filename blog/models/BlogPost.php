@@ -197,7 +197,7 @@ class BlogPost extends DbModel
         ]);
     }
 
-    public function afterSave()
+    public function afterAdminEdit()
     {
         $this->updateImages();
         self::getDb()->table('blog_posts_keywords')->where('post_id = :post', [':post' => $this->id])->delete();

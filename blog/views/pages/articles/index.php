@@ -39,9 +39,6 @@
             ],
             'headerHtmlOptions' => [
                 'style' => 'width:60px;'
-            ],
-            'topButtons' => [
-                'add' => ['class' => 'Add']
             ]
         ]
     ]
