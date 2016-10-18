@@ -310,7 +310,10 @@ class BlogPost extends DbModel
         } else {
             $content = str_replace(BlogConfig::get()->introductionSeparator, "", $content);
         }
-        return Markdown::processText($content);
+        return Markdown::processText($content) .
+        Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
+        Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
+        Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
 
     public function getIcon()
