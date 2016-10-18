@@ -45,6 +45,7 @@ class Articles extends Controller
         $article->edited_by = WebApp::get()->user()->id;
         $article->edit_time = date('Y-m-d H:i:s');
         $article->edit_number += 1;
+        $article->beforeEdit();
         if (isset($_POST['BlogPost']) && $article->setAttributes($_POST['BlogPost'])->save()) {
             $article->afterSave();
             $this->goToPage('home', 'read', ['id' => $article->id, 'title' => $article->url]);

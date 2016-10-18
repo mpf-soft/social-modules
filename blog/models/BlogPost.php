@@ -46,6 +46,25 @@ class BlogPost extends DbModel
 
     public $keywords, $title = [], $content = [], $img_icon, $img_cover;
 
+    /**
+     * @return $this
+     */
+    public function beforeEdit()
+    {
+        $translations = self::getDb()->table('blog_posts_translations')->where("post_id = :id", [':id' => $this->id])->get();
+        foreach ($translations as $trans) {
+            $this->title[$trans['language']] = $trans['title'];
+            $this->content[$trans['language']] = $trans['content'];
+        }
+        $words = self::getDb()->table('blog_posts_keywords')->where('post_id = :post', [':post' => $this->id])->get();
+        $this->keywords = [];
+        foreach ($words as $word) {
+            $this->keywords[] = $word['keyword'];
+        }
+        $this->keywords = implode(', ', $this->keywords);
+        return $this;
+    }
+
 
     /**
      * @return string[]
