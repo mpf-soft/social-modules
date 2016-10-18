@@ -74,6 +74,12 @@ class BlogConfig extends Singleton
 
     public $introductionSeparator = "==END-INTRODUCTION==";
 
+
+    /**
+     * @var bool
+     */
+    public $allowComments = true;
+
     /**
      * @return string
      */
