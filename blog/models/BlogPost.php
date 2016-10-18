@@ -13,6 +13,7 @@ use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
 use mpf\helpers\FileHelper;
 use mpf\modules\blog\components\BlogConfig;
+use mpf\web\helpers\Html;
 use mpf\WebApp;
 use mpf\widgets\form\fields\Markdown;
 
@@ -44,7 +45,7 @@ class BlogPost extends DbModel
     const STATUS_PUBLISHED = 1;
     const STATUS_DELETED = 2;
 
-    public $keywords, $title = [], $content = [], $img_icon, $img_cover;
+    public $keywords, $title = [], $content = [];
 
     /**
      * @return $this
@@ -212,6 +213,7 @@ class BlogPost extends DbModel
                 'content' => $this->content[$language]
             ]);
         }
+        return true;
     }
 
     /**
@@ -219,22 +221,27 @@ class BlogPost extends DbModel
      */
     public function updateImages()
     {
-        foreach (["img_icon", "img_cover"] as $key) {
+        $updates = false;
+        foreach (["image_icon", "image_cover"] as $key) {
             if (!isset($_FILES[$key]) || !$_FILES[$key]['tmp_name'])
                 continue;
             if (!FileHelper::get()->isImage($_FILES[$key]['tmp_name']))
                 continue;
+            if (!file_exists($_FILES[$key]['tmp_name']))
+                continue;
             $name = $this->id . '_' . $key . substr($_FILES[$key]['name'], -50);
             if (FileHelper::get()->upload($key, dirname(APP_ROOT) . '/htdocs/' . BlogConfig::get()->articleImageLocation . $name)) {
-                $col = str_replace('img', 'image', $key);
-                $old = $this->$col;
+                $old = $this->$key;
                 if ('default.png' != $old && $old != $name) {
                     @unlink(dirname(APP_ROOT) . '/htdocs/' . BlogConfig::get()->articleImageLocation . $old);
                 }
-                $this->$col = $name;
+                $this->$key = $name;
+                $updates = true;
             }
         }
-        $this->save();
+        if ($updates) {
+            $this->save();
+        }
         return $this;
     }
 
@@ -316,14 +323,26 @@ class BlogPost extends DbModel
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
     }
 
-    public function getIcon()
+    /**
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getIcon($htmlOptions = [])
     {
-
+        if (!$this->image_icon)
+            return "";
+        return Html::get()->image(BlogConfig::get()->articleImageURL . $this->image_icon, $this->getTitle(), $htmlOptions);
     }
 
-    public function getCover()
+    /**
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getCover($htmlOptions = [])
     {
-
+        if (!$this->image_cover)
+            return "";
+        return Html::get()->image(BlogConfig::get()->articleImageURL . $this->image_cover, $this->getTitle(), $htmlOptions);
     }
 
     public function getAuthorIcon()

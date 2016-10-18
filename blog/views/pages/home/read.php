@@ -7,9 +7,12 @@
         <?= $article->author->name; ?>
         <?= \mpf\helpers\DateTimeHelper::get()->niceDate($article->time_published); ?>
     </div>
+    <div class="blog-article-cover">
+        <?= $article->getCover(); ?>
+    </div>
     <div class="blog-article-content">
         <?= $article->getIcon(); ?>
-        <?= $article->getContent(false); ?>
+        <?= $article->getContent(true); ?>
     </div>
 </div>
 
