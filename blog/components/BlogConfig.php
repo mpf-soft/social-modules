@@ -85,7 +85,13 @@ class BlogConfig extends Singleton
      */
     public function getActiveLanguage()
     {
-        return WebApp::get()->request()->getLanguage();
+        if (1 === count($this->languages))
+            return $this->languages[0];
+
+        $l = WebApp::get()->request()->getLanguage();
+        if (!in_array($l, $this->languages))
+            return $this->languages[0];
+        return $l;
     }
 
 }
