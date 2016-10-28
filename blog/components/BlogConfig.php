@@ -40,7 +40,7 @@ class BlogConfig extends Singleton
     /**
      * @var string[]
      */
-    public $languages = ['en'];
+    public $languages;
 
     /**
      * Structure:
@@ -85,6 +85,8 @@ class BlogConfig extends Singleton
      */
     public function getActiveLanguage()
     {
+        if (is_null($this->languages))
+            $this->languages = WebApp::get()->request()->getAvailableLanguages();
         if (1 === count($this->languages))
             return $this->languages[0];
 
