@@ -33,6 +33,7 @@ use mpf\widgets\form\fields\Markdown;
  * @property string $image_icon
  * @property string $image_cover
  * @property int $allow_comments
+ * @property int $visibility
  * @property \app\models\User $author
  * @property \mpf\modules\blog\models\BlogCategory $category
  * @property \app\models\User $editor
@@ -108,7 +109,8 @@ class BlogPost extends DbModel
             'url' => 'URL Friendly Title',
             'image_icon' => 'Image Icon',
             'image_cover' => 'Image Cover',
-            'allow_comments' => 'Allow Comments'
+            'allow_comments' => 'Allow Comments',
+            'visibility' => 'Visibility'
         ];
     }
 
@@ -133,7 +135,7 @@ class BlogPost extends DbModel
     public static function getRules()
     {
         return [
-            ["id, author_id, category_id, time_written, time_published, status, edited_by, edit_time, edit_number, url, image_icon, image_cover, allow_comments", "safe", "on" => "search"]
+            ["id, author_id, category_id, time_written, time_published, status, edited_by, edit_time, edit_number, url, image_icon, image_cover, allow_comments, visibility", "safe", "on" => "search"]
         ];
     }
 
@@ -167,6 +169,11 @@ class BlogPost extends DbModel
             [
                 'name' => 'keywords',
                 'type' => 'seoKeywords'
+            ],
+            [
+                'name' => 'visibility',
+                'type' => 'select',
+                'options' => BlogConfig::get()->visibilityOptions
             ]
         ];
         foreach (BlogConfig::get()->languages as $lang) {
@@ -187,7 +194,7 @@ class BlogPost extends DbModel
     {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "author_id", "category_id", "time_written", "time_published", "status", "edited_by", "edit_time", "edit_number", "url", "allow_comments"] as $column) {
+        foreach (["id", "author_id", "category_id", "time_written", "time_published", "status", "edited_by", "edit_time", "edit_number", "url", "allow_comments" , "visibility"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }

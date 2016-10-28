@@ -74,6 +74,27 @@ class BlogConfig extends Singleton
 
     public $introductionSeparator = "==END-INTRODUCTION==";
 
+    /**
+     * A list of visibilies IDs and Labels that are possible for articles.
+     *
+     * Example:
+     * [php][
+     *     0 => 'Members (Logged In Only)',
+     *     1 => 'Public (Everyone)'
+     * ];
+     * [/php]
+     * @var string[]
+     */
+    public $visibilityOptions = [
+        0 => 'Members (Logged In Only)',
+        1 => 'Public (Everyone)'
+    ];
+
+    /**
+     * A function that should return a list of visibility options that are available for current user.
+     * @var callable
+     */
+    public $myVisibiliesCallback;
 
     /**
      * @var bool
