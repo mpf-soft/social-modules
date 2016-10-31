@@ -90,7 +90,7 @@
             <td class="forum-user-details">
                 <div class="forum-user-details-header">
                     <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id, 'name' => $thread->owner->name]]), $thread->owner->name); ?>
+                        <?= $thread->getOwnerProfileLink(); ?>
                     </b>
                     <span class="forum-user-details-title">
                         <?= $thread->getSectionUser($subcategory->category->section_id)->title->title; ?>
@@ -171,7 +171,7 @@
 
                     <div class="forum-user-details-header">
                         <b class="forum-user-details-name">
-                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->user_id, 'name' => $reply->author->name]]), $reply->author->name); ?>
+                            <?= $reply->getAuthorProfileLink(); ?>
                         </b>
                         <span class="forum-user-details-title">
                             <?= $reply->sectionAuthor->title->title; ?>
@@ -240,7 +240,7 @@
                                 <?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->edit_time, false, false); ?>
                             <?php } else { ?>
                                 <?= \mpf\modules\forum\components\Translator::get()->translate("Edited by"); ?>
-                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $reply->edit_user_id]]), $reply->editor->name); ?>
+                                <?= $reply->getEditorProfileLink(); ?>
                                 <?= \mpf\helpers\DateTimeHelper::get()->niceDate($reply->edit_time, false, false); ?>
                             <?php } ?>
                         </div>

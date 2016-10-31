@@ -82,14 +82,14 @@
                         <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['thread', 'index', ['subcategory' => $thread->subcategory->url_friendly_title, 'category' => $thread->category->url_friendly_name, 'id' => $thread->id]]), $thread->title); ?>
                     </td>
                     <td class="thread-started-by-column">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->user_id]]), $thread->owner->name); ?>
+                        <?= $thread->getOwnerProfileLink(); ?>
                         <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time, false ,false); ?></span>
                     </td>
                     <td class="thread-replies-column"><?= $thread->replies; ?></td>
                     <td class="thread-views-column"><?= $thread->views; ?></td>
                     <td class="thread-most-recent-column">
                         <?php if ($thread->last_reply_id) { ?>
-                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $thread->last_reply_user_id, 'name' => $thread->lastActiveUser->name]]), $thread->lastActiveUser->name); ?>
+                            <?= $thread->getLastActiveProfileLink(); ?>
                             <span><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->last_reply_date, false ,false); ?></span>
                         <?php } else { ?>
                             <span class="thread-no-replies-message">

@@ -15,7 +15,7 @@
                     <?= \mpf\web\helpers\Html::get()->image($subReply->getAuthorIcon()); ?>
                     <div class="forum-user-details-texts">
                         <b class="forum-user-details-name">
-                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subReply->user_id, 'name' => $subReply->author->name]]), $subReply->author->name); ?>
+                            <?= $subReply->getAuthorProfileLink(); ?>
                         </b>
                         <span class="forum-user-details-title">
                             <?= $subReply->sectionAuthor->title->title; ?>
@@ -45,14 +45,14 @@
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_AGREE_ICON'), "Agree"),
                                     'afterReplyVote',
                                     ['id' => $subReply->id, 'type' => 'agree', 'level' => $level],
-                                    ['class' => 'forum-vote-button-positive ' . ($subReply->getMyVote() == 'positive'?'':'forum-vote-button-not-voted')]
+                                    ['class' => 'forum-vote-button-positive ' . ($subReply->getMyVote() == 'positive' ? '' : 'forum-vote-button-not-voted')]
                                 ); ?>
                                 <?= \mpf\web\helpers\Html::get()->ajaxLink(
                                     $this->updateURLWithSection(['thread', 'vote']),
                                     \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\Config::value('FORUM_VOTE_DISAGREE_ICON'), "Disagree"),
                                     'afterReplyVote',
                                     ['id' => $subReply->id, 'type' => 'disagree', 'level' => $level],
-                                    ['class' => 'forum-vote-button-negative ' . ($subReply->getMyVote() == 'negative'?'':'forum-vote-button-not-voted')]
+                                    ['class' => 'forum-vote-button-negative ' . ($subReply->getMyVote() == 'negative' ? '' : 'forum-vote-button-not-voted')]
                                 ); ?>
                             <?php } ?>
 
@@ -72,7 +72,7 @@
                         </div>
                         <div
                             class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?>&nbsp;&nbsp;&nbsp;
-                            <span id="number-of-points-for-reply-<?= $level; ?>-<?= $subReply->id;?>">
+                            <span id="number-of-points-for-reply-<?= $level; ?>-<?= $subReply->id; ?>">
                             <?= $subReply->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
                                 &nbsp;&nbsp;&nbsp;
                             </span></div>
@@ -85,7 +85,7 @@
                                 <?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->edit_time, false, false); ?>
                             <?php } else { ?>
                                 <?= \mpf\modules\forum\components\Translator::get()->translate("Edited by"); ?>
-                                <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => $subReply->edit_user_id]]), $subReply->editor->name); ?>
+                                <?= $subReply->getEditorProfileLink(); ?>
                                 <?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->edit_time, false, false); ?>
                             <?php } ?>
                         </div>

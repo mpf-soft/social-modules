@@ -274,6 +274,26 @@ class ForumReply extends DbModel {
     }
 
     /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getAuthorProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->user_id, $this->author->name, $htmlOptions);
+    }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getEditorProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->edit_user_id, $this->editor->name, $htmlOptions);
+    }
+
+    /**
      * Check my vote status for selected reply
      * @return bool|string
      */
