@@ -268,6 +268,7 @@ class UserAccess extends LogAwareObject {
         if (WebApp::get()->user()->isGuest()){
             return false;
         }
+        return true;
     }
 
     /**
