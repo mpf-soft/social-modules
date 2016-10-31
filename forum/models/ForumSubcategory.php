@@ -8,6 +8,8 @@
 namespace mpf\modules\forum\models;
 
 use app\components\htmltools\Messages;
+use mpf\datasources\sql\DbRelation;
+use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\Translator;
 use mpf\modules\forum\components\UserAccess;
 use mpf\datasources\sql\DataProvider;
@@ -44,6 +46,8 @@ class ForumSubcategory extends DbModel {
      * @var bool
      */
     public $hidden = false;
+
+    public $currentSection;
 
     /**
      * Get database table name.
@@ -183,6 +187,16 @@ class ForumSubcategory extends DbModel {
             ->fields("SUM(replies) as number")->get();
         $this->number_of_replies = $replies[0]['number'];
         return $this;
+    }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getLastActiveProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->last_active_user_id, $this->lastActiveUser->name, $htmlOptions);
     }
 
     /**

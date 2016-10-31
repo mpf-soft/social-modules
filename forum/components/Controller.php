@@ -12,6 +12,8 @@ namespace mpf\modules\forum\components;
 use app\components\htmltools\Messages;
 use mpf\modules\forum\models\ForumSection;
 use mpf\helpers\FileHelper;
+use mpf\modules\forum\models\ForumSubcategory;
+use mpf\modules\forum\models\ForumThread;
 use mpf\web\helpers\Html;
 use mpf\web\Session;
 
@@ -116,6 +118,9 @@ class Controller extends \app\components\Controller {
             }
             $this->forumTitle = str_replace('__SECTION__', ('Main' == $section->name) ? '': $section->name . ' ', $this->forumTitle);
         }
+        Config::$currentSectionID = $this->sectionId;
+        ForumSubcategory::$sectionId = $this->sectionId;
+        ForumThread::$sectionId = $this->sectionId;
         return parent::beforeAction($actionName);
     }
 

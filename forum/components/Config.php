@@ -12,9 +12,11 @@ namespace mpf\modules\forum\components;
 use app\models\GlobalConfig;
 use mpf\base\App;
 use mpf\base\Object;
+use mpf\web\helpers\Html;
 use mpf\WebApp;
 
-class Config extends Object {
+class Config extends Object
+{
 
     /**
      * @var static
@@ -24,14 +26,16 @@ class Config extends Object {
     /**
      * @return static
      */
-    public static function get() {
+    public static function get()
+    {
         if (!self::$self) {
             self::$self = new static();
         }
         return self::$self;
     }
 
-    public static function value($key) {
+    public static function value($key)
+    {
         if (self::get()->useGlobalConfig) {
             $value = GlobalConfig::value($key) ?: self::get()->$key;
         } else {
@@ -51,6 +55,39 @@ class Config extends Object {
      * @var bool
      */
     public $useGlobalConfig = false;
+
+    /**
+     * A function that will return a string with url to user profile. For custom pages.
+     *
+     * Parameters sent:
+     *    - userId -> site user ID
+     *    - userName -> user Name
+     * Example:
+     *
+     * [php]
+     *   function($userId, $userName){
+     *      return \mpf\WebApp::get()->request()->createURL('profile', 'index', ['id' => $userId, 'name' => $userName], '');
+     *   }
+     * [/php]
+     * @var callable
+     */
+    public $userProfileLinkCallback;
+
+    /**
+     * Get HTML link to user profile
+     * @param $userId
+     * @param $userName
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getProfileLink($userId, $userName, $htmlOptions = [])
+    {
+        if (isset($this->userProfileLinkCallback) && is_callable($this->userProfileLinkCallback)) {
+            return Html::get()->link(call_user_func($this->userProfileLinkCallback, $userId, $userName), $userName, $htmlOptions);
+        }
+
+        return Html::get()->link(WebApp::get()->getController()->updateURLWithSection(['user', 'index', ['id' => $userId, 'name' => $userName]]), $userName, $htmlOptions);
+    }
 
     public $USER_ICON_FOLDER_PATH = '{APP_ROOT}..{DIRECTORY_SEPARATOR}htdocs{DIRECTORY_SEPARATOR}uploads{DIRECTORY_SEPARATOR}user-avatars{DIRECTORY_SEPARATOR}';
 
@@ -143,7 +180,7 @@ class Config extends Object {
      * Prefix to be added to type names;
      * @var string
      */
-    public $FORUM_NOTIFICATIONS_TYPES_PREFIX  = 'MPF.SocialModules.Forum.';
+    public $FORUM_NOTIFICATIONS_TYPES_PREFIX = 'MPF.SocialModules.Forum.';
 
     /**
      * If you need to parse the text before displaying then set a parser here that will be used instead of the default one

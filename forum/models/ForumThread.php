@@ -7,6 +7,7 @@
 
 namespace mpf\modules\forum\models;
 
+use mpf\datasources\sql\DbRelation;
 use mpf\helpers\ArrayHelper;
 use mpf\modules\forum\components\Config;
 use mpf\modules\forum\components\ModelHelper;
@@ -579,6 +580,46 @@ class ForumThread extends DbModel {
             'userId' => WebApp::get()->user()->id
         ]);
 
+    }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getOwnerProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->user_id, $this->owner->name, $htmlOptions);
+    }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getEditorProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->edit_user_id, $this->editor->name, $htmlOptions);
+    }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getDeletedByProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->deleted_user_id, $this->deletedBy->name, $htmlOptions);
+    }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getLastActiveProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->last_reply_user_id, $this->lastActiveUser->name, $htmlOptions);
     }
 
     /**

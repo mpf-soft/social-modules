@@ -35,12 +35,14 @@ use mpf\widgets\form\fields\Markdown;
  * @property \mpf\modules\forum\models\ForumUserGroup $group
  * @property \mpf\modules\forum\models\ForumTitle $title
  */
-class ForumUser2Section extends DbModel {
+class ForumUser2Section extends DbModel
+{
 
     public $name;
     public $last_login;
 
     public $icon;
+
 
     /**
      * A callable method that will be used when a new icon is loaded.
@@ -52,15 +54,17 @@ class ForumUser2Section extends DbModel {
      */
     public $iconUploadHandle;
 
-    public function getIconLocationURL(){
+    public function getIconLocationURL()
+    {
         return str_replace([
             '{WEB_ROOT}'
-        ],[
+        ], [
             WebApp::get()->request()->getWebRoot()
         ], Config::value('USER_ICON_FOLDER_URL'));
     }
 
-    public function getIconLocationPath(){
+    public function getIconLocationPath()
+    {
         return str_replace([
             '{APP_ROOT}',
             '{DIRECTORY_SEPARATOR}'
@@ -74,7 +78,8 @@ class ForumUser2Section extends DbModel {
      * Get database table name.
      * @return string
      */
-    public static function getTableName() {
+    public static function getTableName()
+    {
         return "forum_users2sections";
     }
 
@@ -83,7 +88,8 @@ class ForumUser2Section extends DbModel {
      * to better display labels for inputs or table headers for each column.
      * @return array
      */
-    public static function getLabels() {
+    public static function getLabels()
+    {
         return [
             'id' => 'Id',
             'user_id' => 'User',
@@ -101,7 +107,8 @@ class ForumUser2Section extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations() {
+    public static function getRelations()
+    {
         return [
             'user' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'section' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSection', 'section_id'],
@@ -114,7 +121,8 @@ class ForumUser2Section extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules() {
+    public static function getRules()
+    {
         return [
             ["id, user_id, section_id, muted, banned, title_id, group_id, member_since, signature", "safe", "on" => "search"]
         ];
@@ -124,7 +132,8 @@ class ForumUser2Section extends DbModel {
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @return \mpf\datasources\sql\DataProvider
      */
-    public function getDataProvider($sectionId) {
+    public function getDataProvider($sectionId)
+    {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->with = ['user', 'group', 'title'];
         $condition->compareColumn("section_id", $sectionId);
@@ -150,7 +159,8 @@ class ForumUser2Section extends DbModel {
      * @param $groupId
      * @return bool
      */
-    public static function makeMember($userId, $sectionId = 0, $groupId = null) {
+    public static function makeMember($userId, $sectionId = 0, $groupId = null)
+    {
         $user = new self();
         $user->user_id = $userId;
         $user->section_id = $sectionId;
@@ -168,9 +178,10 @@ class ForumUser2Section extends DbModel {
      * @param $sectionId
      * @return bool
      */
-    public static function removeMember($userId, $sectionId){
+    public static function removeMember($userId, $sectionId)
+    {
         $member = self::findByAttributes(['user_id' => $userId, 'section_id' => $sectionId]);
-        if ($member){
+        if ($member) {
             return $member->delete();
         }
         return true;
@@ -179,11 +190,12 @@ class ForumUser2Section extends DbModel {
     /**
      * @return string
      */
-    public function getSignature() {
-        if (!$this->signature){
+    public function getSignature()
+    {
+        if (!$this->signature) {
             return "";
         }
-        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))){
+        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))) {
             $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->signature);
         } else {
             $text = Markdown::processText(htmlentities($this->signature));
@@ -194,22 +206,26 @@ class ForumUser2Section extends DbModel {
 
     }
 
-    public function getProfileLink() {
-        if ($this->section_id) {
-            return Html::get()->link(['user', 'index', ['id' => $this->id, 'name' => $this->user->name, WebApp::get()->getController()->sectionIdKey => $this->section_id]], $this->user->name);
-        } else {
-            return Html::get()->link(['user', 'index', ['id' => $this->id, 'name' => $this->user->name]], $this->user->name);
-        }
+
+    /**
+     * Moved user profile to config;
+     * @param array $htmlOptions
+     * @return string
+     */
+    public function getProfileLink($htmlOptions = [])
+    {
+        return Config::get()->getProfileLink($this->user_id, $this->user->name, $htmlOptions);
     }
 
-    public function changeIcon(){
-        if (!isset($_FILES['icon']) || !$_FILES['icon']['tmp_name']){
+    public function changeIcon()
+    {
+        if (!isset($_FILES['icon']) || !$_FILES['icon']['tmp_name']) {
             return null;
         }
-        if (!FileHelper::get()->isImage($_FILES['icon']['tmp_name'])){
+        if (!FileHelper::get()->isImage($_FILES['icon']['tmp_name'])) {
             return false;
         }
-        if ($this->iconUploadHandle){
+        if ($this->iconUploadHandle) {
             $function = $this->iconUploadHandle;
             return $function('icon');
         }
@@ -217,7 +233,7 @@ class ForumUser2Section extends DbModel {
         FileHelper::get()->upload('icon', $this->getIconLocationPath() . $name);
         $column = Config::value('USER_ICON_COLUMN_NAME');
         $old = $this->user->$column;
-        if ($old && 'default.png' != $old && $name != $old){
+        if ($old && 'default.png' != $old && $name != $old) {
             @unlink($old);
         }
         $this->user->$column = $name;
