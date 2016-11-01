@@ -116,7 +116,7 @@ class BlogConfig extends Singleton
      * If multiple blog modules are used then a table prefix can be used to manage all of them separately
      * @var string
      */
-    public $tablesPrefix;
+    public $tablesPrefix = '';
 
     protected function init($config)
     {
