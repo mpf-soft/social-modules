@@ -42,7 +42,7 @@ class BlogComment extends DbModel
      */
     public static function getTableName()
     {
-        return BlogConfig::get()->tablesPrefix . "blog_comments";
+        return BlogConfig::get()->tablesPrefix . "comments";
     }
 
     /**
