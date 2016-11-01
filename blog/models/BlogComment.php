@@ -12,6 +12,7 @@ use mpf\datasources\sql\DataProvider;
 use mpf\datasources\sql\DbModel;
 use mpf\datasources\sql\DbRelations;
 use mpf\datasources\sql\ModelCondition;
+use mpf\modules\blog\components\BlogConfig;
 use mpf\WebApp;
 
 /**
@@ -41,7 +42,7 @@ class BlogComment extends DbModel
      */
     public static function getTableName()
     {
-        return "blog_comments";
+        return BlogConfig::get()->tablesPrefix . "blog_comments";
     }
 
     /**

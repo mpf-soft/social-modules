@@ -35,7 +35,7 @@ class BlogCategory extends DbModel
      */
     public static function getTableName()
     {
-        return "blog_categories";
+        return BlogConfig::get()->tablesPrefix . "blog_categories";
     }
 
     /**
@@ -87,7 +87,7 @@ class BlogCategory extends DbModel
 
     public function reloadTranslations()
     {
-        $translations = self::getDb()->table('blog_categories_translations')->where("category_id = :id", [':id' => $this->id])->get();
+        $translations = self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_categories_translations')->where("category_id = :id", [':id' => $this->id])->get();
         foreach ($translations as $trans) {
             $this->title[$trans['language']] = $trans['title'];
             $this->description[$trans['language']] = $trans['description'];
@@ -105,9 +105,9 @@ class BlogCategory extends DbModel
 
     public function saveTranslations()
     {
-        self::getDb()->table('blog_categories_translations')->where("category_id = :id", [':id' => $this->id])->delete();
+        self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_categories_translations')->where("category_id = :id", [':id' => $this->id])->delete();
         foreach ($this->title as $lang => $translation) {
-            self::getDb()->table('blog_categories_translations')->insert(['category_id' => $this->id, 'language' => $lang, 'title' => $translation, 'description' => $this->description[$lang]]);
+            self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_categories_translations')->insert(['category_id' => $this->id, 'language' => $lang, 'title' => $translation, 'description' => $this->description[$lang]]);
         }
     }
 
@@ -137,7 +137,7 @@ class BlogCategory extends DbModel
     public function getTitle()
     {
         if (!$this->translation) {
-            $this->translation = self::getDb()->table('blog_categories_translations')->where("category_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
+            $this->translation = self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_categories_translations')->where("category_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
         }
 
         return $this->translation['title'];
@@ -149,7 +149,7 @@ class BlogCategory extends DbModel
     public function getDescription()
     {
         if (!$this->translation) {
-            $this->translation = self::getDb()->table('blog_categories_translations')->where("category_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()]);
+            $this->translation = self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_categories_translations')->where("category_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()]);
         }
         return $this->translation['description'];
     }

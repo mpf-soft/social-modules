@@ -70,8 +70,16 @@ class BlogConfig extends Singleton
      */
     public $userAvatarURL = 'uploads/user-avatars/';
 
+    /**
+     * Number of posts that is displayed per page
+     * @var int
+     */
     public $postsPerPage = 5;
 
+    /**
+     * This will be used to extract the short description
+     * @var string
+     */
     public $introductionSeparator = "==END-INTRODUCTION==";
 
     /**
@@ -97,9 +105,18 @@ class BlogConfig extends Singleton
     public $myVisibiliesCallback;
 
     /**
+     *
+     * Allow comments on articles
      * @var bool
      */
     public $allowComments = true;
+
+
+    /**
+     * If multiple blog modules are used then a table prefix can be used to manage all of them separately
+     * @var string
+     */
+    public $tablesPrefix;
 
     protected function init($config)
     {

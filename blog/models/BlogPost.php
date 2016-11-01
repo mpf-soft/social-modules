@@ -86,7 +86,7 @@ class BlogPost extends DbModel
      */
     public static function getTableName()
     {
-        return "blog_posts";
+        return BlogConfig::get()->tablesPrefix . "blog_posts";
     }
 
     /**
@@ -194,7 +194,7 @@ class BlogPost extends DbModel
     {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
-        foreach (["id", "author_id", "category_id", "time_written", "time_published", "status", "edited_by", "edit_time", "edit_number", "url", "allow_comments" , "visibility"] as $column) {
+        foreach (["id", "author_id", "category_id", "time_written", "time_published", "status", "edited_by", "edit_time", "edit_number", "url", "allow_comments", "visibility"] as $column) {
             if ($this->$column) {
                 $condition->compareColumn($column, $this->$column, true);
             }
@@ -207,13 +207,13 @@ class BlogPost extends DbModel
     public function afterAdminEdit()
     {
         $this->updateImages();
-        self::getDb()->table('blog_posts_keywords')->where('post_id = :post', [':post' => $this->id])->delete();
+        self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_posts_keywords')->where('post_id = :post', [':post' => $this->id])->delete();
         $keywords = explode(', ', $this->keywords);
         foreach ($keywords as $word)
-            self::getDb()->table('blog_posts_keywords')->insert(['post_id' => $this->id, 'keyword' => $word]);
-        self::getDb()->table('blog_posts_translations')->where('post_id = :post', [':post' => $this->id])->delete();
+            self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_posts_keywords')->insert(['post_id' => $this->id, 'keyword' => $word]);
+        self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_posts_translations')->where('post_id = :post', [':post' => $this->id])->delete();
         foreach (BlogConfig::get()->languages as $language) {
-            self::getDb()->table('blog_posts_translations')->insert([
+            self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_posts_translations')->insert([
                 'post_id' => $this->id,
                 'language' => $language,
                 'title' => $this->title[$language],
@@ -302,7 +302,7 @@ class BlogPost extends DbModel
     public function getTitle()
     {
         if (!$this->translation) {
-            $this->translation = self::getDb()->table('blog_posts_translations')->where("post_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
+            $this->translation = self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_posts_translations')->where("post_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
         }
 
         return $this->translation['title'];
@@ -315,7 +315,7 @@ class BlogPost extends DbModel
     public function getContent($full = true)
     {
         if (!$this->translation) {
-            $this->translation = self::getDb()->table('blog_posts_translations')->where("post_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
+            $this->translation = self::getDb()->table(BlogConfig::get()->tablesPrefix . 'blog_posts_translations')->where("post_id = :id AND language = :lang", [':id' => $this->id, ':lang' => BlogConfig::get()->getActiveLanguage()])->first();
         }
         $content = $this->translation['content'];
         if (!$full) {
