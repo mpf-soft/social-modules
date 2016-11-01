@@ -101,13 +101,18 @@ class BlogConfig extends Singleton
      */
     public $allowComments = true;
 
+    protected function init($config)
+    {
+        if (is_null($this->languages))
+            $this->languages = WebApp::get()->request()->getAvailableLanguages();
+        parent::init($config);
+    }
+
     /**
      * @return string
      */
     public function getActiveLanguage()
     {
-        if (is_null($this->languages))
-            $this->languages = WebApp::get()->request()->getAvailableLanguages();
         if (1 === count($this->languages))
             return $this->languages[0];
 
