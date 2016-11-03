@@ -164,9 +164,8 @@ class ForumUser2Section extends DbModel
         $user = new self();
         $user->user_id = $userId;
         $user->section_id = $sectionId;
-        $user->muted = 0;
-        $user->banned = 0;
-        $user->title_id = 0;
+        $user->muted = $user->banned = $user->title_id = 1;
+        $user->muted = $user->banned = $user->title_id = 0;
         $user->signature = '';
         $user->member_since = date('Y-m-d H:i:s');
         if (!$groupId) {
