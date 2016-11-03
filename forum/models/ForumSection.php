@@ -166,6 +166,7 @@ class ForumSection extends DbModel {
         $title->section_id = $section->id;
         $title->title = "New Comer";
         $title->icon = "default.png";
+        $title->description = $title->title;
         $title->save();
         App::get()->debug("Title {$title->title}:  #{$title->id} created!");
         $user = new ForumUser2Section();
