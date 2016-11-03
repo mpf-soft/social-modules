@@ -185,15 +185,13 @@ class ForumSection extends DbModel {
      * This deletes all posts, users, sections, everything. To be used once when app goes from dev to production or when it is installed.
      */
     public static function resetForum(){
-        self::getDb()->execQuery("TRUNCATE TABLE `forum_categories`;
-TRUNCATE TABLE `forum_groups2categories`;
-TRUNCATE TABLE `forum_replies`;
-TRUNCATE TABLE `forum_sections`;
-TRUNCATE TABLE `forum_subcategories`;
-TRUNCATE TABLE `forum_threads`;
-TRUNCATE TABLE `forum_titles`;
-TRUNCATE TABLE `forum_users2sections`;
-TRUNCATE TABLE `forum_user_groups`;");
+        $tables = ['forum_categories', 'forum_groups2categories',
+            'forum_replies', 'forum_replies_eighth', 'forum_replies_fifth', 'forum_replies_forth', 'forum_replies_nth', 'forum_replies_second', 'forum_replies_seventh',
+            'forum_replies_sixth', 'forum_replies_third', 'forum_reply_votes', 'forum_sections', 'forum_subcategories',
+            'forum_threads','forum_thread_tags', 'forum_thread_votes', 'forum_titles', 'forum_userhiddensubcategories', 'forum_users2sections', 'forum_users_subscriptions',
+            'forum_user_groups'];
+        foreach($tables as $t)
+            self::getDb()->table($t)->truncate();
     }
 
 }
