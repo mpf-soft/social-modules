@@ -175,6 +175,7 @@ class ForumSection extends DbModel {
         $user->group_id = $group->id;
         $user->title_id = $title->id;
         $user->banned = $user->muted = 0;
+        $user->signature = '';
         $user->save();
         App::get()->debug("User #$userId assigned to section as admin! (Group: #{$group->id})");
         return $section->id;
