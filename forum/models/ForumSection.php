@@ -190,8 +190,10 @@ class ForumSection extends DbModel {
             'forum_replies_sixth', 'forum_replies_third', 'forum_reply_votes', 'forum_sections', 'forum_subcategories',
             'forum_threads','forum_thread_tags', 'forum_thread_votes', 'forum_titles', 'forum_userhiddensubcategories', 'forum_users2sections', 'forum_users_subscriptions',
             'forum_user_groups'];
+        self::getDb()->execQuery("SET FOREIGN_KEY_CHECKS=0");
         foreach($tables as $t)
             self::getDb()->table($t)->truncate();
+        self::getDb()->execQuery("SET FOREIGN_KEY_CHECKS=1");
     }
 
 }
