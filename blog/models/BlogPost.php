@@ -35,6 +35,7 @@ use mpf\widgets\form\fields\Markdown;
  * @property string $image_cover
  * @property int $allow_comments
  * @property int $visibility
+ * @property int $anonimous
  * @property \app\models\User $author
  * @property \mpf\modules\blog\models\BlogCategory $category
  * @property \app\models\User $editor
@@ -111,7 +112,8 @@ class BlogPost extends DbModel
             'image_icon' => 'Image Icon',
             'image_cover' => 'Image Cover',
             'allow_comments' => 'Allow Comments',
-            'visibility' => 'Visibility'
+            'visibility' => 'Visibility',
+            'anonimous' => 'Anonimous'
         ];
     }
 
@@ -136,7 +138,7 @@ class BlogPost extends DbModel
     public static function getRules()
     {
         return [
-            ["id, author_id, category_id, time_written, time_published, status, edited_by, edit_time, edit_number, url, image_icon, image_cover, allow_comments, visibility", "safe", "on" => "search"]
+            ["id, author_id, category_id, time_written, time_published, status, edited_by, edit_time, edit_number, url, image_icon, image_cover, allow_comments, visibility, anonimous", "safe", "on" => "search"]
         ];
     }
 
@@ -175,6 +177,10 @@ class BlogPost extends DbModel
                 'name' => 'visibility',
                 'type' => 'select',
                 'options' => BlogConfig::get()->visibilityOptions
+            ],
+            [
+                'name' => 'anonimous',
+                'type' => 'checkbox'
             ]
         ];
         foreach (BlogConfig::get()->languages as $lang) {

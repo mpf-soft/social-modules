@@ -46,7 +46,7 @@ class Articles extends Controller
         $article->edit_time = date('Y-m-d H:i:s');
         $article->edit_number += 1;
         $article->beforeEdit();
-        if (isset($_POST['BlogPost']) && $article->setAttributes($_POST['BlogPost'])->save()) {
+        if (isset($_POST['BlogPost']) && $article->setAttributes(['anonimous' => 0]) && $article->setAttributes($_POST['BlogPost'])->save()) {
             $article->afterAdminEdit();
             $this->goToPage('home', 'read', ['id' => $article->id, 'title' => $article->url]);
         }
@@ -54,7 +54,8 @@ class Articles extends Controller
         Messages::get()->info("Add " . BlogConfig::get()->introductionSeparator . " to set the limit for text displayed on the articles list!");
     }
 
-    public function actionPublish(){
+    public function actionPublish()
+    {
         $model = BlogPost::findByPk($_POST['BlogPost']);
         $model->status = BlogPost::STATUS_PUBLISHED;
         $model->time_published = date('Y-m-d H:i:s');
