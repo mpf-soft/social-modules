@@ -288,6 +288,7 @@ class ForumThread extends DbModel
     protected static function _findRecent($sections, $limit, $offset, $sectionId = null)
     {
         $guest = false;
+        $sectionsIds = [];
         if (1 === count($sections) && is_null($sections[0])) {
             if (is_null($sectionId))
                 return [];
