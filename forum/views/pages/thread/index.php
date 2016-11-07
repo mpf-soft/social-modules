@@ -93,7 +93,9 @@
                         <?= $thread->getOwnerProfileLink(); ?>
                     </b>
                     <span class="forum-user-details-title">
-                        <?= $thread->getSectionUser($subcategory->category->section_id)->title->title; ?>
+                        <?= !$thread->getSectionUser($subcategory->category->section_id) ? '-'
+                            : ($thread->getSectionUser($subcategory->category->section_id)->title ?
+                                $thread->getSectionUser($subcategory->category->section_id)->title->title : '-'); ?>
                     </span>
                 </div>
                 <?= \mpf\web\helpers\Html::get()->image($thread->getAuthorIcon()); ?>
@@ -102,8 +104,8 @@
                             <?= $thread->getSectionUser($subcategory->category->section_id)->group->full_name; ?>
                     </span>
                     <span class="forum-user-details-date">
-                        <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                        <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
                     </span>
                 </div>
             </td>
@@ -143,9 +145,9 @@
                 <div
                     class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?>
                     &nbsp;&nbsp;&nbsp;
-                            <span id="number-of-points-for-thread">
+                    <span id="number-of-points-for-thread">
                             <?= $thread->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
-                                &nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;
                             </span></div>
                 <?= $thread->getContent(); ?>
                 <?php if ($thread->edit_user_id) { ?>
@@ -174,17 +176,17 @@
                             <?= $reply->getAuthorProfileLink(); ?>
                         </b>
                         <span class="forum-user-details-title">
-                            <?= $reply->sectionAuthor->title->title; ?>
+                            <?= $reply->sectionAuthor ? ($reply->sectionAuthor->title ? $reply->sectionAuthor->title->title : '-') : '-'; ?>
                         </span>
                     </div>
                     <?= \mpf\web\helpers\Html::get()->image($reply->getAuthorIcon()); ?>
                     <div class="forum-user-details-footer">
                         <span class="forum-user-details-group">
-                            <?= $reply->authorGroup->full_name; ?>
+                            <?= $reply->authorGroup ? $reply->authorGroup->full_name : '-'; ?>
                         </span>
                         <span class="forum-user-details-date">
                             <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->sectionAuthor->member_since, false, false)); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($reply->sectionAuthor ? $reply->sectionAuthor->member_since : null, false, false)); ?>
                         </span>
                     </div>
                 </td>

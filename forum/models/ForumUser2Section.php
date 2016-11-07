@@ -177,6 +177,22 @@ class ForumUser2Section extends DbModel
         return $user->save();
     }
 
+    public static function makeVisitor($userId, $sectionId)
+    {
+        $user = new self();
+        $user->user_id = $userId;
+        $user->section_id = $sectionId;
+        $user->muted = $user->banned = $user->title_id = 1;
+        $user->muted = $user->banned = $user->title_id = 0;
+        $user->signature = '';
+        $user->member_since = date('Y-m-d H:i:s');
+        $section = ForumSection::findByPk($sectionId);
+        $groupId = $section->default_visitors_group_id;
+        App::get()->debug("User $userId assign to group $groupId from section $sectionId");
+        $user->group_id = $groupId;
+        return $user->save();
+    }
+
     /**
      * @param $userId
      * @param $sectionId

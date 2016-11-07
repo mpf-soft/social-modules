@@ -18,15 +18,15 @@
                             <?= $subReply->getAuthorProfileLink(); ?>
                         </b>
                         <span class="forum-user-details-title">
-                            <?= $subReply->sectionAuthor->title->title; ?>
+                            <?= $subReply->sectionAuthor ? ($subReply->sectionAuthor->title ? $subReply->sectionAuthor->title->title : '-') : '-'; ?>
                         </span>
 
                         <span class="forum-user-details-group">
-                            <?= $subReply->authorGroup->full_name; ?>
+                            <?= $subReply->authorGroup ? $subReply->authorGroup->full_name : '-'; ?>
                         </span>
                         <span class="forum-user-details-date">
                             <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subReply->sectionAuthor->member_since, false, false)); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($subReply->sectionAuthor ? $subReply->sectionAuthor->member_since : null, false, false)); ?>
                         </span>
                     </div>
                 </td>

@@ -57,13 +57,15 @@ use mpf\widgets\form\fields\Markdown;
  * @property \app\models\User $lastActiveUser
  * @property \app\models\User $deletedBy
  */
-class ForumThread extends DbModel {
+class ForumThread extends DbModel
+{
 
     /**
      * Get database table name.
      * @return string
      */
-    public static function getTableName() {
+    public static function getTableName()
+    {
         return "forum_threads";
     }
 
@@ -72,7 +74,8 @@ class ForumThread extends DbModel {
      * to better display labels for inputs or table headers for each column.
      * @return array
      */
-    public static function getLabels() {
+    public static function getLabels()
+    {
         return [
             'id' => 'Id',
             'user_id' => 'Owner',
@@ -101,7 +104,8 @@ class ForumThread extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations() {
+    public static function getRelations()
+    {
         return [
             'subcategory' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumSubcategory', 'subcategory_id'],
             'category' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumCategory', 'category_id'],
@@ -116,7 +120,8 @@ class ForumThread extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules() {
+    public static function getRules()
+    {
         return [
             ["title, content, keywords", "safe, required", "on" => "insert"],
             ["id, user_id, subcategory_id, category_id, section_id, title, content, keywords, score, replies, views, create_time, edit_time, edit_user_id, sticky, order, closed, last_reply_id, last_reply_user_id, last_reply_date", "safe", "on" => "search"]
@@ -133,7 +138,8 @@ class ForumThread extends DbModel {
      * @param int $page
      * @return array|static[]
      */
-    public static function countAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null, $page = 1) {
+    public static function countAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null, $page = 1)
+    {
         if (!trim($text)) {
             return [];
         }
@@ -174,7 +180,8 @@ class ForumThread extends DbModel {
      * @param int $page
      * @return array|static[]
      */
-    public static function findAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null, $page = 1) {
+    public static function findAllByKeyWords($text, $section, $categories = null, $subcategories = null, $authors = null, $page = 1)
+    {
         if (!trim($text)) {
             return [];
         }
@@ -214,7 +221,8 @@ class ForumThread extends DbModel {
      * @param int $page
      * @return static[]
      */
-    public static function findAllForSubcategory($subcategory, $page = 1) {
+    public static function findAllForSubcategory($subcategory, $page = 1)
+    {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("subcategory_id", $subcategory);
         $condition->compareColumn("deleted", 0);
@@ -231,7 +239,8 @@ class ForumThread extends DbModel {
      * @param int $page
      * @return static[]
      */
-    public static function findAllByUser($userId, $sectionId, $page = 1) {
+    public static function findAllByUser($userId, $sectionId, $page = 1)
+    {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $condition->compareColumn("user_id", $userId);
         $condition->compareColumn("section_id", $sectionId);
@@ -249,7 +258,8 @@ class ForumThread extends DbModel {
      * @param int $offset
      * @return static[]
      */
-    public static function findRecent($section, $limit = 20, $offset = 0) {
+    public static function findRecent($section, $limit = 20, $offset = 0)
+    {
         return self::_findRecent([ForumUser2Section::findByAttributes(['user_id' => WebApp::get()->user()->id, 'section_id' => $section])], $limit, $offset, $section);
     }
 
@@ -258,7 +268,8 @@ class ForumThread extends DbModel {
      * @param int $limit
      * @return ForumThread[]
      */
-    public static function findRecentForActiveUser($offset = 0, $limit = 20) {
+    public static function findRecentForActiveUser($offset = 0, $limit = 20)
+    {
         if (WebApp::get()->user()->isConnected() && ($sections = ForumUser2Section::findAllByAttributes(['user_id' => WebApp::get()->user()->id, 'banned' => 0]))) {
             return self::_findRecent($sections, $limit, $offset);
         } elseif (WebApp::get()->user()->isGuest()) {
@@ -274,7 +285,8 @@ class ForumThread extends DbModel {
      * @param null $sectionId
      * @return array|static[]
      */
-    protected static function _findRecent($sections, $limit, $offset, $sectionId = null) {
+    protected static function _findRecent($sections, $limit, $offset, $sectionId = null)
+    {
         $guest = false;
         if (1 === count($sections) && is_null($sections[0])) {
             if (is_null($sectionId))
@@ -353,7 +365,8 @@ class ForumThread extends DbModel {
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @return \mpf\datasources\sql\DataProvider
      */
-    public function getDataProvider() {
+    public function getDataProvider()
+    {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
         foreach (["id", "user_id", "subcategory_id", "category_id", "section_id", "title", "content", "keywords", "score", "replies", "views", "create_time", "edit_time", "edit_user_id", "sticky", "order", "closed", "last_reply_id", "last_reply_user_id", "last_reply_date"] as $column) {
@@ -371,7 +384,8 @@ class ForumThread extends DbModel {
      * @param ForumSubcategory $subcategory
      * @return bool
      */
-    public function publishNew(ForumSubcategory $subcategory = null) {
+    public function publishNew(ForumSubcategory $subcategory = null)
+    {
         ModelHelper::createSubscription("thread.replies.{$this->id}", "thread");
         $this->subscribe();
         $subcategory = $subcategory ?: ForumSubcategory::findByPk($this->subcategory_id);
@@ -382,7 +396,8 @@ class ForumThread extends DbModel {
         return $subcategory->recalculateNumbers()->save();
     }
 
-    public function getStatus() {
+    public function getStatus()
+    {
         if ($this->sticky) {
             return 'sticky';
         } elseif ($this->closed) {
@@ -400,14 +415,19 @@ class ForumThread extends DbModel {
      * @param $sectionId
      * @return ForumUser2Section
      */
-    public function getSectionUser($sectionId) {
+    public function getSectionUser($sectionId)
+    {
         if (!$this->sectionUser) {
             $this->sectionUser = ForumUser2Section::findByAttributes(['section_id' => $sectionId, 'user_id' => $this->user_id], ['with' => ['group', 'title']]);
+            if (!$this->sectionUser) {
+                ForumUser2Section::makeVisitor($this->user_id, $sectionId);
+            }
         }
         return $this->sectionUser;
     }
 
-    public function getContent() {
+    public function getContent()
+    {
         if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))) {
             $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->content);
         } else {
@@ -429,7 +449,8 @@ class ForumThread extends DbModel {
      * @param int $sectionId
      * @return bool
      */
-    public function canEdit($categoryId = null, $sectionId = null) {
+    public function canEdit($categoryId = null, $sectionId = null)
+    {
         if (!is_null($this->_canEdit)) {
             return $this->_canEdit;
         }
@@ -452,7 +473,8 @@ class ForumThread extends DbModel {
 
     public $sessionViewsTempKey = "forum-threads-visited";
 
-    public function updateViews() {
+    public function updateViews()
+    {
         if (Session::get()->exists($this->sessionViewsTempKey)) {
             $threads = Session::get()->value($this->sessionViewsTempKey);
         } else {
@@ -466,7 +488,8 @@ class ForumThread extends DbModel {
         }
     }
 
-    public function afterMove($oldSub, $threadURL) {
+    public function afterMove($oldSub, $threadURL)
+    {
         if ($oldSub == $this->subcategory_id)
             return; // same sub;
         $sub = ForumSubcategory::findByPk($oldSub);
@@ -489,7 +512,8 @@ class ForumThread extends DbModel {
     /**
      * @return string
      */
-    public function getAuthorIcon() {
+    public function getAuthorIcon()
+    {
         return ModelHelper::getUserIconURL($this->owner->icon ?: 'default.png');
     }
 
@@ -502,7 +526,8 @@ class ForumThread extends DbModel {
      * Get information about active user vote status for this thread;
      * @return bool|string
      */
-    public function getMyVote() {
+    public function getMyVote()
+    {
         if (WebApp::get()->user()->isGuest())
             return false;
         if (!is_null($this->_voted)) {
@@ -523,7 +548,8 @@ class ForumThread extends DbModel {
      */
     protected $_subscribed;
 
-    public function ImSubscribed() {
+    public function ImSubscribed()
+    {
         if (WebApp::get()->user()->isGuest())
             return false;
         if (is_null($this->_subscribed)) {
@@ -538,7 +564,8 @@ class ForumThread extends DbModel {
     /**
      * Subscribe to current thread
      */
-    public function subscribe() {
+    public function subscribe()
+    {
         if (WebApp::get()->user()->isGuest())
             return false;
         $this->_db->table('forum_users_subscriptions')->insert([
@@ -551,7 +578,8 @@ class ForumThread extends DbModel {
     /**
      * Unsubscribe from current thread;
      */
-    public function unsubscribe() {
+    public function unsubscribe()
+    {
         if (WebApp::get()->user()->isGuest())
             return false;
         $this->_db->table('forum_users_subscriptions')->where("user_id = :user AND thread_id = :thread")
@@ -561,7 +589,8 @@ class ForumThread extends DbModel {
         ModelHelper::unsubscribe("thread.replies.{$this->id}");
     }
 
-    public function newNotification($sectionId, $action = 'newReply') {
+    public function newNotification($sectionId, $action = 'newReply')
+    {
         $params = ['id' => $this->id, 'subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name];
         if ($sectionId && 'get' == Config::value('FORUM_SECTION_ID_SOURCE')) {
             $params[Config::value('FORUM_SECTION_ID_KEY')] = $sectionId;
@@ -625,7 +654,8 @@ class ForumThread extends DbModel {
     /**
      * @return array
      */
-    public function getLink($module = null) {
+    public function getLink($module = null)
+    {
         $s = $this->section_id;
         $r = ['thread', 'index', ['subcategory' => $this->subcategory->url_friendly_title, 'category' => $this->subcategory->category->url_friendly_name, 'id' => $this->id], $module];
         if (!$s)
