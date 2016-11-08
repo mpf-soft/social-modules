@@ -137,7 +137,7 @@ class Config extends Object
      * Number of replies to display per page
      * @var int
      */
-    public $FORUM_REPLIES_PER_PAGE = 10;
+    public $FORUM_REPLIES_PER_PAGE = 20;
 
     /**
      * A string that is used to separate message from signature

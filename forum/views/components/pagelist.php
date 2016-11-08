@@ -16,6 +16,13 @@
 <div class="forum-page-list">
     <span class="forum-page-list-elements">
         <?= $visibleElements . ' / ' . $totalElements . ' ' . $elementsName; ?>
+        |
+        <?php if (isset($order)) { ?>
+            <?= \mpf\web\helpers\Form::get()->openForm(['method' => 'get', 'style' => 'display:inline;']); ?>
+            <?= \mpf\modules\forum\components\Translator::get()->translate('Order By'); ?>
+            <?= \mpf\web\helpers\Form::get()->select('order', \mpf\modules\forum\models\ForumReply::getOrdersForSelect(), $order, ['onchange' => 'this.form.submit();']); ?>
+            <?= \mpf\web\helpers\Form::get()->closeForm(); ?>
+        <?php } ?>
     </span>
     <?php if ($totalPages > 1) { ?>
         <ul class="forum-page-list-pages">

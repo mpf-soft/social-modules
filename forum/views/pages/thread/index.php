@@ -28,7 +28,8 @@
         'totalElements' => $thread->first_level_replies . ' ( ' . $thread->replies . ' )',
         'visibleElements' => count($replies),
         'totalPages' => (int)(($thread->first_level_replies / \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) + (($thread->first_level_replies % \mpf\modules\forum\components\Config::value('FORUM_REPLIES_PER_PAGE')) ? 1 : 0)),
-        'currentPage' => $currentPage
+        'currentPage' => $currentPage,
+        'order' => $order
     ]); ?>
 
     <table class="forum-thread <?= $currentPage == 1 ? "first-page" : ""; ?>">

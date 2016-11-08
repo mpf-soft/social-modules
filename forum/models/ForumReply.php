@@ -45,7 +45,24 @@ use mpf\widgets\form\fields\Markdown;
  * @property \app\models\User $deletedBy
  * @property \mpf\modules\forum\models\ForumReplyVote $myVote
  */
-class ForumReply extends DbModel {
+class ForumReply extends DbModel
+{
+
+    const ORDER_BEST = 'best';
+    const ORDER_NEW = 'new';
+    const ORDER_CRON = 'cronologic';
+
+    /**
+     * @return array
+     */
+    public static function getOrdersForSelect()
+    {
+        return [
+            self::ORDER_BEST =>  Translator::get()->translate('Best Score'),
+            self::ORDER_CRON => Translator::get()->translate('Date Added'),
+            self::ORDER_NEW => Translator::get()->translate('Newest')
+        ];
+    }
 
     public static $currentSection = 0;
 
@@ -53,7 +70,8 @@ class ForumReply extends DbModel {
      * Get database table name.
      * @return string
      */
-    public static function getTableName() {
+    public static function getTableName()
+    {
         return "forum_replies";
     }
 
@@ -62,7 +80,8 @@ class ForumReply extends DbModel {
      * to better display labels for inputs or table headers for each column.
      * @return array
      */
-    public static function getLabels() {
+    public static function getLabels()
+    {
         return [
             'id' => 'Id',
             'user_id' => 'Author',
@@ -83,7 +102,8 @@ class ForumReply extends DbModel {
      * Return list of relations for current model
      * @return array
      */
-    public static function getRelations() {
+    public static function getRelations()
+    {
         return [
             'author' => [DbRelations::BELONGS_TO, '\app\models\User', 'user_id'],
             'thread' => [DbRelations::BELONGS_TO, '\mpf\modules\forum\models\ForumThread', 'thread_id'],
@@ -100,7 +120,8 @@ class ForumReply extends DbModel {
      * List of rules for current model
      * @return array
      */
-    public static function getRules() {
+    public static function getRules()
+    {
         return [
             ['content', 'safe, required', 'on' => 'insert, edit'],
             ["id, user_id, thread_id, content, section_id, time, edited, edit_time, edit_user_id, deleted, score, user_group_id, reply_id", "safe", "on" => "search"]
@@ -108,7 +129,8 @@ class ForumReply extends DbModel {
     }
 
 
-    public static function findAllRepliesForThread($id, $page = 1, $perPage = 20) {
+    public static function findAllRepliesForThread($id, $page = 1, $perPage = 20, $order = self::ORDER_BEST)
+    {
         $condition = new ModelCondition(['model' => __CLASS__]);
         $with = [];
         for ($i = 0; $i <= Config::value('FORUM_MAX_REPLY_LEVELS'); $i++) {
@@ -119,7 +141,16 @@ class ForumReply extends DbModel {
         $condition->with = $with;
         $condition->compareColumn("thread_id", $id);
         $condition->limit = $perPage;
-        $condition->order = '`t`.`id` ASC';
+        switch ($order) {
+            case self::ORDER_BEST :
+                $condition->order = '`t`.`score` DESC';
+                break;
+            case self::ORDER_NEW :
+                $condition->order = '`t`.`id` DESC';
+                break;
+            default:
+                $condition->order = '`t`.`id` ASC';
+        }
         $condition->offset = ($page - 1) * $perPage;
         return self::findAll($condition);
 
@@ -129,7 +160,8 @@ class ForumReply extends DbModel {
      * Gets DataProvider used later by widgets like \mpf\widgets\datatable\Table to manage models.
      * @return \mpf\datasources\sql\DataProvider
      */
-    public function getDataProvider() {
+    public function getDataProvider()
+    {
         $condition = new ModelCondition(['model' => __CLASS__]);
 
         foreach (["id", "user_id", "reply_id", "section_id", "thread_id", "content", "time", "edited", "edit_time", "edit_user_id", "deleted", "score", "user_group_id"] as $column) {
@@ -154,18 +186,21 @@ class ForumReply extends DbModel {
      * Get total number of replies for this;
      * @return int
      */
-    public function getNumberOfReplies() {
+    public function getNumberOfReplies()
+    {
         if (!is_null($this->_numberOfReplies)) {
             return $this->_numberOfReplies;
         }
         return $this->_numberOfReplies = self::countByAttributes(['reply_id' => $this->id]);
     }
 
-    public function getRepliesPaged() {
+    public function getRepliesPaged()
+    {
 
     }
 
-    public function getContent() {
+    public function getContent()
+    {
         if ($this->deleted) {
             if ($this->deleted_user_id != $this->user_id) {
                 return Html::get()->tag("div", Translator::get()->translate("[DELETED BY MODERATOR]"), ['class' => "forum-reply-deleted-message"]);
@@ -173,12 +208,12 @@ class ForumReply extends DbModel {
                 return Html::get()->tag("div", Translator::get()->translate("[DELETED]"), ['class' => "forum-reply-deleted-message"]);
             }
         }
-        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))){
+        if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))) {
             $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->content);
         } else {
             $text = Markdown::processText(htmlentities($this->content));
         }
-        return  $text .
+        return $text .
         Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
         Html::get()->cssFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/styles/github.css') .
         Html::get()->script('hljs.tabReplace = \'    \';hljs.initHighlightingOnLoad();');
@@ -190,7 +225,8 @@ class ForumReply extends DbModel {
      * @param int $level
      * @return bool
      */
-    public function saveReply($sectionId, $level = 1) {
+    public function saveReply($sectionId, $level = 1)
+    {
         $this->user_id = WebApp::get()->user()->id;
         $this->time = date('Y-m-d H:i:s');
         $this->score = 0;
@@ -227,7 +263,8 @@ class ForumReply extends DbModel {
      * @param string $content
      * @return bool
      */
-    public function updateReply($content) {
+    public function updateReply($content)
+    {
         $this->content = $content;
         $this->edit_user_id = WebApp::get()->user()->id;
         $this->edit_time = date('Y-m-d H:i:s');
@@ -246,7 +283,8 @@ class ForumReply extends DbModel {
      * @param ForumThread $thread
      * @return bool
      */
-    public function canEdit($categoryId = null, $sectionId = null, ForumThread $thread = null) {
+    public function canEdit($categoryId = null, $sectionId = null, ForumThread $thread = null)
+    {
         if ($this->deleted)
             return false;
         $thread = $thread ?: $this->thread;
@@ -265,11 +303,13 @@ class ForumReply extends DbModel {
         return $this->_canEdit = UserAccess::get()->isCategoryModerator($categoryId, $sectionId);
     }
 
-    public function getAuthorIcon() {
+    public function getAuthorIcon()
+    {
         return Config::value('USER_ICON_FOLDER_URL') . ($this->author->icon ?: 'default.png');
     }
 
-    public function hasReplies() {
+    public function hasReplies()
+    {
         return (bool)$this->replies;
     }
 
@@ -297,7 +337,8 @@ class ForumReply extends DbModel {
      * Check my vote status for selected reply
      * @return bool|string
      */
-    public function getMyVote() {
+    public function getMyVote()
+    {
         if (!$this->myVote || !$this->myVote->user_id) { //until empty loaded is fix I check for user_id also
             return false;
         }

@@ -153,7 +153,7 @@ class Thread extends Controller
     }
 
 
-    public function actionIndex($id, $page = 1)
+    public function actionIndex($id, $page = 1, $order = ForumReply::ORDER_BEST)
     {
         $thread = ForumThread::findByPk($id, ['with' => ['subcategory', 'subcategory.category', 'owner']]);
         if (!$thread) {
@@ -183,11 +183,12 @@ class Thread extends Controller
         $this->assign("thread", $thread);
         $this->assign("subcategory", $thread->subcategory);
         $this->assign("currentPage", $page);
-        $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, Config::value('FORUM_REPLIES_PER_PAGE')));
+        $this->assign("replies", ForumReply::findAllRepliesForThread($id, $page, Config::value('FORUM_REPLIES_PER_PAGE'), $order));
 
         $replyModel = new ForumReply();
         $replyModel->thread_id = $id;
         $this->assign('replyModel', $replyModel);
+        $this->assign('order', $order);
     }
 
     public function actionNew($subcategory)
