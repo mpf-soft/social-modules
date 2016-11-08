@@ -21,16 +21,18 @@ use mpf\modules\forum\models\ForumSubcategory;
 use mpf\modules\forum\models\ForumThread;
 use mpf\WebApp;
 
-class Thread extends Controller {
+class Thread extends Controller
+{
 
-    public function actionVoteThread(){
+    public function actionVoteThread()
+    {
         $thread = ForumThread::findByPk($_POST['id']);
-        if (!UserAccess::get()->canRead($thread->section_id, $thread->category_id)){
+        if (!UserAccess::get()->canRead($thread->section_id, $thread->category_id)) {
             die($thread->score . ' ' . Translator::get()->translate("points") . ':0');
         }
         $oldVote = WebApp::get()->sql()->table("forum_thread_votes")->where("thread_id=:id AND user_id=:user")
-                    ->setParams([':id' => $_POST['id'], ':user' => WebApp::get()->user()->id])
-                    ->first();
+            ->setParams([':id' => $_POST['id'], ':user' => WebApp::get()->user()->id])
+            ->first();
         $voteType = ($_POST['type'] == 'agree' ? '1' : '0');
         $resultVoted = 0;
         if ($oldVote && $voteType == $oldVote['vote']) { //remove vote;
@@ -54,10 +56,11 @@ class Thread extends Controller {
             WebApp::get()->sql()->table('forum_thread_votes')->where("thread_id=:id AND vote=0")
                 ->setParams([':id' => $_POST['id']])->count();
         $thread->save(false);
-        die($thread->score . ' ' . Translator::get()->translate("points") .  ':' . ($resultVoted ? '1' : '0'));
+        die($thread->score . ' ' . Translator::get()->translate("points") . ':' . ($resultVoted ? '1' : '0'));
     }
 
-    public function actionVote() {
+    public function actionVote()
+    {
         $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth',
             'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
         $model = "\\mpf\\modules\\forum\\models\\" . $models[$_POST['level']];
@@ -94,12 +97,15 @@ class Thread extends Controller {
             WebApp::get()->sql()->table('forum_reply_votes')->where("reply_id=:id AND level=:lvl and vote=0")
                 ->setParams([':id' => $_POST['id'], ':lvl' => $_POST['level']])->count();
         $entry->save(false);
-        die($entry->score . ' ' . Translator::get()->translate("points") .  ':' . ($resultVoted ? '1' : '0'));
+        die($entry->score . ' ' . Translator::get()->translate("points") . ':' . ($resultVoted ? '1' : '0'));
     }
 
-    public function actionReply() {
+    public function actionReply()
+    {
         $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth',
-            'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
+            'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'
+            , 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'
+            , 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth', 'ForumReplyNth'];
         if (isset($_POST['ForumReply'])) {
             $model = $models[$_POST['level']];
             $_POST[$model] = $_POST['ForumReply'];
@@ -147,17 +153,18 @@ class Thread extends Controller {
     }
 
 
-    public function actionIndex($id, $page = 1) {
+    public function actionIndex($id, $page = 1)
+    {
         $thread = ForumThread::findByPk($id, ['with' => ['subcategory', 'subcategory.category', 'owner']]);
-        if (!$thread){
+        if (!$thread) {
             $this->goToPage("special", "notFound");
             return false;
         }
-        if ($thread->deleted && (!$thread->canEdit())){
+        if ($thread->deleted && (!$thread->canEdit())) {
             Messages::get()->error("Thread deleted!");
             $this->goBack();
             return false;
-        } elseif ($thread->deleted){
+        } elseif ($thread->deleted) {
             Messages::get()->info("This Thread is DELETED!");
         }
         ForumReply::$currentSection = 0;
@@ -165,10 +172,10 @@ class Thread extends Controller {
             $this->goToPage("special", "notFound");
             return;
         }
-        if (isset($_GET['subscribe'])){
+        if (isset($_GET['subscribe'])) {
             $thread->subscribe();
             $this->goBack();
-        } elseif (isset($_GET['unsubscribe'])){
+        } elseif (isset($_GET['unsubscribe'])) {
             $thread->unsubscribe();
             $this->goBack();
         }
@@ -183,7 +190,8 @@ class Thread extends Controller {
         $this->assign('replyModel', $replyModel);
     }
 
-    public function actionNew($subcategory) {
+    public function actionNew($subcategory)
+    {
         $subcategory = ForumSubcategory::findByPk($subcategory);
         if ($subcategory->category->section_id != $this->sectionId) {
             $this->goToPage("special", "notFound");
@@ -212,7 +220,8 @@ class Thread extends Controller {
         $this->assign('model', $thread);
     }
 
-    public function actionEdit($id) {
+    public function actionEdit($id)
+    {
         $thread = ForumThread::findByPk($id);
         if (!$thread->canEdit()) {
             $this->goToPage("special", "accessDenied");
@@ -234,11 +243,13 @@ class Thread extends Controller {
         $this->assign('model', $thread);
     }
 
-    public function actionEditReply($id, $level) {
-        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
-        $modelClass = $models[$level];
+    public function actionEditReply($id, $level)
+    {
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth'];
+        $modelClass = isset($models[$level]) ? $models[$level] : 'ForumReplyNth';
         $reply = "\\mpf\\modules\\forum\\models\\" . $modelClass;
-        $reply = $reply::findByPk($id); /* @var $reply \mpf\modules\forum\models\ForumReply */
+        $reply = $reply::findByPk($id);
+        /* @var $reply \mpf\modules\forum\models\ForumReply */
         if (!$reply) {
             $this->goBack();
         }
@@ -258,9 +269,10 @@ class Thread extends Controller {
         $this->assign("model", $reply);
     }
 
-    public function actionDeleteThread(){
+    public function actionDeleteThread()
+    {
         $thread = ForumThread::findByPk($_POST['id']);
-        if (!$thread->canEdit()){
+        if (!$thread->canEdit()) {
             $this->goToPage('special', 'accessDenied');
             return false;
         }
@@ -268,7 +280,7 @@ class Thread extends Controller {
         $thread->deleted_time = date('Y-m-d H:i:s');
         $thread->deleted_user_id = WebApp::get()->user()->id;
         $thread->save();
-        if ($thread->subcategory->last_active_thread_id == $thread->id){
+        if ($thread->subcategory->last_active_thread_id == $thread->id) {
             $thread->subcategory->checkLastActivity();
 
         }
@@ -278,9 +290,10 @@ class Thread extends Controller {
 
     }
 
-    public function actionDeleteReply() {
-        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth'];
-        $modelClass = $models[$_POST['level']];
+    public function actionDeleteReply()
+    {
+        $models = ['', 'ForumReply', 'ForumReplySecond', 'ForumReplyThird', 'ForumReplyForth', 'ForumReplyFifth', 'ForumReplySixth', 'ForumReplySeventh', 'ForumReplyEighth'];
+        $modelClass = isset($models[$_POST['level']]) ? $models[$_POST['level']] : 'ForumReplyNth';
         $reply = "\\mpf\\modules\\forum\\models\\" . $modelClass;
         $reply = $reply::findByPk($_POST['id']);
         if (!$reply) {
@@ -298,7 +311,8 @@ class Thread extends Controller {
         $this->goBack();
     }
 
-    public function actionMove($id) {
+    public function actionMove($id)
+    {
         $thread = ForumThread::findByPk($id);
         if (!$thread->canEdit()) {
             $this->goToPage("special", "accessDenied");
@@ -317,7 +331,8 @@ class Thread extends Controller {
 
     }
 
-    public function actionClose($id) {
+    public function actionClose($id)
+    {
         $thread = ForumThread::findByPk($id);
         if (!UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
             $this->goToPage('special', 'accessDenied');
@@ -328,7 +343,8 @@ class Thread extends Controller {
         $this->goBack();
     }
 
-    public function actionSticky($id) {
+    public function actionSticky($id)
+    {
         $thread = ForumThread::findByPk($id);
         if (!UserAccess::get()->isCategoryModerator($thread->subcategory->category_id, $thread->subcategory->category->section_id)) {
             $this->goToPage('special', 'accessDenied');
