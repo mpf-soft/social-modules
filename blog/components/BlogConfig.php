@@ -113,6 +113,13 @@ class BlogConfig extends Singleton
 
 
     /**
+     * Require validation for all articles
+     * @var bool
+     */
+    public $requireValidation = false;
+
+
+    /**
      * If multiple blog modules are used then a table prefix can be used to manage all of them separately
      * @var string
      */

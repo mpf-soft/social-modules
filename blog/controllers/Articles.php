@@ -12,6 +12,7 @@ namespace mpf\modules\blog\controllers;
 use app\components\htmltools\Messages;
 use mpf\modules\blog\components\BlogConfig;
 use mpf\modules\blog\components\Controller;
+use mpf\modules\blog\components\UserAccess;
 use mpf\modules\blog\models\BlogPost;
 use mpf\WebApp;
 
@@ -22,6 +23,10 @@ class Articles extends Controller
 
     public function actionIndex()
     {
+        $blogPost = BlogPost::model();
+        if (!UserAccess::canEditOtherArticles()) {
+            $blogPost->author_id = WebApp::get()->user()->id;
+        }
         $this->assign('model', BlogPost::model()->setAttributes(isset($_GET['BlogPost']) ? $_GET['BlogPost'] : []));
     }
 

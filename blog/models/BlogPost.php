@@ -47,6 +47,7 @@ class BlogPost extends DbModel
     const STATUS_NEW = 0;
     const STATUS_PUBLISHED = 1;
     const STATUS_DELETED = 2;
+    const STATUS_WAITING_VALIDATION = 3;
 
     public $keywords, $title = [], $content = [];
 
@@ -75,11 +76,20 @@ class BlogPost extends DbModel
      */
     public static function getStatuses()
     {
-        return [
-            self::STATUS_NEW => 'New',
-            self::STATUS_PUBLISHED => 'Published',
-            self::STATUS_DELETED => 'Deleted'
-        ];
+        if (BlogConfig::get()->requireValidation) {
+            return [
+                self::STATUS_NEW => 'New',
+                self::STATUS_WAITING_VALIDATION => 'Waiting Validation',
+                self::STATUS_PUBLISHED => 'Published',
+                self::STATUS_DELETED => 'Deleted'
+            ];
+        } else {
+            return [
+                self::STATUS_NEW => 'New',
+                self::STATUS_PUBLISHED => 'Published',
+                self::STATUS_DELETED => 'Deleted'
+            ];
+        }
     }
 
     /**
