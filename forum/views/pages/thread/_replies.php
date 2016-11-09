@@ -7,6 +7,35 @@
 <?php /* @var $reply \mpf\modules\forum\models\ForumReply */ ?>
 <?php /* @var $level int */ ?>
 <table class="forum-replies">
+    <?php if (!$reply->deleted && (!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+        <tr class="forum-subreply forum-subreply-<?= $level - 1; ?>-<?= $reply->id; ?>">
+            <td class="forum-reply-user-details" colspan="2">
+                <a name="reply-for-<?= ($level - 1) . '-' . $reply->id; ?>"></a>
+                <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\ModelHelper::getUserIconURL(\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
+                <div class="forum-user-details-texts">
+                    <b class="forum-user-details-name">
+                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
+                    </b>
+                        <span class="forum-user-details-title">
+                            <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
+                        </span>
+
+                        <span class="forum-user-details-group">
+                            <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
+                        </span>
+                        <span class="forum-user-details-date">
+                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                        </span>
+                </div>
+            </td>
+        </tr>
+        <tr class="forum-subreply forum-subreply-<?= $level - 1; ?>-<?= $reply->id; ?>">
+            <td class="forum-reply-form-column" colspan="2">
+                <?php $this->displayComponent("replyform", ['model' => $replyModel, 'level' => $level, 'parent' => $reply->id, 'cancel' => true, 'height' => '50px', 'name' => "reply_to_" . $reply->author->name]); ?>
+            </td>
+        </tr>
+    <?php } ?>
     <?php if ($reply->hasReplies()) { ?>
         <?php foreach ($reply->replies as $subReply) { ?>
             <tr>
@@ -71,7 +100,8 @@
                             <?php } ?>
                         </div>
                         <div
-                            class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?>&nbsp;&nbsp;&nbsp;
+                            class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($subReply->time); ?>
+                            &nbsp;&nbsp;&nbsp;
                             <span id="number-of-points-for-reply-<?= $level; ?>-<?= $subReply->id; ?>">
                             <?= $subReply->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
                                 &nbsp;&nbsp;&nbsp;
@@ -103,33 +133,5 @@
                 </td>
             </tr>
         <?php } ?>
-    <?php } ?>
-    <?php if (!$reply->deleted && (!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
-        <tr class="forum-reply-form forum-subreply forum-subreply-<?= $level - 1; ?>-<?= $reply->id; ?>">
-            <td class="forum-user-details"><a name="reply-for-<?= ($level - 1) . '-' . $reply->id; ?>"></a>
-                <div class="forum-user-details-header">
-                    <b class="forum-user-details-name">
-                        <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
-                    </b>
-                    <span class="forum-user-details-title">
-                        <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
-                    </span>
-                </div>
-                <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\ModelHelper::getUserIconURL(\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
-                <div class="forum-user-details-footer">
-                    <span class="forum-user-details-group">
-                        <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
-                    </span>
-                    <span class="forum-user-details-date">
-                        <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                        <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
-                    </span>
-                </div>
-
-            </td>
-            <td class="forum-reply-form-column">
-                <?php $this->displayComponent("replyform", ['model' => $replyModel, 'level' => $level, 'parent' => $reply->id, 'cancel' => true, 'height' => '50px', 'name' => "reply_to_" . $reply->author->name]); ?>
-            </td>
-        </tr>
     <?php } ?>
 </table>

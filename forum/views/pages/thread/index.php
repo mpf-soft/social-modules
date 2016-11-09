@@ -4,6 +4,7 @@
 <?php /* @var $replies \mpf\modules\forum\models\ForumReply[] */ ?>
 <?php /* @var $replyModel \mpf\modules\forum\models\ForumReply */ ?>
 <?php /* @var $currentPage int */ ?>
+
 <?= \app\components\htmltools\Page::get()->title(\mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['home', 'index']), $this->forumTitle)
     . " " . \mpf\modules\forum\components\Config::value('FORUM_PAGE_TITLE_SEPARATOR') . " "
     . \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['category', 'index', ['category' => $subcategory->category->url_friendly_name, 'id' => $subcategory->category_id]]), $subcategory->category->name)
@@ -80,12 +81,16 @@
                                 <?= \mpf\web\helpers\Html::get()->link('?subscribe', \mpf\modules\forum\components\Translator::get()->translate('Subscribe'), ['class' => 'subscribe-button']); ?>
                             <?php } ?>
                             <?php if (\mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
-                                <?= \mpf\web\helpers\Html::get()->link('#reply-form', \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button']); ?>
+                                <?= \mpf\web\helpers\Html::get()->link(\mpf\WebApp::get()->request()->getCurrentURL() . '#reply-form', \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button', 'onclick' => '$("#thread-reply-form").show();']); ?>
                             <?php } ?>
                         <?php } ?>
                     </div>
                 </h2>
             </th>
+        </tr>
+
+        <tr class="forum-between-replies">
+            <td colspan="2"><span>&nbsp;</span></td>
         </tr>
         <tr class="forum-reply forum-main-post forum-group-class-<?= $thread->getSectionUser($subcategory->category->section_id)->group->html_class; ?>">
             <td class="forum-user-details">
@@ -143,13 +148,13 @@
                         ); ?>
                     <?php } ?>
                 </div>
-                <div
-                    class="forum-reply-content-date"><?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?>
+                <div class="forum-reply-content-date">
+                    <?= \mpf\helpers\DateTimeHelper::get()->niceDate($thread->create_time); ?>
                     &nbsp;&nbsp;&nbsp;
-                    <span id="number-of-points-for-thread">
-                            <?= $thread->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
-                        &nbsp;&nbsp;&nbsp;
-                            </span></div>
+                    <span
+                        id="number-of-points-for-thread"><?= $thread->score . ' ' . \mpf\modules\forum\components\Translator::get()->translate("points"); ?>
+                        &nbsp;&nbsp;&nbsp;</span>
+                </div>
                 <?= $thread->getContent(); ?>
                 <?php if ($thread->edit_user_id) { ?>
                     <div class="forum-reply-edit-details">
@@ -163,12 +168,51 @@
                         <?php } ?>
                     </div>
                 <?php } ?>
-                <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
-                <?= $thread->getSectionUser($subcategory->category->section_id)->getSignature(); ?>
+
+                <?php if (\mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+                    <div class="forum-thread-reply-actions">
+                        <?= \mpf\web\helpers\Html::get()->link(\mpf\WebApp::get()->request()->getCurrentURL() . '#reply-form', \mpf\modules\forum\components\Translator::get()->translate('Reply'), ['class' => 'new-reply-button', 'onclick' => '$("#thread-reply-form").show();']); ?>
+                    </div>
+                <?php } ?>
+                <?php if ($s = $thread->getSectionUser($subcategory->category->section_id)->getSignature()) { ?>
+                    <?= \mpf\modules\forum\components\Config::value('FORUM_THREAD_SIGNATURE_SEPARATOR'); ?>
+                    <?= $s; ?>
+                <?php } ?>
             </td>
         </tr>
+        <?php if ((!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
+            <tr class="forum-reply-form" id="thread-reply-form" style="display:none;">
+                <td class="forum-user-details"><a name="reply-form"></a>
+
+                    <div class="forum-user-details-header">
+                        <b class="forum-user-details-name">
+                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
+                        </b>
+                        <span class="forum-user-details-title">
+                            <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
+                        </span>
+                    </div>
+                    <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\ModelHelper::getUserIconURL(\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
+                    <div class="forum-user-details-footer">
+                        <span class="forum-user-details-group">
+                        <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
+                        </span>
+                        <span class="forum-user-details-date">
+                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
+                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
+                        </span>
+                    </div>
+                </td>
+                <td class="forum-reply-form-column">
+                    <?php $this->displayComponent("replyform", ['model' => $replyModel, 'cancel'=>'main']); ?>
+                </td>
+            </tr>
+        <?php } ?>
+        <tr class="forum-between-replies">
+            <td colspan="2"><span>&nbsp;</span></td>
+        </tr>
         <?php foreach ($replies as $reply) { ?>
-            <tr class="forum-reply  forum-group-class-<?= $reply->authorGroup->html_class; ?>">
+            <tr class="forum-reply forum-reply-item forum-group-class-<?= $reply->authorGroup->html_class; ?>">
                 <td class="forum-user-details">
                     <a style="visibility: hidden;" name="reply<?= $reply->id; ?>"></a>
 
@@ -260,33 +304,8 @@
                     <?php $this->display("_replies", ['reply' => $reply, 'level' => 2]); ?>
                 </td>
             </tr>
-        <?php } ?>
-        <?php if ((!$thread->closed || \mpf\modules\forum\components\UserAccess::get()->isCategoryModerator($subcategory->category_id, $this->sectionId)) && \mpf\modules\forum\components\UserAccess::get()->canReplyToThread($subcategory->category_id, $this->sectionId)) { ?>
-            <tr class="forum-reply-form">
-                <td class="forum-user-details"><a name="reply-form"></a>
-
-                    <div class="forum-user-details-header">
-                        <b class="forum-user-details-name">
-                            <?= \mpf\web\helpers\Html::get()->link($this->updateURLWithSection(['user', 'index', ['id' => \mpf\WebApp::get()->user()->id, 'name' => \mpf\WebApp::get()->user()->name]]), \mpf\WebApp::get()->user()->name); ?>
-                        </b>
-                        <span class="forum-user-details-title">
-                            <?= ($t = \mpf\modules\forum\components\UserAccess::get()->getUserTitle($subcategory->category->section_id)) ? $t->title : '-'; ?>
-                        </span>
-                    </div>
-                    <?= \mpf\web\helpers\Html::get()->image(\mpf\modules\forum\components\ModelHelper::getUserIconURL(\mpf\WebApp::get()->user()->icon ?: 'default.png')); ?>
-                    <div class="forum-user-details-footer">
-                        <span class="forum-user-details-group">
-                        <?= ($g = \mpf\modules\forum\components\UserAccess::get()->getUserGroup($subcategory->category->section_id)) ? $g->full_name : '-'; ?>
-                        </span>
-                        <span class="forum-user-details-date">
-                            <?= \mpf\modules\forum\components\Translator::get()->translate("Member since"); ?>
-                            <?= lcfirst(\mpf\helpers\DateTimeHelper::get()->niceDate($thread->getSectionUser($subcategory->category->section_id)->member_since, false, false)); ?>
-                        </span>
-                    </div>
-                </td>
-                <td class="forum-reply-form-column">
-                    <?php $this->displayComponent("replyform", ['model' => $replyModel]); ?>
-                </td>
+            <tr class="forum-between-replies">
+                <td colspan="2"><span>&nbsp;</span></td>
             </tr>
         <?php } ?>
     </table>
@@ -350,8 +369,14 @@
 
     }
 
+    function hideThreadReplyForm(){
+        $('#thread-reply-form').hide();
+        return false;
+    }
+
     function hideReplyForm(element) {
         $(element.parentNode.parentNode.parentNode).hide();
+        $(element.parentNode.parentNode.parentNode).prev().hide();
         return false;
     }
 </script>

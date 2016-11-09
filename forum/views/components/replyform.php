@@ -18,10 +18,15 @@
             'htmlOptions' => ['style' => 'min-height: ' . (isset($height)?$height:'150px;')]
         ]
     ],
-    'links' => isset($cancel)?[
+    'links' => isset($cancel)?(('main'===$cancel)?[
+        'Cancel' => [
+            'href' => '#',
+            'onclick' => 'return hideThreadReplyForm();'
+        ]
+    ]:[
         'Cancel' => [
             'href' => '#',
             'onclick' => 'return hideReplyForm(this.parentNode.parentNode);'
         ]
-    ]:[]
+    ]):[]
 ])->display(); ?>
