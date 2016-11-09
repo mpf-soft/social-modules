@@ -65,7 +65,7 @@
                 <td class="forum-reply-content">
                     <div class="forum-reply-content-header">
                         <div class="forum-reply-management-links">
-                            <?= \mpf\web\helpers\Html::get()->link('#reply' . $level . '-' . $subReply->id,
+                            <?= \mpf\web\helpers\Html::get()->link(\mpf\WebApp::get()->request()->getCurrentURL() . '#reply' . $level . '-' . $subReply->id,
                                 \mpf\web\helpers\Html::get()->mpfImage("oxygen/22x22/status/mail-attachment.png", "Perma link")
                             ); ?>
                             <?php if (\mpf\WebApp::get()->user()->isConnected() && !$reply->deleted) { ?>
