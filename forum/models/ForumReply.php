@@ -58,7 +58,7 @@ class ForumReply extends DbModel
     public static function getOrdersForSelect()
     {
         return [
-            self::ORDER_BEST =>  Translator::get()->translate('Best Score'),
+            self::ORDER_BEST => Translator::get()->translate('Best Score'),
             self::ORDER_CRON => Translator::get()->translate('Date Added'),
             self::ORDER_NEW => Translator::get()->translate('Newest')
         ];
@@ -223,15 +223,18 @@ class ForumReply extends DbModel
      * It will save thread info(update with last reply info) + subcategory info
      * @param int $sectionId
      * @param int $level
+     * @param int $userId
+     * @param int $userGroupID
+     * @param int $time
      * @return bool
      */
-    public function saveReply($sectionId, $level = 1)
+    public function saveReply($sectionId, $level = 1, $userId = null, $userGroupID = null, $time = null)
     {
-        $this->user_id = WebApp::get()->user()->id;
-        $this->time = date('Y-m-d H:i:s');
+        $this->user_id = $userId ?: WebApp::get()->user()->id;
+        $this->time = date('Y-m-d H:i:s', $time ?: time());
         $this->section_id = $sectionId;
         $this->score = $this->edited = $this->edit_user_id = $this->deleted = $this->deleted_user_id = 0;
-        $this->user_group_id = UserAccess::get()->getUserGroup($sectionId, true);
+        $this->user_group_id = $userGroupID ?: UserAccess::get()->getUserGroup($sectionId, true);
         if (!$this->save()) {
             return false;
         }
