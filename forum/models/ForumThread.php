@@ -568,7 +568,9 @@ class ForumThread extends DbModel
      */
     public function subscribe($userId = null)
     {
-        if (!$userId && WebApp::get()->user()->isGuest())
+        if (is_null($userId) && WebApp::get()->user()->isGuest())
+            return false;
+        if (0 === $userId) // for deleted users;
             return false;
         $this->_db->table('forum_users_subscriptions')->insert([
             'user_id' => $userId ?: WebApp::get()->user()->id,
