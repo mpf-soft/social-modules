@@ -230,7 +230,7 @@ class ForumReply extends DbModel
      */
     public function saveReply($sectionId, $level = 1, $userId = null, $userGroupID = null, $time = null)
     {
-        $this->user_id = $userId ?: WebApp::get()->user()->id;
+        $this->user_id = is_null($userId) ? WebApp::get()->user()->id : $userId;
         $this->time = date('Y-m-d H:i:s', $time ?: time());
         $this->section_id = $sectionId;
         $this->score = $this->edited = $this->edit_user_id = $this->deleted = $this->deleted_user_id = 0;

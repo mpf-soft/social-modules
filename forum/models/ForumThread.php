@@ -389,7 +389,8 @@ class ForumThread extends DbModel
     public function publishNew(ForumSubcategory $subcategory = null, $time = null)
     {
         ModelHelper::createSubscription("thread.replies.{$this->id}", "thread");
-        $this->subscribe($this->user_id);
+        if ($this->user_id)
+            $this->subscribe($this->user_id);
         $subcategory = $subcategory ?: ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->last_active_thread_id = $this->id;
         $subcategory->last_activity_time = date('Y-m-d H:i:s', $time ?: time());
