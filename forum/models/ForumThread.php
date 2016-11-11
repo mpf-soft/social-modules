@@ -383,15 +383,16 @@ class ForumThread extends DbModel
     /**
      * After first time save to be called to update category info
      * @param ForumSubcategory $subcategory
+     * @param int $time
      * @return bool
      */
-    public function publishNew(ForumSubcategory $subcategory = null)
+    public function publishNew(ForumSubcategory $subcategory = null, $time = null)
     {
         ModelHelper::createSubscription("thread.replies.{$this->id}", "thread");
-        $this->subscribe();
+        $this->subscribe($this->user_id);
         $subcategory = $subcategory ?: ForumSubcategory::findByPk($this->subcategory_id);
         $subcategory->last_active_thread_id = $this->id;
-        $subcategory->last_activity_time = date('Y-m-d H:i:s');
+        $subcategory->last_activity_time = date('Y-m-d H:i:s', $time ?: time());
         $subcategory->last_active_user_id = $this->user_id;
         $subcategory->last_activity = 'create';
         return $subcategory->recalculateNumbers()->save();
@@ -565,15 +566,15 @@ class ForumThread extends DbModel
     /**
      * Subscribe to current thread
      */
-    public function subscribe()
+    public function subscribe($userId = null)
     {
-        if (WebApp::get()->user()->isGuest())
+        if (!$userId && WebApp::get()->user()->isGuest())
             return false;
         $this->_db->table('forum_users_subscriptions')->insert([
-            'user_id' => WebApp::get()->user()->id,
+            'user_id' => $userId ?: WebApp::get()->user()->id,
             'thread_id' => $this->id
         ], 'ignore');
-        ModelHelper::subscribe("thread.replies.{$this->id}");
+        ModelHelper::subscribe("thread.replies.{$this->id}", $userId);
     }
 
     /**
