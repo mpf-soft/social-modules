@@ -199,7 +199,8 @@ class Controller extends \app\components\Controller {
      * @return string
      */
     public function getPageURL($page){
-
-        return "#";
+        $params = $this->request->getParams();
+        $params['page'] = $page;
+        return $this->request->createURL($this->request->getController(), $this->request->getAction(), $params);
     }
 }

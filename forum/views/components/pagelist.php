@@ -16,8 +16,8 @@
 <div class="forum-page-list">
     <span class="forum-page-list-elements">
         <?= $visibleElements . ' / ' . $totalElements . ' ' . $elementsName; ?>
-        |
         <?php if (isset($order)) { ?>
+            |
             <?= \mpf\web\helpers\Form::get()->openForm(['method' => 'get', 'style' => 'display:inline;']); ?>
             <?= \mpf\modules\forum\components\Translator::get()->translate('Order By'); ?>
             <?= \mpf\web\helpers\Form::get()->select('order', \mpf\modules\forum\models\ForumReply::getOrdersForSelect(), $order, ['onchange' => 'this.form.submit();']); ?>
@@ -45,13 +45,9 @@
             </li>
             <?php if ($currentPage < $totalPages) { ?>
                 <?php for ($i = 1; $i < 6; $i++) { ?>
-                    <li>
-                        <?= ((($totalElements - $currentPage) >= $i) && (($currentPage + $i) < $totalPages)) ? $this->getPageLink($currentPage + $i, $currentPage + $i) : ''; ?>
-                    </li>
+                    <?= ((($totalElements - $currentPage) >= $i) && (($currentPage + $i) < $totalPages)) ? \mpf\web\helpers\Html::get()->tag('li', $this->getPageLink($currentPage + $i, $currentPage + $i)) : ''; ?>
                 <?php } ?>
-                <li>
-                    <?= ($currentPage + 5 < $totalPages - 1) ? \mpf\web\helpers\Html::get()->tag('span', '...', ['class' => 'forum-dots-for-missing-pages']) : ''; ?>
-                </li>
+                <?= ($currentPage + 5 < $totalPages - 1) ? \mpf\web\helpers\Html::get()->tag('li', \mpf\web\helpers\Html::get()->tag('span', '...', ['class' => 'forum-dots-for-missing-pages'])) : ''; ?>
                 <li>
                     <?= $this->getPageLink($totalPages, $totalPages); ?>
                 </li>
