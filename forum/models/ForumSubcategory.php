@@ -158,7 +158,7 @@ class ForumSubcategory extends DbModel {
         $condition->with = ['lastActiveUser', 'owner'];
         $condition->compareColumn("subcategory_id", $this->id);
         $condition->compareColumn('deleted', 0);
-        $condition->order = "`t`.`order` DESC";
+        $condition->order = "`t`.`order` DESC, `t`.`id` DESC";
         $condition->limit = 10;
         return ForumThread::findAll($condition);
     }
