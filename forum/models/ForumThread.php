@@ -433,7 +433,7 @@ class ForumThread extends DbModel
         if (Config::value("FORUM_TEXT_PARSER_CALLBACK") && is_callable(Config::value("FORUM_TEXT_PARSER_CALLBACK"))) {
             $text = call_user_func(Config::value("FORUM_TEXT_PARSER_CALLBACK"), $this->content);
         } else {
-            $text = Markdown::processText(htmlentities($this->content));
+            $text = Markdown::processText($this->content);
         }
         return $text .
         Html::get()->scriptFile(WebApp::get()->request()->getWebRoot() . 'main/highlight/highlight.pack.js') .
