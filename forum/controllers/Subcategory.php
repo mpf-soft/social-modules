@@ -23,7 +23,12 @@ class Subcategory extends Controller{
             $this->goToPage('home', 'index');
         }
         $page = ($page < 1) ? 1 : $page;
-        $this->assign("subcategory", ForumSubcategory::findByPk($id));
+        $subcategory = ForumSubcategory::findByPk($id);
+        if (is_null($subcategory)){
+            Messages::get()->error('Invalid request! Subcategory not found!');
+            $this->goToPage('home', 'index');
+        }
+        $this->assign("subcategory", $subcategory);
         $this->assign('threads', ForumThread::findAllForSubcategory($id, $page));
         $this->assign('currentPage', $page);
         $this->assign('categories', ForumCategory::findAllBySection($this->sectionId, true));
