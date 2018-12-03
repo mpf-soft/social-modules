@@ -7,7 +7,7 @@
  */
 namespace mpf\modules\forum\components;
 
-use mpf\base\Object;
+use mpf\base\Singleton;
 use mpf\components\notifications\models\Type;
 use mpf\components\notifications\Notifications;
 use mpf\WebApp;
@@ -22,7 +22,7 @@ use mpf\WebApp;
  *  ];
  * @package mpf\modules\forum\components
  */
-class ModelHelper extends Object {
+class ModelHelper extends Singleton {
     public $models = [
         'ForumCategory' => '\mpf\modules\forum\models\ForumCategory',
         'ForumReply' => '\mpf\modules\forum\models\ForumReply',
@@ -36,7 +36,6 @@ class ModelHelper extends Object {
         'GlobalConfig' => '\app\models\GlobalConfig'
     ];
 
-    protected static $_self;
 
     /**
      * @param string $icon
@@ -47,12 +46,6 @@ class ModelHelper extends Object {
             return $icon;
         }
         return Config::value('USER_ICON_FOLDER_URL') . $icon;
-    }
-
-    public static function get() {
-        if (!self::$_self)
-            self::$_self = new static();
-        return self::$_self;
     }
 
     /**

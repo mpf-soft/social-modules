@@ -11,28 +11,12 @@ namespace mpf\modules\forum\components;
 
 use app\models\GlobalConfig;
 use mpf\base\App;
-use mpf\base\Object;
+use mpf\base\Singleton;
 use mpf\web\helpers\Html;
 use mpf\WebApp;
 
-class Config extends Object
+class Config extends Singleton
 {
-
-    /**
-     * @var static
-     */
-    protected static $self;
-
-    /**
-     * @return static
-     */
-    public static function get()
-    {
-        if (!self::$self) {
-            self::$self = new static();
-        }
-        return self::$self;
-    }
 
     public static function value($key)
     {
